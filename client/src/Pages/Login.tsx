@@ -46,7 +46,7 @@ export default function Login() {
       </div>
 
       {/* Right side - Form */}
-      <div className="flex-start ml-[50px]  w-full  px-6 py-12 lg:w-1/2">
+      <div className="lg:flex-start flex-center w-full  px-6  py-12 sm:ml-[50px] lg:w-1/2">
         <div className="w-full max-w-sm">
           <h2 className="mb-2 text-3xl font-extrabold text-dark-500">
             Welcome 👋
@@ -99,9 +99,12 @@ export default function Login() {
                   <Label htmlFor="terms" className="text-base font-normal">
                     Remember Me
                   </Label>
-                  <a className="block text-base font-normal">
+                  <Link
+                    to="/forgot-password"
+                    className="block text-base font-normal"
+                  >
                     Forgot Password?
-                  </a>
+                  </Link>
                 </div>
               </div>
               <Button
