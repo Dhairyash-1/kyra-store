@@ -134,7 +134,7 @@ export default {
         "gradient-3": "linear-gradient(135deg, #7B68EE 0%, #D80B9D 100%)",
       },
       screens: {
-        xs: "420px",
+        xs: "375px",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -146,9 +146,19 @@ export default {
           "0%,70%,100%": { opacity: "1" },
           "20%,50%": { opacity: "0" },
         },
+        "slide-in-from-left": {
+          "0%": { opacity: 0, transform: "translateX(20px)" },
+          "100%": { opacity: 1, transform: "translateX(0)" },
+        },
+        "slide-in-from-right": {
+          "0%": { opacity: 0, transform: "translateX(-20px)" },
+          "100%": { opacity: 1, transform: "translateX(0)" },
+        },
       },
       animation: {
         "caret-blink": "caret-blink 1.25s ease-out infinite",
+        "slide-in-from-left": "slide-in-from-left 0.8s ease-in-out",
+        "slide-in-from-right": "slide-in-from-right 0.8s ease-in-out",
       },
     },
   },

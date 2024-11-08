@@ -94,7 +94,7 @@ export const loginUser = asyncHandler(async (req, res) => {
   await prisma.user.update({ where: { id: user.id }, data: { refreshToken } });
 
   const option = {
-    httponly: true,
+    httpOnly: true,
     secure: process.env.NODE_ENV === "production",
   };
 
@@ -115,15 +115,15 @@ export const logOutUser = asyncHandler(async (req: CustomRequest, res) => {
     data: { refreshToken: null },
   });
 
-  const option = {
-    httponly: true,
+  const options = {
+    httpOnly: true,
     secure: process.env.NODE_ENV === "production",
   };
 
   return res
     .status(200)
-    .clearCookie("refreshToken", option)
-    .clearCookie("accessToken", option)
+    .clearCookie("refreshToken", options)
+    .clearCookie("accessToken", options)
     .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
@@ -157,7 +157,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
     user.id
   );
-  const option = {
+  const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
   };
@@ -171,8 +171,8 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .cookie("refreshToken", refreshToken, option)
-    .cookie("accessToken", accessToken, option)
+    .cookie("refreshToken", refreshToken, options)
+    .cookie("accessToken", accessToken, options)
     .json(
       new ApiResponse(
         200,

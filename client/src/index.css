@@ -19,6 +19,9 @@ body {
   font-weight: 500;
   font-style: normal;
 }
+.animate-slide-in-from-left {
+  animation: slide-in-from-left;
+}
 
 @tailwind base;
 @tailwind components;
