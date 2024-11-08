@@ -1,18 +1,17 @@
 import { ChevronLeft } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 import BrandLogo from "../assets/logo.png";
 import OtpPageBanner from "../assets/otp-image.png";
 
+import OtpSuccessModal from "@/components/OtpSuccessModal";
 import { Button } from "@/components/ui/button";
 import {
   InputOTP,
   InputOTPGroup,
-  InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import OtpSuccessModal from "@/components/OtpSuccessModal";
 
 const EnterOtp = () => {
   const [otp, setOtp] = useState("");

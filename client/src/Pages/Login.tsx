@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import ClipLoader from "react-spinners/ClipLoader";
 
 import LoginPageBanner from "../assets/create-banner.png";
 import BrandLogo from "../assets/logo.png";
@@ -8,13 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { login } from "@/services/authApi";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     rememberMe: false,
   });
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -24,10 +28,16 @@ export default function Login() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     console.log("Form submitted:", formData);
     // Here you would typically send the data to your backend
+    const res = await login(formData);
+    setLoading(false);
+    if (res.statusCode === 200) {
+      navigate("/");
+    }
   };
 
   return (
@@ -110,8 +120,9 @@ export default function Login() {
               <Button
                 type="submit"
                 className="w-full bg-dark-500 text-base font-light text-white hover:bg-gray-800"
+                disabled={loading}
               >
-                Login
+                {loading ? <ClipLoader size={22} color="#ffffff" /> : "Login"}
               </Button>
               <div className="mt-4 text-center">
                 <p className="text-sm text-dark-500">
