@@ -5,6 +5,9 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { comparePassword, hashPassword } from "../utils/hashUtils";
 import jwt, { Secret } from "jsonwebtoken";
+import crypto from "crypto";
+import bcrypt from "bcrypt";
+import { forgotPasswordMailgenContent, sendEmail } from "../utils/sendEmail";
 
 const generateAccessAndRefreshToken = async (userId: number) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -180,4 +183,131 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
         "AccessToken refreshed"
       )
     );
+});
+
+export const forgotPasswordRequest = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    throw new ApiError(400, "Email is required for password reset");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    throw new ApiError(404, "User does not exist");
+  }
+
+  // Generate a 5-digit OTP and set expiry time (15 minutes)
+  const OTP = crypto.randomInt(10000, 99999).toString();
+  const expireAt = new Date(Date.now() + 15 * 60 * 1000);
+
+  const encryptedOTP = await bcrypt.hash(OTP, 10);
+
+  await prisma.forgotPasswordRequest.create({
+    data: {
+      userId: user.id,
+      otp: encryptedOTP,
+      expireAt: expireAt,
+    },
+  });
+
+  await sendEmail({
+    email: email,
+    subject: "Forgot Password OTP",
+    mailgenContent: forgotPasswordMailgenContent(user.firstName, OTP),
+  });
+
+  // Return a response
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        "OTP has been sent to your email for password reset. Please check your inbox."
+      )
+    );
+});
+
+export const verifyOTP = asyncHandler(async (req, res) => {
+  const { email, OTP } = req.body;
+
+  if (!(email || OTP)) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const OTPSchema = await prisma.forgotPasswordRequest.findFirst({
+    where: { userId: user.id, isVerified: false },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (!OTPSchema) {
+    throw new ApiError(400, "No OTP found or OTP already used");
+  }
+
+  if (new Date(OTPSchema.expireAt) < new Date()) {
+    await prisma.forgotPasswordRequest.delete({ where: { id: OTPSchema.id } }); // Delete expired OTP
+    throw new ApiError(400, "OTP has expired");
+  }
+
+  const isOtpValid = await bcrypt.compare(OTP, OTPSchema.otp);
+  if (!isOtpValid) {
+    throw new ApiError(400, "Invalid OTP");
+  }
+
+  await prisma.forgotPasswordRequest.update({
+    where: { id: OTPSchema.id },
+    data: { isVerified: true },
+  });
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        "OTP verified successfully. You can now reset your password."
+      )
+    );
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!(email || password)) {
+    throw new ApiError(400, "Email and Password are required");
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const OTPSchema = await prisma.forgotPasswordRequest.findFirst({
+    where: { userId: user.id, isVerified: true },
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (!OTPSchema) {
+    throw new ApiError(400, "OTP not verified. Please verify the OTP first.");
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { password: hashedPassword },
+  });
+
+  await prisma.forgotPasswordRequest.delete({
+    where: { id: OTPSchema.id },
+  });
+
+  res.status(200).json(new ApiResponse(200, "Password reset successfully"));
 });
