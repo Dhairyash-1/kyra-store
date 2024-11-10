@@ -1,6 +1,6 @@
 import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import ForgotPageBanner from "../assets/forgotpassword-image.png";
 import BrandLogo from "../assets/logo.png";
@@ -8,17 +8,24 @@ import BrandLogo from "../assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { forgotPassword } from "@/services/authApi";
 
 const ForgotPassword = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", email);
+    const response = await forgotPassword({ email });
+    localStorage.setItem("userEmail", email);
+    if (response.statusCode === 200) {
+      navigate("/enter-otp");
+    }
     // Here you would typically send the data to your backend
   };
 

@@ -5,18 +5,30 @@ import { Link } from "react-router-dom";
 import BrandLogo from "../assets/logo.png";
 import OtpPageBanner from "../assets/otp-image.png";
 
-import OtpSuccessModal from "@/components/OtpSuccessModal";
+import ForgotPasswordFlow from "@/components/ForgotPasswordFlow";
 import { Button } from "@/components/ui/button";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { verifyOTP } from "@/services/authApi";
 
 const EnterOtp = () => {
   const [otp, setOtp] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  function handleSubmit() {}
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const email = localStorage.getItem("userEmail");
+    if (!email) {
+      return console.error("Email is not found");
+    }
+    const response = await verifyOTP({ email, OTP: otp });
+    if (response.statusCode === 200) {
+      setIsModalOpen(true);
+    }
+  }
 
   return (
     <>
@@ -76,7 +88,7 @@ const EnterOtp = () => {
           </div>
         </div>
       </div>
-      <OtpSuccessModal />
+      <ForgotPasswordFlow otpModalOpen={isModalOpen} />
     </>
   );
 };
