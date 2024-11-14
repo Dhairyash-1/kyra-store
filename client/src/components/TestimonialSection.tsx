@@ -37,7 +37,7 @@ const TestimonialSection = () => {
   };
 
   return (
-    <section className="mt-24 w-full bg-gray-5 px-8 pb-8  sm:px-12 md:px-16 lg:px-24">
+    <section className="mt-24 w-full bg-gray-5 lg:px-20 pb-8">
       <Carousel setApi={setApi} orientation="horizontal">
         <div className="my-12 flex items-center justify-between">
           <h1 className="text-3xl font-normal text-dark-90 md:text-4xl">

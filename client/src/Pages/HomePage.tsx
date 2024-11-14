@@ -8,15 +8,13 @@ import TrustIndicators from "@/components/TrustIndicators";
 
 const HomePage = () => {
   return (
-    <div className="flex w-full flex-col overflow-hidden bg-white">
-      <Navbar />
+    <>
       <HeroSection />
       <ShopCategory />
       <BestSeller />
       <TestimonialSection />
       <TrustIndicators />
-      <Footer />
-    </div>
+    </>
   );
 };
 

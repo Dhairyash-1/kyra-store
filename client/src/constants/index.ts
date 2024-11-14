@@ -60,12 +60,21 @@ export const productCategories = [
 
 export const bestSellerProducts = [
   {
-    id: 7,
-    brand: "Adidas",
-    title: "Winter Jacket",
-    price: "120",
-    salePrice: "90",
-    image: jacket,
+    id: 5,
+    brand: "Gucci",
+    title: "Leather Handbag",
+    price: "250",
+    salePrice: "200",
+    image: handBag,
+    href: "#",
+  },
+  {
+    id: 3,
+    brand: "Nike",
+    title: "Black Running Shoes",
+    price: "100",
+    salePrice: "80",
+    image: shoes,
     href: "#",
   },
   {
@@ -78,14 +87,15 @@ export const bestSellerProducts = [
     href: "#",
   },
   {
-    id: 5,
-    brand: "Gucci",
-    title: "Leather Handbag",
-    price: "250",
-    salePrice: "200",
-    image: handBag,
+    id: 7,
+    brand: "Adidas",
+    title: "Winter Jacket",
+    price: "120",
+    salePrice: "90",
+    image: jacket,
     href: "#",
   },
+
   {
     id: 6,
     brand: "H&M",
@@ -105,15 +115,7 @@ export const bestSellerProducts = [
     image: frock,
     href: "#",
   },
-  {
-    id: 3,
-    brand: "Nike",
-    title: "Black Running Shoes",
-    price: "100",
-    salePrice: "80",
-    image: shoes,
-    href: "#",
-  },
+
   {
     id: 1,
     brand: "US POLO",

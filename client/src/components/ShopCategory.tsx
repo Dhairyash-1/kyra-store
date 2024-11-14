@@ -59,7 +59,7 @@ const ShopCategory = () => {
   };
 
   return (
-    <section className="mt-24 w-full px-8 sm:px-12 md:px-16 lg:px-24">
+    <section className="mt-24 w-full lg:px-20">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-medium text-dark-90 md:text-4xl">
           Shop by Categories

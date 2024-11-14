@@ -34,7 +34,7 @@ const indicators = [
 
 const TrustIndicators = () => {
   return (
-    <section className="mt-24 grid items-center gap-4 px-8 py-8 sm:grid-cols-2 sm:px-12 md:grid-cols-3 lg:grid-cols-4 lg:px-24 ">
+    <section className="mt-24 grid items-center lg:px-20 gap-4 py-8 sm:grid-cols-2  md:grid-cols-3 lg:grid-cols-4 ">
       {indicators.map((item) => (
         <div
           className="flex flex-col items-center gap-[12px] sm:items-start"

@@ -32,7 +32,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="flex justify-between gap-4 px-4 py-4 lg:px-12">
+    <header className="flex justify-between gap-4 px-4 py-4 lg:px-24">
       {/* Navigation links and menu icons for small screens */}
       <div className="flex w-full items-center justify-between md:hidden">
         <div className="flex items-center gap-4">

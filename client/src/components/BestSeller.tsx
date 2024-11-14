@@ -4,7 +4,7 @@ import { bestSellerProducts } from "@/constants";
 
 const BestSeller = () => {
   return (
-    <section className="mt-24 px-8 sm:px-12 md:px-16 lg:px-24">
+    <section className="mt-24 lg:px-20">
       <h1 className=" text-center text-3xl font-medium text-dark-90 md:text-4xl ">
         Our BestSeller
       </h1>

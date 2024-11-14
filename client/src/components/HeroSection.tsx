@@ -5,7 +5,7 @@ import image from "../assets/women.jpg";
 
 export default function Component() {
   return (
-    <section className="flex-center relative max-h-[calc(100vh-80px)] w-full bg-white-10 px-8 py-16 sm:px-12 md:px-16 lg:px-24">
+    <section className="flex-center relative max-h-[calc(100vh-80px)] w-full bg-white-10 py-16 lg:px-20 ">
       <div className="container mx-auto flex flex-col-reverse items-center justify-center gap-6 md:flex-row md:gap-0 lg:items-center">
         <div className="flex-1 space-y-10 text-center sm:text-start md:w-1/2">
           <div className="space-y-4">

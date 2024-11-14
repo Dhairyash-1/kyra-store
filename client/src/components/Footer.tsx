@@ -18,7 +18,7 @@ import visaIcon from "../assets/visa.png";
 
 const Footer = () => {
   return (
-    <footer className="mt-24 w-full bg-dark-500  px-6 pt-12 text-white sm:px-8 md:px-12 lg:px-24">
+    <footer className="mt-24 w-full bg-dark-500  px-6 pt-12 text-white sm:px-8 md:px-12 lg:px-28">
       <div className="grid grid-cols-1 items-start gap-6  md:grid-cols-2 lg:grid-cols-4">
         {/* Logo and Contact Information Section */}
         <div className="space-y-6">
