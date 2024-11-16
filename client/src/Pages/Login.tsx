@@ -1,45 +1,58 @@
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import LoginPageBanner from "../assets/create-banner.png";
 import BrandLogo from "../assets/logo.png";
 
+import PasswordInput from "@/components/PasswordInput";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { login } from "@/services/authApi";
+import { useLoginMutation } from "@/services/authApi";
+import { loginFormSchema } from "@/utils/validations";
+
+interface LoginFormData {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
 
 export default function Login() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    rememberMe: false,
+  const [login, { isLoading }] = useLoginMutation();
+  const [apiError, setApiError] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: yupResolver(loginFormSchema),
+    defaultValues: {
+      rememberMe: false,
+    },
   });
-  const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    console.log("Form submitted:", formData);
-    // Here you would typically send the data to your backend
-    const res = await login(formData);
-    setLoading(false);
-    if (res.statusCode === 200) {
+  const handleLogin = async (data: LoginFormData) => {
+    console.log(data);
+    try {
+      await login(data).unwrap();
       navigate("/");
+    } catch (error: any) {
+      console.log("Error in login", error);
+      if (error?.data?.message) {
+        setApiError(error.data.message);
+      } else {
+        setApiError("Something went wrong. Please try again.");
+      }
     }
   };
-
+  console.log("Validation Errors:", errors);
   return (
     <div className="flex max-h-screen bg-white">
       {/* Left side - Image */}
@@ -63,7 +76,8 @@ export default function Login() {
           </h2>
           <p className="mb-6 font-normal text-gray-500">Please login here</p>
 
-          <form onSubmit={handleSubmit}>
+          {apiError && <span className="text-red-500">{apiError}</span>}
+          <form onSubmit={handleSubmit(handleLogin)}>
             <div className="space-y-4">
               <div>
                 <Label className="text-sm font-normal" htmlFor="email">
@@ -71,42 +85,33 @@ export default function Login() {
                 </Label>
                 <Input
                   id="email"
-                  name="email"
                   type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
                   className="mt-1 border-2  border-dark-500 p-4 outline-none focus:border-none focus:bg-none "
+                  {...register("email")}
                 />
+                {errors.email && (
+                  <p className="mt-1 font-normal text-red-500">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
               <div>
-                <Label className="text-sm font-normal" htmlFor="password">
-                  Password
-                </Label>
-                <Input
-                  id="password"
+                <PasswordInput
+                  register={register}
+                  error={errors.password}
                   name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                  className="mt-1 border-2  border-dark-500 p-4 outline-none focus:border-none focus:bg-none "
                 />
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id="terms"
-                  name="agreeTerms"
-                  checked={formData.rememberMe}
-                  onCheckedChange={(checked) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      rememberMe: checked as boolean,
-                    }))
-                  }
+                  id="rememberMe"
+                  checked={watch("rememberMe")}
+                  onCheckedChange={(checked) => {
+                    setValue("rememberMe", checked as boolean);
+                  }}
                 />
                 <div className="flex w-full items-center justify-between ">
-                  <Label htmlFor="terms" className="text-base font-normal">
+                  <Label htmlFor="rememberMe" className="text-base font-normal">
                     Remember Me
                   </Label>
                   <Link
@@ -120,9 +125,9 @@ export default function Login() {
               <Button
                 type="submit"
                 className="w-full bg-dark-500 text-base font-light text-white hover:bg-gray-800"
-                disabled={loading}
+                disabled={isLoading}
               >
-                {loading ? <ClipLoader size={22} color="#ffffff" /> : "Login"}
+                {isLoading ? <ClipLoader size={22} color="#ffffff" /> : "Login"}
               </Button>
               <div className="mt-4 text-center">
                 <p className="text-sm text-dark-500">

@@ -1,51 +1,60 @@
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
-import { ClipLoader } from "react-spinners";
 
 import LoginPageBanner from "../assets/login-image.png";
 import BrandLogo from "../assets/logo.png";
 
-import { Button } from "@/components/ui/button";
+import LoaderButton from "@/components/LoaderButton";
+import PasswordInput from "@/components/PasswordInput";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { register } from "@/services/authApi";
+import { useRegisterMutation } from "@/services/authApi";
+import { signupFormSchema } from "@/utils/validations";
+
+interface SignupFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  agreeTerms: boolean;
+}
 
 export default function Signup() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    agreeTerms: false,
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(signupFormSchema),
   });
+  const [registerUser, { isLoading }] = useRegisterMutation();
+  const [apiError, setApiError] = useState<string | null>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    console.log("Form submitted:", formData);
-    // Here you would typically send the data to your backend
-    const res = await register(formData);
-    setLoading(false);
-    if (res.statusCode === 201) {
+  const handleSignUp = async (data: SignupFormData) => {
+    try {
+      await registerUser(data).unwrap();
       navigate("/login");
+    } catch (error: any) {
+      console.error("Failed to register user", error);
+      if (error?.data?.message) {
+        setApiError(error.data.message);
+      } else {
+        setApiError("Something went wrong. Please try again.");
+      }
     }
-    console.log(res);
   };
 
   return (
     <div className="flex max-h-screen bg-white">
       {/* Left side - Image */}
+
       <div className="relative hidden lg:block lg:w-1/2">
         <div className="flex-center absolute left-6 top-6">
           <img src={BrandLogo} className="h-6 w-6" />
@@ -65,8 +74,8 @@ export default function Signup() {
             Create New Account
           </h2>
           <p className="mb-6 font-normal text-gray-500">Please enter details</p>
-
-          <form onSubmit={handleSubmit}>
+          {apiError && <span className="text-red-500">{apiError}</span>}
+          <form onSubmit={handleSubmit(handleSignUp)}>
             <div className="space-y-4">
               <div>
                 <Label className="text-sm font-normal" htmlFor="firstName">
@@ -74,12 +83,14 @@ export default function Signup() {
                 </Label>
                 <Input
                   id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  required
+                  {...register("firstName")}
                   className="mt-1 border-2  border-dark-500 p-4 outline-none focus:border-none focus:bg-none "
                 />
+                {errors.firstName && (
+                  <p className="mt-1 font-normal text-red-500">
+                    {errors.firstName.message}
+                  </p>
+                )}
               </div>
               <div>
                 <Label className="text-sm font-normal" htmlFor="lastName">
@@ -87,12 +98,14 @@ export default function Signup() {
                 </Label>
                 <Input
                   id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  required
+                  {...register("lastName")}
                   className="mt-1 border-2  border-dark-500 p-4 outline-none focus:border-none focus:bg-none "
                 />
+                {errors.lastName && (
+                  <p className="mt-1 font-normal text-red-500">
+                    {errors.lastName.message}
+                  </p>
+                )}
               </div>
               <div>
                 <Label className="text-sm font-normal" htmlFor="email">
@@ -100,38 +113,29 @@ export default function Signup() {
                 </Label>
                 <Input
                   id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
+                  {...register("email")}
                   className="mt-1 border-2  border-dark-500 p-4 outline-none focus:border-none focus:bg-none "
                 />
+                {errors.email && (
+                  <p className="mt-1 font-normal text-red-500">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
               <div>
-                <Label className="text-sm font-normal" htmlFor="password">
-                  Password
-                </Label>
-                <Input
-                  id="password"
+                <PasswordInput
+                  register={register}
+                  error={errors.password}
                   name="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                  className="mt-1 border-2  border-dark-500 p-4 outline-none focus:border-none focus:bg-none "
                 />
               </div>
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="terms"
                   name="agreeTerms"
-                  checked={formData.agreeTerms}
+                  checked={watch("agreeTerms")}
                   onCheckedChange={(checked) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      agreeTerms: checked as boolean,
-                    }))
+                    setValue("agreeTerms", checked as boolean)
                   }
                 />
                 <Label htmlFor="terms" className="text-base">
@@ -144,13 +148,13 @@ export default function Signup() {
                   </a>
                 </Label>
               </div>
-              <Button
+
+              <LoaderButton
                 type="submit"
-                className="w-full bg-dark-500 text-base font-light text-white hover:bg-gray-800"
-                disabled={loading}
-              >
-                {loading ? <ClipLoader size={22} color="#ffffff" /> : "Signup"}
-              </Button>
+                isLoading={isLoading}
+                label="Signup"
+                disabled={!getValues("agreeTerms") === true}
+              />
               <div className="mt-4 text-center">
                 <p className=" text-base font-normal text-dark-500">
                   Already have an account?{" "}

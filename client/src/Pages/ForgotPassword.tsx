@@ -1,32 +1,51 @@
+import { yupResolver } from "@hookform/resolvers/yup";
 import { ChevronLeft } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
+import * as yup from "yup";
 
 import ForgotPageBanner from "../assets/forgotpassword-image.png";
 import BrandLogo from "../assets/logo.png";
 
-import { Button } from "@/components/ui/button";
+import LoaderButton from "@/components/LoaderButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { forgotPassword } from "@/services/authApi";
+import { useForgotPasswordMutation } from "@/services/authApi";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
+  const [apiError, setApiError] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(
+      yup.object({
+        email: yup
+          .string()
+          .email("Email is Invaild")
+          .required("Email is requied"),
+      })
+    ),
+  });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted:", email);
-    const response = await forgotPassword({ email });
-    localStorage.setItem("userEmail", email);
-    if (response.statusCode === 200) {
+  const handleForgotPass = async (data: { email: string }) => {
+    try {
+      await forgotPassword({ email: data.email }).unwrap();
       navigate("/enter-otp");
+    } catch (error: any) {
+      console.log("Error in forgot password request", error);
+      if (error?.data?.message) {
+        setApiError(error.data.message);
+      } else {
+        setApiError("Something went wrong. Please try again.");
+      }
     }
-    // Here you would typically send the data to your backend
+    // save email to localstorage for forgotpassword flow
+    localStorage.setItem("userEmail", data.email);
   };
 
   return (
@@ -60,8 +79,9 @@ const ForgotPassword = () => {
             Enter your registered email address. we'll send you a code to reset
             your password.
           </p>
+          {apiError && <span className="text-red-500">{apiError}</span>}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(handleForgotPass)}>
             <div className="space-y-4">
               <div>
                 <Label className="text-sm font-normal" htmlFor="email">
@@ -69,21 +89,21 @@ const ForgotPassword = () => {
                 </Label>
                 <Input
                   id="email"
-                  name="email"
-                  type="email"
-                  value={email}
-                  onChange={handleInputChange}
-                  required
+                  {...register("email")}
                   className="mt-1 border-2  border-dark-500 p-4 outline-none focus:border-none focus:bg-none "
                 />
               </div>
+              {errors.email && (
+                <p className="mt-1 font-normal text-red-500">
+                  {errors.email.message}
+                </p>
+              )}
 
-              <Button
+              <LoaderButton
                 type="submit"
-                className="w-full bg-dark-500 text-base font-light text-white hover:bg-gray-800"
-              >
-                Send OTP
-              </Button>
+                isLoading={isLoading}
+                label="Send OTP"
+              />
             </div>
           </form>
         </div>

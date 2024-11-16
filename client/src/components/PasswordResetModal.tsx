@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm } from "react-hook-form";
+
+import LoaderButton from "./LoaderButton";
+import PasswordInput from "./PasswordInput";
 
 import {
   Dialog,
@@ -6,9 +10,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { resetPassword } from "@/services/authApi";
+import { useResetPasswordMutation } from "@/services/authApi";
+import { resetPasswordSchema } from "@/utils/validations";
 
 const PasswordResetModal = ({
   isModalOpen,
@@ -19,25 +23,30 @@ const PasswordResetModal = ({
   onClose: () => void;
   showSuccessModal: (open: boolean) => void;
 }) => {
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(resetPasswordSchema),
+  });
 
   // Handle password reset logic
-  const handlePasswordReset = async () => {
-    if (newPassword === confirmPassword) {
-      // Perform password reset logic here (e.g., API request)
-      const email = localStorage.getItem("userEmail");
-      if (!email) {
-        return console.error("Email not found for password reset");
-      }
-      const response = await resetPassword({ email, password: newPassword });
-      if (response.statusCode === 200) {
-        showSuccessModal(true);
-      }
-      console.log("Password reset successful");
-      onClose(); // Close modal after resetting password
-    } else {
-      console.log("Passwords do not match");
+  const handlePasswordReset = async (data: {
+    newPassword: string;
+    confirmNewPassword: string;
+  }) => {
+    const email = localStorage.getItem("userEmail");
+    if (!email) {
+      return console.error("Email not found for password reset");
+    }
+    try {
+      await resetPassword({ email, password: data.newPassword }).unwrap();
+      showSuccessModal(true);
+      onClose();
+    } catch (error) {
+      console.log("Error in password reset", error);
     }
   };
 
@@ -53,30 +62,35 @@ const PasswordResetModal = ({
               Please enter your new password.
             </DialogDescription>
             {/* Form fields */}
-            <div className="flex flex-col space-y-4">
-              <input
-                type="password"
-                placeholder="New Password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="border-dark-300 rounded border px-4 py-2"
+            <form
+              onSubmit={handleSubmit(handlePasswordReset)}
+              className="flex flex-col space-y-4 "
+            >
+              <div>
+                <PasswordInput
+                  register={register}
+                  error={errors.newPassword}
+                  name="newPassword"
+                  label="New Password"
+                  showLabel={false}
+                />
+              </div>
+              <div>
+                <PasswordInput
+                  register={register}
+                  error={errors.confirmNewPassword}
+                  name="confirmNewPassword"
+                  label="Confirm New Password"
+                  showLabel={false}
+                />
+              </div>
+              <LoaderButton
+                isLoading={isLoading}
+                label="Reset Password"
+                className="!mt-6 inline-block cursor-pointer rounded "
+                type="submit"
               />
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="border-dark-300 rounded border px-4 py-2"
-              />
-            </div>
-            <DialogTrigger asChild>
-              <button
-                onClick={handlePasswordReset}
-                className="!mt-6 inline-block cursor-pointer rounded bg-dark-500 px-6 py-2 text-center text-base font-normal text-white"
-              >
-                Reset Password
-              </button>
-            </DialogTrigger>
+            </form>
           </DialogHeader>
         </DialogContent>
       </div>
