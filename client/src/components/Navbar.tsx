@@ -4,12 +4,17 @@ import {
   Menu,
   Search,
   ShoppingBag,
+  UserRoundIcon,
   XIcon,
 } from "lucide-react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
+import ProfileDropdown from "./ProfileDropdown";
 import brandLogo from "../assets/logo.png";
+
+import { RootState } from "@/store/store";
 
 const Links = [
   { id: 1, name: "Home", url: "/" },
@@ -26,6 +31,7 @@ const Links = [
 
 const Navbar = () => {
   const [navOpen, setNavOpen] = useState(false);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   const handleNavToggle = () => {
     setNavOpen(!navOpen);
@@ -50,10 +56,10 @@ const Navbar = () => {
             )}
           </button>
 
-          <div className="flex items-center">
+          <Link to={"/"} className="flex items-center">
             <img src={brandLogo} className="mr-2 h-6 w-6" alt="logo" />
             <h1 className="text-3xl font-normal text-dark-500">Kyra</h1>
-          </div>
+          </Link>
         </div>
 
         {/* Right side with Cart button */}
@@ -70,17 +76,23 @@ const Navbar = () => {
           <button className="hidden bg-transparent p-0 focus:outline-none xs:block">
             <Heart className="h-6 w-6 text-dark-500" aria-label="Wishlist" />
           </button>
-          <Link
-            to="/login"
-            className="rounded-md bg-dark-500 px-4 py-2 text-sm font-normal text-light-500 hover:bg-gray-800"
-          >
-            Login
-          </Link>
+          {isAuthenticated ? (
+            <ProfileDropdown>
+              <UserRoundIcon />
+            </ProfileDropdown>
+          ) : (
+            <Link
+              to="/login"
+              className="rounded-md bg-dark-500 px-4 py-2 text-sm font-normal text-light-500 hover:bg-gray-800"
+            >
+              Login
+            </Link>
+          )}
         </div>
       </div>
 
       {/* Brand logo and name for large screen */}
-      <div className="hidden items-center md:flex">
+      <Link to={"/"} className="hidden items-center md:flex">
         <img
           src={brandLogo}
           className="mr-2 md:h-9 md:w-9 lg:h-10 lg:w-10"
@@ -89,7 +101,7 @@ const Navbar = () => {
         <h1 className="font-normal text-dark-500 md:text-4xl lg:text-5xl">
           Kyra
         </h1>
-      </div>
+      </Link>
 
       {/* Navigation links for large screens */}
       <nav className="relative hidden items-center  md:flex md:gap-4 lg:gap-6">
@@ -121,12 +133,19 @@ const Navbar = () => {
             aria-label="Add to Cart"
           />
         </button>
-        <Link
-          to="/login"
-          className="rounded-md bg-dark-500 px-6 py-2 text-base font-normal text-light-500 hover:bg-gray-800"
-        >
-          Login
-        </Link>
+
+        {isAuthenticated ? (
+          <ProfileDropdown>
+            <UserRoundIcon />
+          </ProfileDropdown>
+        ) : (
+          <Link
+            to="/login"
+            className="rounded-md bg-dark-500 px-6 py-2 text-base font-normal text-light-500 hover:bg-gray-800"
+          >
+            Login
+          </Link>
+        )}
       </div>
 
       {/* Navigation links for small screens */}

@@ -1,16 +1,21 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {
+  BaseQueryFn,
+  createApi,
+  FetchArgs,
+  fetchBaseQuery,
+  FetchBaseQueryError,
+} from "@reduxjs/toolkit/query/react";
 
 import {
+  CurrentUserResponse,
   ForgotPasswordRequest,
-  ForgotPasswordResponse,
   LoginUserRequest,
   LoginUserResponse,
   RegisterUserRequest,
   RegisterUserResponse,
   ResetPasswordRequest,
-  ResetPasswordResponse,
+  SuccessResponse,
   VerifyOTPRequest,
-  VerifyOTPResponse,
 } from "@/types/authTypes";
 
 // export const register = async (data: data) => {
@@ -38,16 +43,46 @@ import {
 //   const response = await apiClient.post("/user/reset-password", data);
 //   return response.data;
 // };
+const baseQuery = fetchBaseQuery({
+  baseUrl: `${import.meta.env.VITE_SERVER_URL}`,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  credentials: "include",
+});
+const baseQueryWithReauth: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  let result = await baseQuery(args, api, extraOptions);
+  console.log("resutl", result);
+  if (
+    result.error &&
+    result.error.status === 401 &&
+    // @ts-expect-error add type here
+    result.error.data.message === "jwt expired"
+  ) {
+    const refreshResult = await baseQuery(
+      {
+        url: "/user/refresh-token",
+        method: "POST",
+      },
+      api,
+      extraOptions
+    );
+    if (refreshResult.data) {
+      result = await baseQuery(args, api, extraOptions);
+    }
+
+    console.log("refresh", refreshResult);
+  }
+  return result;
+};
 
 export const authApi = createApi({
   reducerPath: "authApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_SERVER_URL}`,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  }),
+  baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     register: builder.mutation<RegisterUserResponse, RegisterUserRequest>({
       query: (data) => ({
@@ -64,32 +99,35 @@ export const authApi = createApi({
         body: data,
       }),
     }),
-    forgotPassword: builder.mutation<
-      ForgotPasswordResponse,
-      ForgotPasswordRequest
-    >({
+    forgotPassword: builder.mutation<SuccessResponse, ForgotPasswordRequest>({
       query: (data) => ({
         url: "/user/forgot-password",
         method: "POST",
         body: data,
       }),
     }),
-    verifyOtp: builder.mutation<VerifyOTPResponse, VerifyOTPRequest>({
+    verifyOtp: builder.mutation<SuccessResponse, VerifyOTPRequest>({
       query: (data) => ({
         url: "/user/verify-otp",
         method: "POST",
         body: data,
       }),
     }),
-    resetPassword: builder.mutation<
-      ResetPasswordResponse,
-      ResetPasswordRequest
-    >({
+    resetPassword: builder.mutation<SuccessResponse, ResetPasswordRequest>({
       query: (data) => ({
         url: "/user/reset-password",
         method: "POST",
         body: data,
       }),
+    }),
+    logout: builder.mutation<SuccessResponse, void>({
+      query: () => ({
+        url: "/user/logout",
+        method: "POST",
+      }),
+    }),
+    getCurrentUser: builder.query<CurrentUserResponse, void>({
+      query: () => "/user/me",
     }),
   }),
 });
@@ -100,4 +138,6 @@ export const {
   useResetPasswordMutation,
   useVerifyOtpMutation,
   useForgotPasswordMutation,
+  useLogoutMutation,
+  useGetCurrentUserQuery,
 } = authApi;

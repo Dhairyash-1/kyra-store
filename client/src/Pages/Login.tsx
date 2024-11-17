@@ -1,6 +1,7 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { updateAuthStatus } from "@/features/auth/authSlice";
 import { useLoginMutation } from "@/services/authApi";
 import { loginFormSchema } from "@/utils/validations";
 
@@ -23,6 +25,7 @@ interface LoginFormData {
 
 export default function Login() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
   const [apiError, setApiError] = useState<string | null>(null);
   const {
@@ -41,7 +44,14 @@ export default function Login() {
   const handleLogin = async (data: LoginFormData) => {
     console.log(data);
     try {
-      await login(data).unwrap();
+      const res = await login(data).unwrap();
+      dispatch(
+        updateAuthStatus({
+          isAuthenticated: true,
+          userId: res.data.id,
+          isLoading: false,
+        })
+      );
       navigate("/");
     } catch (error: any) {
       console.log("Error in login", error);
