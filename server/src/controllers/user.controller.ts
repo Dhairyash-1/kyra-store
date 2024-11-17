@@ -311,3 +311,31 @@ export const resetPassword = asyncHandler(async (req, res) => {
 
   res.status(200).json(new ApiResponse(200, "Password reset successfully"));
 });
+
+export const getCurrentUser = asyncHandler(async (req: CustomRequest, res) => {
+  if (!req?.user?.id) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+
+  const { id } = req.user;
+
+  const user = await prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Current user fetched successfully"));
+});
