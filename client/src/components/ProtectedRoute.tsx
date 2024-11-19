@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import FullPageLoader from "./FullPageLoader";
 
@@ -15,12 +15,13 @@ const ProtectedRoute = ({
     (state: RootState) => state.auth
   );
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {
-      return navigate("/login");
+      return navigate("/login", { state: { from: location } });
     }
-  }, [isAuthenticated, navigate, isLoading]);
+  }, [isAuthenticated, navigate, isLoading, location]);
 
   if (isLoading) {
     return <FullPageLoader />;

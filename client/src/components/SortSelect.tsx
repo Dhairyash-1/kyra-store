@@ -14,7 +14,7 @@ const SortSelect = () => {
       <p className="text-sm font-medium">Sort By</p>
       <div className="w-fit">
         <Select defaultValue="newest">
-          <SelectTrigger className="flex items-center space-x-1 border-none bg-transparent p-0 shadow-none focus:outline-none focus:ring-0">
+          <SelectTrigger className="flex items-center space-x-1 border-none bg-transparent p-0 shadow-none focus:outline-none focus:ring-0 focus:ring-offset-0">
             <SelectValue placeholder="Select an option" />
           </SelectTrigger>
 

@@ -2,7 +2,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import LoginPageBanner from "../assets/create-banner.png";
@@ -25,6 +25,7 @@ interface LoginFormData {
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
   const [apiError, setApiError] = useState<string | null>(null);
@@ -52,7 +53,8 @@ export default function Login() {
           isLoading: false,
         })
       );
-      navigate("/");
+      const redirectTo = (location.state as any).from || "/";
+      navigate(redirectTo);
     } catch (error: any) {
       console.log("Error in login", error);
       if (error?.data?.message) {

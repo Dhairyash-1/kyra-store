@@ -2,32 +2,14 @@ import { ChevronDown, ChevronUp, Minus, PlusIcon } from "lucide-react";
 import { useState } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
-
-const categories = [
-  {
-    name: "Men",
-    hasSubcategories: true,
-    subcategories: ["Shirts", "Jeans", "Shoes"],
-  },
-  {
-    name: "Women",
-    hasSubcategories: true,
-    subcategories: ["Dresses", "Tops", "Pants"],
-  },
-  { name: "Kids", hasSubcategories: false },
-  {
-    name: "Accessories",
-    hasSubcategories: true,
-    subcategories: ["Watches", "Bags"],
-  },
-];
+import { useGetAllCategoryQuery } from "@/services/categoryApi";
 
 const CategoryFilter = () => {
   const [toggleFilter, setToggleFilter] = useState(false);
   const [subCategoryState, setSubCategoryState] = useState<{
     [key: string]: boolean;
   }>({});
+  const { data, isLoading } = useGetAllCategoryQuery();
 
   const toggleSubCategory = (categoryName: string) => {
     setSubCategoryState((prevState) => ({
@@ -35,6 +17,8 @@ const CategoryFilter = () => {
       [categoryName]: !prevState[categoryName],
     }));
   };
+
+  const categories = data?.data;
 
   return (
     <div className="pb-6">
@@ -49,9 +33,9 @@ const CategoryFilter = () => {
         </button>
       </div>
 
-      {!toggleFilter && (
+      {!isLoading && !toggleFilter && (
         <div className="mt-4 flex flex-col gap-4">
-          {categories.map((category) => (
+          {categories?.map((category) => (
             <div key={category.name} className="flex flex-col">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -59,7 +43,7 @@ const CategoryFilter = () => {
                   <span className="font-normal">{category.name}</span>
                 </div>
 
-                {category.hasSubcategories && (
+                {category.children && category?.children?.length > 0 && (
                   <button onClick={() => toggleSubCategory(category.name)}>
                     {subCategoryState[category.name] ? (
                       <Minus size={24} strokeWidth={1.5} />
@@ -71,16 +55,21 @@ const CategoryFilter = () => {
               </div>
 
               {/* Show subcategories if expanded */}
-              {subCategoryState[category.name] && category.hasSubcategories && (
-                <div className="ml-6 mt-2 flex flex-col gap-2">
-                  {category?.subcategories?.map((subcategory) => (
-                    <div key={subcategory} className="flex items-center gap-2">
-                      <Checkbox />
-                      <span className="font-normal">{subcategory}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {subCategoryState[category.name] &&
+                category.children &&
+                category?.children?.length > 0 && (
+                  <div className="ml-6 mt-2 flex flex-col gap-2">
+                    {category?.children?.map((subcategory) => (
+                      <div
+                        key={subcategory.id}
+                        className="flex items-center gap-2"
+                      >
+                        <Checkbox />
+                        <span className="font-normal">{subcategory.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
             </div>
           ))}
         </div>
