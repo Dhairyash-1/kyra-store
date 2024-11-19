@@ -13,14 +13,6 @@ body {
   font-family: sans-serif;
 }
 
-input:focus,
-select:focus,
-button:focus {
-  outline: none;
-  border: none;
-  box-shadow: none;
-}
-
 .jost-font {
   font-family: "Jost", sans-serif;
   font-optical-sizing: auto;
