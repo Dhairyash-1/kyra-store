@@ -41,13 +41,13 @@ model ForgotPasswordRequest {
 
 model Category {
   id              Int        @id @default(autoincrement())
-  name            String
+  name            String     @unique
   description     String?
   slug            String     @unique// for seo
   imageUrl        String?  
 
   parentId        Int?
-  parent          Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  parent          Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id],onDelete: Cascade)
   children        Category[] @relation("CategoryHierarchy")
 
   products        Product[]
@@ -62,7 +62,7 @@ model Product {
   brand               String
   description         String
   longDescription     String
-  baseprice           Float?   //incase product has no variant
+  basePrice           Float?   //incase product has no variant
   salePrice           Float?   // if it has discount on base product
   inStock             Boolean
   stockQuantity       Int?
@@ -70,11 +70,11 @@ model Product {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  images              ProductImage[]
-  CategoryId          Int
-  Category            Category  @relation(fields: [CategoryId], references: [id])
-  variants            ProductVariant[]
-  reviews             Review[]
+  images              ProductImage[]  
+  categoryId          Int
+  category            Category  @relation(fields: [categoryId], references: [id])
+  variants            ProductVariant[] 
+  reviews             Review[]    
   additionalInfo      Json?
 }
 
@@ -86,9 +86,9 @@ model ProductVariant {
   salePrice              Float?
   stockQuantity          Int
   sku                    String @unique
-  images                 ProductImage[]
+  images                 ProductImage[]  
   productId       Int
-  product         Product @relation(fields: [productId], references: [id])
+  product         Product @relation(fields: [productId], references: [id],onDelete: Cascade)
 }
 
 model ProductImage {
@@ -96,9 +96,9 @@ model ProductImage {
   url         String  
   isMainImage Boolean @default(false)  
   productId   Int?        // Optional if the image is linked to a product directly (for simple products)
-  product     Product?     @relation(fields: [productId], references: [id])
+  product     Product?     @relation(fields: [productId], references: [id],onDelete: Cascade)
   variantId   Int?        // Optional if the image is linked to a specific variant
-  variant     ProductVariant? @relation(fields: [variantId], references: [id])
+  variant     ProductVariant? @relation(fields: [variantId], references: [id],onDelete: Cascade)
   createdAt   DateTime @default(now())
 }
 model Review {
@@ -107,7 +107,7 @@ model Review {
   title         String?
   comment       String?
   productId     Int
-  product       Product   @relation(fields: [productId], references: [id])
+  product       Product   @relation(fields: [productId], references: [id],onDelete: Cascade)
   createdAt     DateTime  @default(now())
 
   userId        Int
