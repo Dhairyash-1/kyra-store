@@ -3,32 +3,48 @@ import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 
+const generateUniqueSlug = (name: string) => {
+  const randomNumber = Math.floor(1000 + Math.random() * 9000); // Generates a 4-digit random number
+  return (
+    name
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-") // Replace spaces with dashes
+      .replace(/[^a-z0-9\-]/g, "") + // Remove special characters
+    `-${randomNumber}`
+  );
+};
+
 export const createProductCategory = asyncHandler(async (req, res) => {
   const { name, description, imageUrl, parentId } = req.body;
 
-  const isCategoryExist = await prisma.category.findUnique({
-    where: { name },
+  const isCategoryExist = await prisma.category.findFirst({
+    where: {
+      name,
+      parentId: parentId || null,
+    },
   });
 
   if (isCategoryExist) {
-    throw new ApiError(400, "Category Already Exists");
+    throw new ApiError(
+      400,
+      parentId
+        ? "Subcategory with this name already exists in the parent category"
+        : "Parent category with this name already exists"
+    );
   }
 
-  const uniqueSlug = name
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9\-]/g, "");
-
   if (parentId) {
-    const item = await prisma.category.findUnique({
+    const parentCategory = await prisma.category.findUnique({
       where: { id: parentId },
     });
 
-    if (!item) {
-      throw new ApiError(400, "No category with given parentId exist");
+    if (!parentCategory) {
+      throw new ApiError(400, "No category with the given parentId exists");
     }
   }
+
+  const uniqueSlug = generateUniqueSlug(name);
 
   const createCategory = await prisma.category.create({
     data: {
@@ -57,34 +73,46 @@ export const updateProductCategory = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Category not found");
   }
 
-  const updateData: any = {};
-
   if (name) {
-    const alreadyExistCateogry = await prisma.category.findUnique({
-      where: { name },
+    // Check for duplicate names within the same scope
+    const isCategoryExist = await prisma.category.findFirst({
+      where: {
+        name,
+        parentId: parentId || null, // Scope uniqueness to the parentId
+        NOT: { id: parseInt(id) }, // Exclude the current category from the check
+      },
     });
 
-    if (alreadyExistCateogry && alreadyExistCateogry.id !== category.id) {
-      throw new ApiError(400, "Category with this name already exists");
+    if (isCategoryExist) {
+      throw new ApiError(
+        400,
+        parentId
+          ? "Subcategory with this name already exists in the parent category"
+          : "Parent category with this name already exists"
+      );
     }
-    updateData.name = name;
-
-    const uniqueSlug = name
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9\-]/g, "");
-
-    updateData.slug = uniqueSlug;
   }
 
-  if (description) updateData.description = description;
-  if (imageUrl) updateData.imageUrl = imageUrl;
-  if (parentId !== undefined) updateData.parentId = parentId;
+  // Validate the parentId if it is being updated
+  if (parentId) {
+    const parentCategory = await prisma.category.findUnique({
+      where: { id: parentId },
+    });
 
+    if (!parentCategory) {
+      throw new ApiError(400, "No category with the given parentId exists");
+    }
+  }
+
+  // Update the category
   const updatedCategory = await prisma.category.update({
     where: { id: parseInt(id) },
-    data: updateData,
+    data: {
+      name,
+      description,
+      imageUrl,
+      parentId,
+    },
   });
 
   res

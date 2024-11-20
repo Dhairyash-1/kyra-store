@@ -29,11 +29,24 @@ export const addProduct = asyncHandler(async (req, res) => {
     additionalInfo,
   } = req.body;
 
-  const inStock = isVariant ? false : stockQuantity > 0;
-  console.log(additionalInfo);
+  // Validate required fields
+  if (!name || !brand || !categoryId) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, null, "Missing required fields"));
+  }
+
+  // Helper function to map images
+  const mapImages = (images: any[]) =>
+    images.map((image: any) => ({
+      url: image.url,
+      isMainImage: image.isMainImage,
+    }));
 
   if (!isVariant) {
-    const createProduct = await prisma.product.create({
+    // Non-variant product logic
+    const inStock = stockQuantity > 0;
+    const product = await prisma.product.create({
       data: {
         name,
         brand,
@@ -41,39 +54,47 @@ export const addProduct = asyncHandler(async (req, res) => {
         longDescription,
         basePrice,
         salePrice,
-        inStock,
         stockQuantity,
+        inStock,
         categoryId,
         additionalInfo: additionalInfo || null,
-        images: {
-          create: images.map((image: any) => ({
-            url: image.url,
-            isMainImage: image.isMainImage,
-          })),
-        },
+        images: { create: mapImages(images) }, // Map and assign images
       },
     });
 
     return res
       .status(201)
-      .json(new ApiResponse(201, createProduct, "Product added successfully"));
+      .json(new ApiResponse(201, product, "Product added successfully"));
   }
 
-  const productWithVariant = await prisma.product.create({
+  // Variant product logic
+  const totalStockQuantity = variants.reduce(
+    (total: number, variant: any) => total + (variant.stockQuantity || 0),
+    0
+  );
+  const inStock = totalStockQuantity > 0;
+
+  const productWithVariants = await prisma.product.create({
     data: {
       name,
       brand,
       description,
       longDescription,
-      salePrice,
-      basePrice,
       isVariant: true,
+      basePrice,
+      salePrice,
       inStock,
-      stockQuantity,
+      stockQuantity: totalStockQuantity,
       categoryId,
       additionalInfo: additionalInfo || null,
+      images: {
+        create: images.map((image: any, index: number) => ({
+          url: image.url,
+          isMainImage: index === 0, // Assign the first image as main image
+        })),
+      },
       variants: {
-        create: variants.map((variant: variantType) => ({
+        create: variants.map((variant: any) => ({
           color: variant.color,
           size: variant.size,
           price: variant.price,
@@ -81,10 +102,7 @@ export const addProduct = asyncHandler(async (req, res) => {
           stockQuantity: variant.stockQuantity,
           sku: variant.sku,
           images: {
-            create: variant.images.map((image) => ({
-              url: image.url,
-              isMainImage: image.isMainImage,
-            })),
+            create: mapImages(variant.images), // Map and assign images for each variant
           },
         })),
       },
@@ -96,19 +114,38 @@ export const addProduct = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         201,
-        productWithVariant,
-        "Product with variant added successfully"
+        productWithVariants,
+        "Product with variants added successfully"
       )
     );
 });
 
 export const getAllProducts = asyncHandler(async (req, res) => {
-  const { page, limit, search, category, subCategory, price, color, size } =
-    req.query;
+  const {
+    page,
+    limit,
+    search,
+    category,
+    subCategory,
+    price,
+    color,
+    size,
+    sortBy = "newest",
+  } = req.query;
+  // sortBy - latest/price l-h/price h-l/ rating h-l
+  let sort: any = {};
+
+  if (sortBy === "price-asc") {
+    sort.basePrice = "asc";
+  } else if (sortBy === "price-desc") {
+    sort.basePrice = "desc";
+  } else if (sortBy === "newest") {
+    sort.createdAt = "desc";
+  }
 
   // Pagination
   const pageNumber = parseInt(page as string) || 1;
-  const pageSize = parseInt(limit as string) || 9;
+  const pageSize = parseInt(limit as string) || 6;
   const skip = (pageNumber - 1) * pageSize;
 
   // Search query
@@ -148,15 +185,15 @@ export const getAllProducts = asyncHandler(async (req, res) => {
   if (categoryFilters.length > 0) {
     filters.AND.push({
       OR: [
-        { category: { name: { in: categoryFilters } } }, // Parent categories
-        { category: { parent: { name: { in: categoryFilters } } } }, // Subcategories
+        { category: { slug: { in: categoryFilters } } }, // Parent categories
+        { category: { parent: { slug: { in: categoryFilters } } } }, // Subcategories
       ],
     });
   }
 
   if (subCategoryFilters.length > 0) {
     filters.AND.push({
-      category: { name: { in: subCategoryFilters } },
+      category: { slug: { in: subCategoryFilters } },
     });
   }
 
@@ -192,7 +229,7 @@ export const getAllProducts = asyncHandler(async (req, res) => {
     });
   }
 
-  console.log("Filter Query:", JSON.stringify(filters));
+  // console.log("filters", JSON.stringify(filters));
 
   // Fetch products with relevant variants only
   const products = await prisma.product.findMany({
@@ -206,11 +243,19 @@ export const getAllProducts = asyncHandler(async (req, res) => {
           ...(colorFilter.length > 0 && { color: { in: colorFilter } }),
           ...(sizeFilter.length > 0 && { size: { in: sizeFilter } }),
         },
+        include: { images: true },
       },
     },
+    orderBy: sort,
     skip,
     take: pageSize,
   });
+
+  const totalCount = await prisma.product.count({
+    where: filters,
+  });
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const hasNextPage = pageNumber < totalPages;
 
   // Check for no products found
   if (!products.length) {
@@ -218,7 +263,17 @@ export const getAllProducts = asyncHandler(async (req, res) => {
   }
 
   // Return response
-  return res
-    .status(200)
-    .json(new ApiResponse(200, products, "All products fetched successfully"));
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        products,
+        totalProducts: totalCount,
+        currentPage: pageNumber,
+        hasNextPage,
+        totalPages,
+      },
+      "All products fetched successfully"
+    )
+  );
 });

@@ -41,7 +41,7 @@ model ForgotPasswordRequest {
 
 model Category {
   id              Int        @id @default(autoincrement())
-  name            String     @unique
+  name            String     
   description     String?
   slug            String     @unique// for seo
   imageUrl        String?  
@@ -54,6 +54,8 @@ model Category {
 
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
+
+  @@unique([name,parentId])
 }
 
 model Product {
