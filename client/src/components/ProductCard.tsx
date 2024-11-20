@@ -3,26 +3,29 @@ import { Link } from "react-router-dom";
 
 interface ProductCardProp {
   brand: string;
-  title: string;
+  name: string;
   image: string;
   price: string;
+  basePrice: string;
   salePrice: string;
-  href: string;
+  images: any[];
 }
 
 const ProductCard = ({
+  name,
   brand,
-  title,
-  image,
+  basePrice,
   price,
   salePrice,
-  href,
+  images,
 }: ProductCardProp) => {
+  const imageUrl = images.filter((img) => img.isMainImage)[0].url;
+
   return (
-    <div className="flex flex-col items-start justify-center ">
+    <div className="flex flex-col items-start justify-center w-full">
       <Link
-        to={href}
-        className="group relative block aspect-[3/4] w-full overflow-hidden rounded bg-gray-5 p-8 hover:bg-gray-20"
+        to={"/"}
+        className="group relative block w-full overflow-hidden rounded bg-gray-5 p-4 sm:p-6 hover:bg-gray-20"
       >
         {/* Star Icon - Positioned without any movement */}
         <div className="absolute right-4 top-4 hidden group-hover:block">
@@ -32,11 +35,11 @@ const ProductCard = ({
         </div>
 
         {/* Product Image */}
-        <div className="relative h-full w-full">
+        <div className="w-full h-60 sm:h-72 md:h-80 lg:h-96">
           <img
-            src={image}
-            alt={title}
-            className="h-full w-full object-contain"
+            src={imageUrl}
+            alt={name}
+            className="w-full h-full object-cover" // Ensures image scaling without distortion
           />
         </div>
 
@@ -49,13 +52,19 @@ const ProductCard = ({
       </Link>
 
       {/* Product Details */}
-      <div className="mt-[10px] flex flex-col gap-[6px]">
-        <h4 className="text-xl font-bold text-dark-500">{brand}</h4>
-        <h5 className="text-base font-normal text-dark-80">{title}</h5>
-        <div>
-          <span className="font-medium">${salePrice}.00</span>
-          <span className="ml-2 font-normal text-gray-80 line-through">
-            ${price}.00
+      <div className="mt-4 flex flex-col gap-2 sm:gap-3">
+        <h4 className="text-lg sm:text-xl font-semibold text-dark-500">
+          {brand}
+        </h4>
+        <h5 className="text-sm sm:text-base font-normal text-dark-80">
+          {name}
+        </h5>
+        <div className="flex items-center">
+          <span className="font-medium text-lg text-dark-500">
+            ₹{salePrice}.00
+          </span>
+          <span className="ml-2 text-sm font-normal text-gray-80 line-through">
+            ₹{basePrice || price}.00
           </span>
         </div>
       </div>

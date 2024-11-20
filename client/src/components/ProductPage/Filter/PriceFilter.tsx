@@ -1,12 +1,34 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { DualRangeSlider } from "@/components/ui/dual-range-slider";
-import { Slider } from "@/components/ui/slider";
 
 const PriceFilter = () => {
-  const [price, setPrice] = useState([0, 2000]);
+  const [price, setPrice] = useState([0, 3000]);
   const [togglePriceFilter, setTogglePriceFilter] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [debouncedPrice, setDebouncedPrice] = useState(price);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedPrice(price);
+    }, 500);
+
+    // Cleanup the timeout on component unmount or when price changes
+    return () => clearTimeout(handler);
+  }, [price]);
+
+  useEffect(() => {
+    if (debouncedPrice) {
+      setSearchParams({
+        ...Object.fromEntries(searchParams),
+        low: debouncedPrice[0].toString(),
+        high: debouncedPrice[1].toString(),
+      });
+    }
+  }, [debouncedPrice, searchParams, setSearchParams]);
+
   return (
     <div className="flex flex-col py-6">
       <div className="flex items-center justify-between">
@@ -28,12 +50,11 @@ const PriceFilter = () => {
             value={price}
             onValueChange={setPrice}
             step={1}
-            max={price[1]}
+            max={3000} // Adjust based on your price range
           />
         </div>
       )}
     </div>
   );
 };
-
 export default PriceFilter;

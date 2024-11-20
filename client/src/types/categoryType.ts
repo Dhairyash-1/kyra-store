@@ -22,6 +22,7 @@ interface CategoryType {
   name: string;
   description?: string;
   parentId?: number | null;
+  slug: string;
   children?: CategoryType[];
   createdAt: Date;
   updatedAt: Date;

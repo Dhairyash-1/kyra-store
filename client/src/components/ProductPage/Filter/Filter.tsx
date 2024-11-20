@@ -7,14 +7,14 @@ import { Separator } from "@/components/ui/separator";
 
 const Filter = () => {
   return (
-    <div className="col-span-1 ">
+    <div className="hidden lg:col-span-1 lg:block">
       <CategoryFilter />
       <Separator />
       <PriceFilter />
       <Separator />
-      <ColorFilter />
+      {/* <ColorFilter />
       <Separator />
-      <SizeFilter />
+      <SizeFilter /> */}
     </div>
   );
 };

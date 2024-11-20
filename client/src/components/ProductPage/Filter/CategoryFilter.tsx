@@ -1,15 +1,23 @@
 import { ChevronDown, ChevronUp, Minus, PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { useGetAllCategoryQuery } from "@/services/categoryApi";
 
 const CategoryFilter = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [toggleFilter, setToggleFilter] = useState(false);
   const [subCategoryState, setSubCategoryState] = useState<{
     [key: string]: boolean;
   }>({});
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
+    []
+  );
+
   const { data, isLoading } = useGetAllCategoryQuery();
+  const categories = data?.data;
 
   const toggleSubCategory = (categoryName: string) => {
     setSubCategoryState((prevState) => ({
@@ -18,7 +26,45 @@ const CategoryFilter = () => {
     }));
   };
 
-  const categories = data?.data;
+  const handleCategoryToggle = (categorySlug: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(categorySlug)
+        ? prev.filter((cat) => cat !== categorySlug)
+        : [...prev, categorySlug]
+    );
+  };
+
+  const handleSubcategoryToggle = (subcategorySlug: string) => {
+    setSelectedSubcategories((prev) =>
+      prev.includes(subcategorySlug)
+        ? prev.filter((sub) => sub !== subcategorySlug)
+        : [...prev, subcategorySlug]
+    );
+  };
+
+  useEffect(() => {
+    // Sync state with URL search params
+    const params = new URLSearchParams(searchParams);
+
+    if (selectedCategories.length > 0) {
+      params.set("categories", selectedCategories.join(","));
+    } else {
+      params.delete("categories");
+    }
+
+    if (selectedSubcategories.length > 0) {
+      params.set("subcategories", selectedSubcategories.join(","));
+    } else {
+      params.delete("subcategories");
+    }
+
+    setSearchParams(params);
+  }, [
+    selectedCategories,
+    selectedSubcategories,
+    searchParams,
+    setSearchParams,
+  ]);
 
   return (
     <div className="pb-6">
@@ -39,7 +85,10 @@ const CategoryFilter = () => {
             <div key={category.name} className="flex flex-col">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Checkbox />
+                  <Checkbox
+                    checked={selectedCategories.includes(category.slug)}
+                    onClick={() => handleCategoryToggle(category.slug)}
+                  />
                   <span className="font-normal">{category.name}</span>
                 </div>
 
@@ -64,7 +113,14 @@ const CategoryFilter = () => {
                         key={subcategory.id}
                         className="flex items-center gap-2"
                       >
-                        <Checkbox />
+                        <Checkbox
+                          checked={selectedSubcategories.includes(
+                            subcategory.slug
+                          )}
+                          onClick={() =>
+                            handleSubcategoryToggle(subcategory.slug)
+                          }
+                        />
                         <span className="font-normal">{subcategory.name}</span>
                       </div>
                     ))}
