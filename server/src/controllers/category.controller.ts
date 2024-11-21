@@ -2,18 +2,7 @@ import prisma from "../prismaClient/prismaClient";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
-
-const generateUniqueSlug = (name: string) => {
-  const randomNumber = Math.floor(1000 + Math.random() * 9000); // Generates a 4-digit random number
-  return (
-    name
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, "-") // Replace spaces with dashes
-      .replace(/[^a-z0-9\-]/g, "") + // Remove special characters
-    `-${randomNumber}`
-  );
-};
+import { createSlug } from "../utils/helpter";
 
 export const createProductCategory = asyncHandler(async (req, res) => {
   const { name, description, imageUrl, parentId } = req.body;
@@ -44,7 +33,7 @@ export const createProductCategory = asyncHandler(async (req, res) => {
     }
   }
 
-  const uniqueSlug = generateUniqueSlug(name);
+  const uniqueSlug = createSlug(name);
 
   const createCategory = await prisma.category.create({
     data: {

@@ -2,6 +2,7 @@ import prisma from "../prismaClient/prismaClient";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
+import { createSlug } from "../utils/helpter";
 
 interface variantType {
   color: string;
@@ -43,6 +44,8 @@ export const addProduct = asyncHandler(async (req, res) => {
       isMainImage: image.isMainImage,
     }));
 
+  const slug = createSlug(name);
+
   if (!isVariant) {
     // Non-variant product logic
     const inStock = stockQuantity > 0;
@@ -50,6 +53,7 @@ export const addProduct = asyncHandler(async (req, res) => {
       data: {
         name,
         brand,
+        slug,
         description,
         longDescription,
         basePrice,
@@ -78,6 +82,7 @@ export const addProduct = asyncHandler(async (req, res) => {
     data: {
       name,
       brand,
+      slug,
       description,
       longDescription,
       isVariant: true,

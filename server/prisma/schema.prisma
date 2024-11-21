@@ -62,6 +62,7 @@ model Product {
   id                  Int      @id @default(autoincrement())
   name                String
   brand               String
+  slug                String  @unique
   description         String
   longDescription     String
   basePrice           Float?   //incase product has no variant
