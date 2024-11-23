@@ -44,7 +44,7 @@ const PriceFilter = () => {
       {!togglePriceFilter && (
         <div className="mt-4 flex flex-col gap-3">
           <h1>
-            Price: ${price[0]} - $ {price[1]}
+            Price: ₹{price[0]} - ₹{price[1]}
           </h1>
           <DualRangeSlider
             value={price}

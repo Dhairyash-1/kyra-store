@@ -11,6 +11,7 @@ import ForgotPassword from "./Pages/ForgotPassword";
 import HomePage from "./Pages/HomePage";
 import Login from "./Pages/Login";
 import MyProfile from "./Pages/MyProfile";
+import ProductPage from "./Pages/ProductPage";
 import Products from "./Pages/Products";
 import Signup from "./Pages/Signup";
 import { useGetCurrentUserQuery } from "./services/authApi";
@@ -58,6 +59,7 @@ const App = () => {
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/products/:slug" element={<ProductPage />} />
             <Route
               path="/profile"
               element={

@@ -38,10 +38,22 @@ export const productApi = createApi({
         if (sortBy) params.append("sortBy", sortBy);
         if (price) params.append("price", price);
 
-        return `/product?${params.toString()}`;
+        return `/product/?${params.toString()}`;
       },
+    }),
+
+    getProductBySlug: builder.query<void, { slug: string }>({
+      query: ({ slug }) => `/product/slug?slug=${slug}`,
+    }),
+
+    getBestSellerProducts: builder.query<void, void>({
+      query: () => `/product/bestseller`,
     }),
   }),
 });
 
-export const { useGetAllProductsQuery } = productApi;
+export const {
+  useGetAllProductsQuery,
+  useGetProductBySlugQuery,
+  useGetBestSellerProductsQuery,
+} = productApi;

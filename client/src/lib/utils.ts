@@ -5,4 +5,4 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const PAGE_SIZE = 9;
+export const PAGE_SIZE = 6;

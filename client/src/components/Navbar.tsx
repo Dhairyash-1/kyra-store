@@ -15,6 +15,7 @@ import ProfileDropdown from "./ProfileDropdown";
 import brandLogo from "../assets/logo.png";
 
 import { RootState } from "@/store/store";
+import MiniCart from "./MiniCart";
 
 const Links = [
   { id: 1, name: "Home", url: "/" },
@@ -32,7 +33,9 @@ const Links = [
 const Navbar = () => {
   const [navOpen, setNavOpen] = useState(false);
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-
+  const cartItemCount = useSelector(
+    (state: RootState) => state.cart.items.length
+  );
   const handleNavToggle = () => {
     setNavOpen(!navOpen);
   };
@@ -127,12 +130,21 @@ const Navbar = () => {
         <button className="bg-transparent p-0 focus:outline-none">
           <Heart className="h-6 w-6 text-dark-500" aria-label="Wishlist" />
         </button>
-        <button className="bg-transparent p-0 focus:outline-none">
-          <ShoppingBag
-            className="h-6 w-6 text-dark-500"
-            aria-label="Add to Cart"
-          />
-        </button>
+        <MiniCart>
+          <div className="relative bg-transparent p-0 focus:outline-none">
+            <button className="bg-transparent p-0 focus:outline-none">
+              <ShoppingBag
+                className="h-6 w-6 text-dark-500"
+                aria-label="Add to Cart"
+              />
+            </button>
+            {cartItemCount > 0 && (
+              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-dark-500 text-xs font-bold text-white">
+                {cartItemCount}
+              </span>
+            )}
+          </div>
+        </MiniCart>
 
         {isAuthenticated ? (
           <ProfileDropdown>

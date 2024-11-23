@@ -1,6 +1,7 @@
 import BreadCrumb from "@/components/BreadCrumb";
 import Filter from "@/components/ProductPage/Filter/Filter";
 import ProductContainer from "@/components/ProductPage/ProductContainer";
+import TrustIndicators from "@/components/TrustIndicators";
 
 const Products = () => {
   return (
@@ -10,6 +11,7 @@ const Products = () => {
         <Filter />
         <ProductContainer />
       </div>
+      <TrustIndicators />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 
 import Footer from "./Footer";
 import Navbar from "./Navbar";
+import MiniCart from "./miniCart";
 
 const AppLayout = () => {
   return (

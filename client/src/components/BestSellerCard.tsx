@@ -1,52 +1,28 @@
 import { StarIcon } from "lucide-react";
-import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 
-import { addToCart } from "@/features/cart/cartSlice";
-
 interface ProductCardProp {
-  id: number;
   brand: string;
-  name: string;
+  title: string;
   image: string;
-  price: number;
-  basePrice: number;
-  salePrice: number;
-  slug: string;
-  images: any[];
+  price: string;
+  basePrice: string;
+  salePrice: string;
+  href: string;
 }
 
-const ProductCard = ({
-  id,
-  name,
+const BestSellerCard = ({
+  title,
   brand,
-  basePrice,
   price,
   salePrice,
-  images,
-  slug,
+  image,
+  href,
 }: ProductCardProp) => {
-  const imageUrl = images.filter((img) => img.isMainImage)[0].url;
-  const dispatch = useDispatch();
-
-  function handleAddToCart(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    e.stopPropagation();
-    e.preventDefault();
-    dispatch(
-      addToCart({
-        id,
-        image: imageUrl,
-        name,
-        price: basePrice || price,
-        quantity: 1,
-      })
-    );
-  }
-
   return (
     <div className="flex w-full flex-col items-start justify-center">
       <Link
-        to={`/products/${slug}`}
+        to={`/products/${href}`}
         className="group relative block w-full overflow-hidden rounded bg-gray-5 p-4 hover:bg-gray-20 sm:p-6"
       >
         {/* Star Icon - Positioned without any movement */}
@@ -59,20 +35,17 @@ const ProductCard = ({
         {/* Product Image */}
         <div className="h-60 w-full sm:h-72 md:h-80 lg:h-96">
           <img
-            src={imageUrl}
-            alt={name}
+            src={image}
+            alt={title}
             className="h-full w-full object-cover" // Ensures image scaling without distortion
           />
         </div>
 
         {/* "Add to Cart" Button - Appear on Hover */}
         <div className="absolute bottom-4 left-1/2 hidden w-[80%] -translate-x-1/2 transition-all duration-300 group-hover:block">
-          <button
-            onClick={(e) => handleAddToCart(e)}
-            className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm"
-          >
-            Add to Cart
-          </button>
+          <div className="rounded-lg bg-white px-[12px] py-4 text-center shadow-sm">
+            <h3 className="text-sm font-medium text-dark-500">Add to Cart</h3>
+          </div>
         </div>
       </Link>
 
@@ -82,14 +55,14 @@ const ProductCard = ({
           {brand}
         </h4>
         <h5 className="text-sm font-normal text-dark-80 sm:text-base">
-          {name}
+          {title}
         </h5>
         <div className="flex items-center">
           <span className="text-lg font-medium text-dark-500">
             ₹{salePrice}.00
           </span>
           <span className="ml-2 text-sm font-normal text-gray-80 line-through">
-            ₹{basePrice || price}.00
+            ₹{price}.00
           </span>
         </div>
       </div>
@@ -97,4 +70,4 @@ const ProductCard = ({
   );
 };
 
-export default ProductCard;
+export default BestSellerCard;

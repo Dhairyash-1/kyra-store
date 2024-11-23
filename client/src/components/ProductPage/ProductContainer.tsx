@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
@@ -52,8 +51,8 @@ const ProductContainer = () => {
               let selectedProduct = product;
 
               if (product.isVariant && product.variants.length > 0) {
-                const { name, brand } = product;
-                selectedProduct = { name, brand, ...product.variants[0] };
+                const { name, brand, slug } = product;
+                selectedProduct = { name, brand, slug, ...product.variants[0] };
               }
               return (
                 <ProductCard key={selectedProduct.id} {...selectedProduct} />

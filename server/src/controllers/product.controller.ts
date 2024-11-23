@@ -282,3 +282,44 @@ export const getAllProducts = asyncHandler(async (req, res) => {
     )
   );
 });
+
+export const getProductBySlug = asyncHandler(async (req, res) => {
+  const { slug } = req.query;
+
+  console.log(slug);
+
+  if (!slug) {
+    throw new ApiError(400, "Slug is required");
+  }
+
+  const product = await prisma.product.findUnique({
+    where: { slug: slug as string },
+    include: {
+      variants: true,
+      images: true,
+    },
+  });
+
+  if (!product) {
+    throw new ApiError(404, "Product not found with given slug");
+  }
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, product, "Product fetched successfully"));
+});
+
+export const getBestSellerProduct = asyncHandler(async (req, res) => {
+  const products = await prisma.product.findMany({
+    take: 8,
+    include: {
+      images: true,
+    },
+  });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, products, "Bestseller product fetched successfully")
+    );
+});
