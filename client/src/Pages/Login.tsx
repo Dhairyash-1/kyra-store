@@ -53,7 +53,7 @@ export default function Login() {
           isLoading: false,
         })
       );
-      const redirectTo = (location.state as any).from || "/";
+      const redirectTo = (location.state as any)?.from || "/";
       navigate(redirectTo);
     } catch (error: any) {
       console.log("Error in login", error);

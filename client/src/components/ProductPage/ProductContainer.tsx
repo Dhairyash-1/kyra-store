@@ -7,6 +7,9 @@ import { ProductPagination } from "./ProductPagination";
 
 import { PAGE_SIZE } from "@/lib/utils";
 import { useGetAllProductsQuery } from "@/services/productApi";
+import { ProductType } from "@/types/productType";
+
+type SelectedProduct = ProductType & { price?: number };
 
 const ProductContainer = () => {
   const [searchParams] = useSearchParams();
@@ -17,7 +20,7 @@ const ProductContainer = () => {
   const subCategories = searchParams.get("subcategories") || "";
   const lowPrice = searchParams.get("low") || 0;
   const highPrice = searchParams.get("high") || 3000;
-  const { data, isFetching, error } = useGetAllProductsQuery({
+  const { data, isFetching } = useGetAllProductsQuery({
     page: currentPage,
     limit: PAGE_SIZE,
     category: categories,
@@ -25,10 +28,9 @@ const ProductContainer = () => {
     sortBy: searchParams.get("sortBy") || "newest",
     price: `${lowPrice}-${highPrice}`,
   });
-  // @ts-expect-error
+
   const AllProducts = data?.data?.products;
-  // @ts-expect-error
-  const productCount = data?.data?.totalProducts;
+  const productCount = data?.data?.totalProducts || 0;
   // console.log(data, AllProducts, error);
 
   return (
@@ -42,20 +44,35 @@ const ProductContainer = () => {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
-          {error?.status === 404 ? (
+          {!AllProducts || AllProducts.length === 0 ? (
             <div className="col-span-full flex h-[300px] items-center justify-center">
               No Products Found
             </div>
           ) : (
-            AllProducts?.map((product: any) => {
-              let selectedProduct = product;
+            AllProducts?.map((product) => {
+              let selectedProduct: SelectedProduct = product;
 
               if (product.isVariant && product.variants.length > 0) {
                 const { name, brand, slug } = product;
-                selectedProduct = { name, brand, slug, ...product.variants[0] };
+                selectedProduct = {
+                  name,
+                  brand,
+                  slug,
+                  ...product.variants[0],
+                };
               }
               return (
-                <ProductCard key={selectedProduct.id} {...selectedProduct} />
+                <ProductCard
+                  key={selectedProduct.id}
+                  name={selectedProduct.name}
+                  brand={selectedProduct.brand}
+                  basePrice={selectedProduct.basePrice}
+                  salePrice={selectedProduct.salePrice}
+                  images={selectedProduct.images}
+                  id={selectedProduct.id}
+                  slug={selectedProduct.slug}
+                  price={selectedProduct.price as number}
+                />
               );
             })
           )}
@@ -63,9 +80,7 @@ const ProductContainer = () => {
       )}
 
       {/* Pagination */}
-      {!isFetching && !error?.status && (
-        <ProductPagination count={productCount} />
-      )}
+      {!isFetching && AllProducts && <ProductPagination count={productCount} />}
     </div>
   );
 };

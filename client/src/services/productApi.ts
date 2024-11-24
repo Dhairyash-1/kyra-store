@@ -1,5 +1,11 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+import {
+  bestSellerProductsResponse,
+  getAllProductsResponseType,
+  singleProductRespose,
+} from "@/types/productType";
+
 // import {
 //   AllCategoryResponse,
 //   createCategoryRequest,
@@ -17,7 +23,7 @@ export const productApi = createApi({
   }),
   endpoints: (builder) => ({
     getAllProducts: builder.query<
-      void,
+      getAllProductsResponseType,
       {
         page: number;
         limit: number;
@@ -42,11 +48,11 @@ export const productApi = createApi({
       },
     }),
 
-    getProductBySlug: builder.query<void, { slug: string }>({
+    getProductBySlug: builder.query<singleProductRespose, { slug: string }>({
       query: ({ slug }) => `/product/slug?slug=${slug}`,
     }),
 
-    getBestSellerProducts: builder.query<void, void>({
+    getBestSellerProducts: builder.query<bestSellerProductsResponse, void>({
       query: () => `/product/bestseller`,
     }),
   }),

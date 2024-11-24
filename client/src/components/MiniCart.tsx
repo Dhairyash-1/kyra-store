@@ -11,6 +11,7 @@ const MiniCart = ({ children }: { children: ReactNode }) => {
   const { items, totalPrice, totalQuantity } = useSelector(
     (state: RootState) => state.cart
   );
+
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
@@ -24,10 +25,10 @@ const MiniCart = ({ children }: { children: ReactNode }) => {
         <p className="mt-2 text-base text-dark-500">
           You have {totalQuantity} items in your cart
         </p>
-        <div className="my-6 flex flex-col gap-4">
+        <div className="my-6 flex flex-col gap-6">
           {items.length > 0 ? (
             items.map((item) => (
-              <>
+              <div key={item.id} className="space-y-2">
                 <div className=" flex gap-4">
                   <div className="h-[60px] w-[60px] bg-white-5 p-1">
                     <img src={item.image} className="h-full w-full" />
@@ -41,7 +42,7 @@ const MiniCart = ({ children }: { children: ReactNode }) => {
                   </div>
                 </div>
                 <Separator className="h-[1.5px]" />
-              </>
+              </div>
             ))
           ) : (
             <p className="text-center text-xl text-gray-80">Cart is Empty</p>

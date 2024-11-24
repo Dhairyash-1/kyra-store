@@ -1,10 +1,9 @@
 import ProductCard from "./ProductCard";
 
-// import { bestSellerProducts } from "@/constants";
 import { useGetBestSellerProductsQuery } from "@/services/productApi";
 
 const BestSeller = () => {
-  const { data, error } = useGetBestSellerProductsQuery();
+  const { data } = useGetBestSellerProductsQuery();
   const bestSellerProducts = data?.data;
   if (!bestSellerProducts) return null;
   return (
@@ -13,9 +12,22 @@ const BestSeller = () => {
         Our BestSeller
       </h1>
       <div className="grid grid-cols-2 gap-8 py-14 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {bestSellerProducts?.map((product) => (
-          <ProductCard key={product.id} {...product} />
-        ))}
+        {bestSellerProducts?.map((product) => {
+          const { id, name, salePrice, basePrice, brand, images, slug } =
+            product;
+          return (
+            <ProductCard
+              key={id}
+              id={id}
+              name={name}
+              brand={brand}
+              basePrice={basePrice}
+              salePrice={salePrice}
+              images={images}
+              slug={slug}
+            />
+          );
+        })}
       </div>
     </section>
   );

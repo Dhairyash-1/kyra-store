@@ -8,10 +8,9 @@ interface ProductCardProp {
   id: number;
   brand: string;
   name: string;
-  image: string;
-  price: number;
   basePrice: number;
   salePrice: number;
+  price?: number;
   slug: string;
   images: any[];
 }
@@ -21,8 +20,8 @@ const ProductCard = ({
   name,
   brand,
   basePrice,
-  price,
   salePrice,
+  price,
   images,
   slug,
 }: ProductCardProp) => {
@@ -37,7 +36,7 @@ const ProductCard = ({
         id,
         image: imageUrl,
         name,
-        price: basePrice || price,
+        price: basePrice,
         quantity: 1,
       })
     );
@@ -89,7 +88,7 @@ const ProductCard = ({
             ₹{salePrice}.00
           </span>
           <span className="ml-2 text-sm font-normal text-gray-80 line-through">
-            ₹{basePrice || price}.00
+            ₹{basePrice || (price as number)}.00
           </span>
         </div>
       </div>
