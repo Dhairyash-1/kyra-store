@@ -50,6 +50,8 @@ export default function Login() {
         updateAuthStatus({
           isAuthenticated: true,
           userId: res.data.id,
+          name: `${res.data.firstName} ${res.data.lastName}`,
+          profileImage: res.data.img,
           isLoading: false,
         })
       );

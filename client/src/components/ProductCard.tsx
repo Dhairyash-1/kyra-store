@@ -1,4 +1,5 @@
 import { StarIcon } from "lucide-react";
+import { ReactNode } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -13,6 +14,8 @@ interface ProductCardProp {
   price?: number;
   slug: string;
   images: any[];
+  topActionButton: ReactNode;
+  bottomActionButton: ReactNode;
 }
 
 const ProductCard = ({
@@ -24,23 +27,10 @@ const ProductCard = ({
   price,
   images,
   slug,
+  topActionButton,
+  bottomActionButton,
 }: ProductCardProp) => {
   const imageUrl = images.filter((img) => img.isMainImage)[0].url;
-  const dispatch = useDispatch();
-
-  function handleAddToCart(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    e.stopPropagation();
-    e.preventDefault();
-    dispatch(
-      addToCart({
-        id,
-        image: imageUrl,
-        name,
-        price: basePrice,
-        quantity: 1,
-      })
-    );
-  }
 
   return (
     <div className="flex w-full flex-col items-start justify-center">
@@ -50,9 +40,10 @@ const ProductCard = ({
       >
         {/* Star Icon - Positioned without any movement */}
         <div className="absolute right-4 top-4 hidden group-hover:block">
-          <div className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white shadow-md">
+          {/* <div className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white shadow-md">
             <StarIcon size={28} className="stroke-dark-90-500 stroke-[1.5]" />
-          </div>
+          </div> */}
+          {topActionButton && topActionButton}
         </div>
 
         {/* Product Image */}
@@ -66,12 +57,13 @@ const ProductCard = ({
 
         {/* "Add to Cart" Button - Appear on Hover */}
         <div className="absolute bottom-4 left-1/2 hidden w-[80%] -translate-x-1/2 transition-all duration-300 group-hover:block">
-          <button
+          {/* <button
             onClick={(e) => handleAddToCart(e)}
             className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm"
           >
             Add to Cart
-          </button>
+          </button> */}
+          {bottomActionButton && bottomActionButton}
         </div>
       </Link>
 

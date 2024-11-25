@@ -1,3 +1,5 @@
+import { StarIcon } from "lucide-react";
+import { useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
@@ -5,6 +7,7 @@ import ProductToolBar from "./ProductToolBar";
 import ProductCard from "../ProductCard";
 import { ProductPagination } from "./ProductPagination";
 
+import { addToCart } from "@/features/cart/cartSlice";
 import { PAGE_SIZE } from "@/lib/utils";
 import { useGetAllProductsQuery } from "@/services/productApi";
 import { ProductType } from "@/types/productType";
@@ -31,7 +34,25 @@ const ProductContainer = () => {
 
   const AllProducts = data?.data?.products;
   const productCount = data?.data?.totalProducts || 0;
+  const dispatch = useDispatch();
   // console.log(data, AllProducts, error);
+
+  function handleAddToCart(
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    product: SelectedProduct
+  ) {
+    e.stopPropagation();
+    e.preventDefault();
+    dispatch(
+      addToCart({
+        id: product.id,
+        image: product.images[0].url,
+        name: product.name,
+        price: product.salePrice,
+        quantity: 1,
+      })
+    );
+  }
 
   return (
     <div className="col-span-4 flex flex-col lg:col-span-3">
@@ -72,6 +93,22 @@ const ProductContainer = () => {
                   id={selectedProduct.id}
                   slug={selectedProduct.slug}
                   price={selectedProduct.price as number}
+                  topActionButton={
+                    <div className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white shadow-md">
+                      <StarIcon
+                        size={28}
+                        className="stroke-dark-90-500 stroke-[1.5]"
+                      />
+                    </div>
+                  }
+                  bottomActionButton={
+                    <button
+                      onClick={(e) => handleAddToCart(e, selectedProduct)}
+                      className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm"
+                    >
+                      Add to Cart
+                    </button>
+                  }
                 />
               );
             })

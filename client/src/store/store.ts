@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import authReducer from "@/features/auth/authSlice";
 import cartReducer from "@/features/cart/cartSlice";
+import wishlistReducer from "@/features/wishlist/wishlistSlice";
 import { authApi } from "@/services/authApi";
 import { categoryApi } from "@/services/categoryApi";
 import { productApi } from "@/services/productApi";
@@ -13,6 +14,7 @@ export const store = configureStore({
     [productApi.reducerPath]: productApi.reducer,
     auth: authReducer,
     cart: cartReducer,
+    wishlist: wishlistReducer,
   },
 
   middleware: (getDefaultMiddleware) =>

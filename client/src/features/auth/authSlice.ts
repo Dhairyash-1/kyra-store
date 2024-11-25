@@ -4,12 +4,16 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 interface authStateType {
   isAuthenticated: boolean;
   userId: number | null;
+  name: string;
+  profileImage: string;
   isLoading: boolean;
 }
 
 const initialState: authStateType = {
   isAuthenticated: false,
   userId: null,
+  name: "",
+  profileImage: "",
   isLoading: true,
 };
 
@@ -21,6 +25,8 @@ export const authSlice = createSlice({
       state.isAuthenticated = action.payload.isAuthenticated;
       state.userId = action.payload.userId;
       state.isLoading = action.payload.isLoading;
+      state.name = action.payload.name;
+      state.profileImage = action.payload.profileImage;
     },
     setAuthLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;

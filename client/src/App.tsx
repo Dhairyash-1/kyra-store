@@ -3,14 +3,20 @@ import { useDispatch } from "react-redux";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import AppLayout from "./components/AppLayout";
-import FullPageLoader from "./components/FullPageLoader";
+import ManageAddresses from "./components/ManageAddresses";
+import MyOrders from "./components/MyOrders";
+import Notifications from "./components/Notifications";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SavedCards from "./components/SavedCards";
+import Settings from "./components/Settings";
+import UserProfile from "./components/UserProfile";
+import Wishlist from "./components/Wishlist";
 import { updateAuthStatus } from "./features/auth/authSlice";
 import EnterOtp from "./Pages/EnterOtp";
 import ForgotPassword from "./Pages/ForgotPassword";
 import HomePage from "./Pages/HomePage";
 import Login from "./Pages/Login";
-import MyProfile from "./Pages/MyProfile";
+import MyProfileLayout from "./Pages/MyProfileLayout";
 import ProductPage from "./Pages/ProductPage";
 import Products from "./Pages/Products";
 import Signup from "./Pages/Signup";
@@ -27,6 +33,8 @@ const App = () => {
         updateAuthStatus({
           isAuthenticated: false,
           userId: null,
+          name: "",
+          profileImage: "",
           isLoading: false,
         })
       );
@@ -38,6 +46,8 @@ const App = () => {
         updateAuthStatus({
           isAuthenticated: true,
           userId: data.data.id,
+          name: `${data.data.firstName} ${data.data.lastName}`,
+          profileImage: data.data.imgUrl,
           isLoading: false,
         })
       );
@@ -45,6 +55,8 @@ const App = () => {
       dispatch(
         updateAuthStatus({
           isAuthenticated: false,
+          name: "",
+          profileImage: "",
           userId: null,
           isLoading: false,
         })
@@ -61,13 +73,20 @@ const App = () => {
             <Route path="/products" element={<Products />} />
             <Route path="/products/:slug" element={<ProductPage />} />
             <Route
-              path="/profile"
               element={
                 <ProtectedRoute>
-                  <MyProfile />
+                  <MyProfileLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route path="/profile" element={<UserProfile />} />
+              <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/wishlists" element={<Wishlist />} />
+              <Route path="/manage-address" element={<ManageAddresses />} />
+              <Route path="/saved-cards" element={<SavedCards />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
           </Route>
 
           <Route path="/login" element={<Login />} />
