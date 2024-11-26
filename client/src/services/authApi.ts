@@ -7,14 +7,20 @@ import {
 } from "@reduxjs/toolkit/query/react";
 
 import {
+  addShippingAddressRequest,
   CurrentUserResponse,
   ForgotPasswordRequest,
+  GetAllShippingAddressResponse,
   LoginUserRequest,
   LoginUserResponse,
   RegisterUserRequest,
   RegisterUserResponse,
   ResetPasswordRequest,
+  ShippingAddress,
+  SingleShippingAddressResponse,
   SuccessResponse,
+  UpdatedUserResponse,
+  UpdateUserRequest,
   VerifyOTPRequest,
 } from "@/types/authTypes";
 
@@ -83,6 +89,7 @@ const baseQueryWithReauth: BaseQueryFn<
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: baseQueryWithReauth,
+  tagTypes: ["ShippingAddress", "ShippingAddressId"],
   endpoints: (builder) => ({
     register: builder.mutation<RegisterUserResponse, RegisterUserRequest>({
       query: (data) => ({
@@ -129,6 +136,56 @@ export const authApi = createApi({
     getCurrentUser: builder.query<CurrentUserResponse, void>({
       query: () => "/user/me",
     }),
+    updateUserProfile: builder.mutation<
+      UpdatedUserResponse,
+      Partial<UpdateUserRequest>
+    >({
+      query: (data) => ({
+        url: "/user/update-profile",
+        method: "PATCH",
+        body: data,
+      }),
+    }),
+
+    addShippingAddress: builder.mutation<void, addShippingAddressRequest>({
+      query: (data) => ({
+        url: "/user/add-address",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["ShippingAddress"],
+    }),
+
+    getShippingAddress: builder.query<GetAllShippingAddressResponse, void>({
+      query: () => "/user/shipping-address",
+      providesTags: ["ShippingAddress"],
+    }),
+    deleteShippingAddress: builder.mutation<void, { id: number }>({
+      query: (data) => ({
+        url: `/user/delete-address/${data.id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["ShippingAddress"],
+    }),
+    updateShippingAddress: builder.mutation<
+      SingleShippingAddressResponse,
+      addShippingAddressRequest
+    >({
+      query: (data) => ({
+        url: "/user/update-address",
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["ShippingAddress", "ShippingAddressId"],
+    }),
+
+    getShippingAddressById: builder.query<
+      SingleShippingAddressResponse,
+      { id: number }
+    >({
+      query: (data) => `/user/address/${data.id}`,
+      providesTags: ["ShippingAddressId"],
+    }),
   }),
 });
 
@@ -140,4 +197,10 @@ export const {
   useForgotPasswordMutation,
   useLogoutMutation,
   useGetCurrentUserQuery,
+  useUpdateUserProfileMutation,
+  useAddShippingAddressMutation,
+  useGetShippingAddressQuery,
+  useDeleteShippingAddressMutation,
+  useUpdateShippingAddressMutation,
+  useGetShippingAddressByIdQuery,
 } = authApi;

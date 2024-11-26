@@ -21,11 +21,15 @@ model User {
   lastName      String
   termsAccepted Boolean  @default(false)
   refreshToken  String?
+  phone         String?
+  imgUrl        String?  @default("https://t3.ftcdn.net/jpg/06/33/54/78/360_F_633547842_AugYzexTpMJ9z1YcpTKUBoqBF0CUCk10.jpg")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   reviews       Review[]
   passwordResetRequests ForgotPasswordRequest[]
+  addresses     ShippingAddress[]
+  wishlist      Wishlist[]
 }
 
 model ForgotPasswordRequest {
@@ -38,6 +42,32 @@ model ForgotPasswordRequest {
   expireAt    DateTime
   createdAt   DateTime  @default(now())
 }
+
+model ShippingAddress {
+  id                Int      @id @default(autoincrement())
+  userId            Int      
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName          String
+  phone             String
+  addressLine1      String
+  addressLine2      String?
+  city              String
+  state             String
+  pincode           String
+  isDefaultShipping Boolean  @default(false) 
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Wishlist {
+  id         Int      @id @default(autoincrement())
+  userId     Int      
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId  Int      
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
 
 model Category {
   id              Int        @id @default(autoincrement())
@@ -79,6 +109,8 @@ model Product {
   variants            ProductVariant[] 
   reviews             Review[]    
   additionalInfo      Json?
+
+  wishlist            Wishlist[]
 }
 
 model ProductVariant {

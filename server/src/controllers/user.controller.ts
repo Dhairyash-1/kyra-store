@@ -326,6 +326,8 @@ export const getCurrentUser = asyncHandler(async (req: CustomRequest, res) => {
       firstName: true,
       lastName: true,
       email: true,
+      phone: true,
+      imgUrl: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -339,3 +341,223 @@ export const getCurrentUser = asyncHandler(async (req: CustomRequest, res) => {
     .status(200)
     .json(new ApiResponse(200, user, "Current user fetched successfully"));
 });
+
+export const updateUserProfile = asyncHandler(
+  async (req: CustomRequest, res) => {
+    const { firstName, lastName, email, phone, img } = req.body;
+
+    if (!firstName && !lastName && !email && !phone && !img) {
+      throw new ApiError(400, "At least one field must be provided to update.");
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: req?.user?.id,
+      },
+    });
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: req?.user?.id },
+      data: {
+        firstName: firstName || user.firstName,
+        lastName: lastName || user.lastName,
+        email: email || user.email, // Note: Consider adding email verification before updating
+        phone: phone || user.phone,
+        imgUrl: img || user.imgUrl,
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        imgUrl: true,
+      },
+    });
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedUser, "User profile updated successfully")
+      );
+  }
+);
+
+export const addShippingAddress = asyncHandler(
+  async (req: CustomRequest, res) => {
+    const userId = req.user?.id;
+
+    const {
+      fullName,
+      phone,
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      pincode,
+      isDefault,
+    } = req.body;
+
+    if (!userId) {
+      res.status(401);
+      throw new Error("Unauthorized. Please log in.");
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found.");
+    }
+
+    if (isDefault) {
+      await prisma.shippingAddress.updateMany({
+        where: { userId, isDefaultShipping: true },
+        data: { isDefaultShipping: false },
+      });
+    }
+
+    const newAddress = await prisma.shippingAddress.create({
+      data: {
+        userId,
+        fullName,
+        phone,
+        addressLine1,
+        addressLine2,
+        city,
+        state,
+        pincode,
+        isDefaultShipping: isDefault || false,
+      },
+    });
+
+    const updatedAddresses = await prisma.shippingAddress.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res
+      .status(201)
+      .json(new ApiResponse(201, updatedAddresses, "New address added"));
+  }
+);
+
+export const getAllUserShippingAddress = asyncHandler(
+  async (req: CustomRequest, res) => {
+    const userId = req?.user?.id;
+
+    const addressess = await prisma.shippingAddress.findMany({
+      where: {
+        userId,
+      },
+    });
+
+    if (!addressess) {
+      throw new ApiError(404, "User does not have any shipping address");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, addressess, "All shipping address fetched"));
+  }
+);
+
+export const getShippingAddressById = asyncHandler(
+  async (req: CustomRequest, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+      throw new ApiError(400, "Id is required");
+    }
+
+    const address = await prisma.shippingAddress.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!address) {
+      throw new ApiError(404, "No address found with give Id");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, address, "Address fetched"));
+  }
+);
+
+export const deleteShippingAddress = asyncHandler(
+  async (req: CustomRequest, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+      throw new ApiError(400, "Id is required");
+    }
+
+    const address = await prisma.shippingAddress.delete({
+      where: { id: Number(id) },
+    });
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Address delete successfully"));
+  }
+);
+export const updateShippingAddress = asyncHandler(
+  async (req: CustomRequest, res) => {
+    const {
+      id,
+      fullName,
+      phone,
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      pincode,
+      isDefault,
+    } = req.body;
+    const userId = req.user?.id;
+
+    if (!id) {
+      throw new ApiError(400, "Id is required");
+    }
+
+    const address = await prisma.shippingAddress.findUnique({
+      where: { id },
+    });
+
+    if (!address) {
+      throw new ApiError(404, "No address found with give Id");
+    }
+    if (isDefault) {
+      await prisma.shippingAddress.updateMany({
+        where: { userId, isDefaultShipping: true },
+        data: { isDefaultShipping: false },
+      });
+    }
+
+    const updateAddress = await prisma.shippingAddress.update({
+      where: { id: address.id },
+      data: {
+        fullName,
+        phone,
+        addressLine1,
+        addressLine2,
+        city,
+        pincode,
+        state,
+        isDefaultShipping: isDefault,
+      },
+    });
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, updateAddress, "Address updated successfully")
+      );
+  }
+);
