@@ -6,6 +6,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { Separator } from "./ui/separator";
 
 import { RootState } from "@/store/store";
+import { Link } from "react-router-dom";
 
 const MiniCart = ({ children }: { children: ReactNode }) => {
   const { items, totalPrice, totalQuantity } = useSelector(
@@ -54,9 +55,11 @@ const MiniCart = ({ children }: { children: ReactNode }) => {
           <span className="text-base font-bold">₹{totalPrice}</span>
         </div>
 
-        <button className=" w-full rounded-lg border-2 border-dark-500 bg-white py-2 font-normal text-dark-500">
-          View Cart
-        </button>
+        <Link to={"/cart"}>
+          <button className=" w-full rounded-lg border-2 border-dark-500 bg-white py-2 font-normal text-dark-500">
+            View Cart
+          </button>
+        </Link>
         <button className="mt-4 w-full rounded-lg bg-dark-500 py-2 font-normal text-white">
           Checkout
         </button>

@@ -13,7 +13,7 @@ import { updateAuthStatus } from "@/features/auth/authSlice";
 import { useLogoutMutation } from "@/services/authApi";
 
 const ProfileDropdown = ({ children }: { children: ReactNode }) => {
-  const [logout, { isLoading }] = useLogoutMutation();
+  const [logout] = useLogoutMutation();
   const dispatach = useDispatch();
   const handleLogout = async () => {
     try {
@@ -23,6 +23,8 @@ const ProfileDropdown = ({ children }: { children: ReactNode }) => {
           isAuthenticated: false,
           userId: null,
           isLoading: false,
+          name: "",
+          profileImage: "",
         })
       );
     } catch (error) {
@@ -32,11 +34,13 @@ const ProfileDropdown = ({ children }: { children: ReactNode }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>{children}</DropdownMenuTrigger>
-      <DropdownMenuContent className="z-50 w-40 space-y-1 rounded-sm bg-white-80 px-2 py-4 shadow-xl">
+      <DropdownMenuContent className="z-50 w-40 space-y-1 rounded-sm border bg-white-80 px-2 py-3 shadow-md ">
         <Link to="/profile">
-          <DropdownMenuItem>My Profile</DropdownMenuItem>
+          <DropdownMenuItem className="text-sm ">My Profile</DropdownMenuItem>
         </Link>
-        <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+        <DropdownMenuItem className="text-sm " onClick={handleLogout}>
+          Logout
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

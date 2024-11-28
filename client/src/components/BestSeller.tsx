@@ -1,15 +1,33 @@
 import { StarIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import ProductCard from "./ProductCard";
 
 import { addToCart } from "@/features/cart/cartSlice";
+import { useToast } from "@/hooks/use-toast";
 import { useGetBestSellerProductsQuery } from "@/services/productApi";
+import {
+  useGetAllUserWishlistItemQuery,
+  useToggleProductWishlistMutation,
+} from "@/services/wishlistApi";
 
 const BestSeller = () => {
+  const { toast } = useToast();
   const { data } = useGetBestSellerProductsQuery();
+  const { data: wishlistData } = useGetAllUserWishlistItemQuery();
+  const [wishlistProductIds, setWishlistProductIds] = useState<number[]>([]);
   const bestSellerProducts = data?.data;
+  const [toggleWishlist] = useToggleProductWishlistMutation();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (wishlistData?.data) {
+      console.log(wishlistData);
+      const ids = wishlistData.data.map((item: { id: number }) => item?.id);
+      setWishlistProductIds(ids);
+    }
+  }, [wishlistData]);
 
   function handleAddToCart(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -27,6 +45,35 @@ const BestSeller = () => {
       })
     );
   }
+  function handleAddToWishlist(
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    id: number
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setWishlistProductIds((prevWishlist) =>
+      prevWishlist.includes(id)
+        ? prevWishlist.filter((wishlistId) => wishlistId !== id)
+        : [...prevWishlist, id]
+    );
+
+    toggleWishlist({ id })
+      .unwrap()
+      .catch(() => {
+        setWishlistProductIds((prevWishlist) =>
+          !prevWishlist.includes(id)
+            ? [...prevWishlist, id]
+            : prevWishlist.filter((wishlistId) => wishlistId !== id)
+        );
+
+        return toast({
+          title: "Failed to update wishlist. Please try again.",
+          variant: "destructive",
+        });
+      });
+  }
+
   if (!bestSellerProducts) return null;
   return (
     <section className="mt-24 lg:px-20">
@@ -37,6 +84,8 @@ const BestSeller = () => {
         {bestSellerProducts?.map((product) => {
           const { id, name, salePrice, basePrice, brand, images, slug } =
             product;
+          const isWishlist = wishlistProductIds.includes(id);
+
           return (
             <ProductCard
               key={id}
@@ -48,10 +97,15 @@ const BestSeller = () => {
               images={images}
               slug={slug}
               topActionButton={
-                <div className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white shadow-md">
+                <div
+                  onClick={(e) => handleAddToWishlist(e, id)}
+                  className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white shadow-md"
+                >
                   <StarIcon
                     size={28}
-                    className="stroke-dark-90-500 stroke-[1.5]"
+                    fill={isWishlist ? "#f8a137" : "none"}
+                    color={`${isWishlist ? "#f8a137" : "#131118"}`}
+                    className="stroke-dark-90-500 stroke-[1.5] "
                   />
                 </div>
               }

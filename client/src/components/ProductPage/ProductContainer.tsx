@@ -1,4 +1,5 @@
 import { StarIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -8,13 +9,19 @@ import ProductCard from "../ProductCard";
 import { ProductPagination } from "./ProductPagination";
 
 import { addToCart } from "@/features/cart/cartSlice";
+import { useToast } from "@/hooks/use-toast";
 import { PAGE_SIZE } from "@/lib/utils";
 import { useGetAllProductsQuery } from "@/services/productApi";
+import {
+  useGetAllUserWishlistItemQuery,
+  useToggleProductWishlistMutation,
+} from "@/services/wishlistApi";
 import { ProductType } from "@/types/productType";
 
 type SelectedProduct = ProductType & { price?: number };
 
 const ProductContainer = () => {
+  const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const currentPage = !searchParams.get("page")
     ? 1
@@ -34,8 +41,19 @@ const ProductContainer = () => {
 
   const AllProducts = data?.data?.products;
   const productCount = data?.data?.totalProducts || 0;
+  const [toggleWishlist] = useToggleProductWishlistMutation();
+  const { data: wishlistData } = useGetAllUserWishlistItemQuery();
+  const [wishlistProductIds, setWishlistProductIds] = useState<number[]>([]);
   const dispatch = useDispatch();
   // console.log(data, AllProducts, error);
+
+  useEffect(() => {
+    if (wishlistData?.data) {
+      console.log(wishlistData);
+      const ids = wishlistData.data.map((item: { id: number }) => item?.id);
+      setWishlistProductIds(ids);
+    }
+  }, [wishlistData]);
 
   function handleAddToCart(
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
@@ -52,6 +70,35 @@ const ProductContainer = () => {
         quantity: 1,
       })
     );
+  }
+
+  function handleAddToWishlist(
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    id: number
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setWishlistProductIds((prevWishlist) =>
+      prevWishlist.includes(id)
+        ? prevWishlist.filter((wishlistId) => wishlistId !== id)
+        : [...prevWishlist, id]
+    );
+
+    toggleWishlist({ id })
+      .unwrap()
+      .catch(() => {
+        setWishlistProductIds((prevWishlist) =>
+          !prevWishlist.includes(id)
+            ? [...prevWishlist, id]
+            : prevWishlist.filter((wishlistId) => wishlistId !== id)
+        );
+
+        return toast({
+          title: "Failed to update wishlist. Please try again.",
+          variant: "destructive",
+        });
+      });
   }
 
   return (
@@ -74,14 +121,18 @@ const ProductContainer = () => {
               let selectedProduct: SelectedProduct = product;
 
               if (product.isVariant && product.variants.length > 0) {
-                const { name, brand, slug } = product;
+                const { name, brand, slug, images } = product;
+                const { images: variantImg, ...withoutImageVariant } =
+                  product.variants[0];
                 selectedProduct = {
                   name,
                   brand,
                   slug,
-                  ...product.variants[0],
+                  images,
+                  ...withoutImageVariant,
                 };
               }
+              const isWishlist = wishlistProductIds.includes(product.id);
               return (
                 <ProductCard
                   key={selectedProduct.id}
@@ -94,10 +145,15 @@ const ProductContainer = () => {
                   slug={selectedProduct.slug}
                   price={selectedProduct.price as number}
                   topActionButton={
-                    <div className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white shadow-md">
+                    <div
+                      onClick={(e) => handleAddToWishlist(e, product.id)}
+                      className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white shadow-md"
+                    >
                       <StarIcon
                         size={28}
-                        className="stroke-dark-90-500 stroke-[1.5]"
+                        fill={isWishlist ? "#f8a137" : "none"}
+                        color={`${isWishlist ? "#f8a137" : "#131118"}`}
+                        className="stroke-dark-90-500 stroke-[1.5] "
                       />
                     </div>
                   }

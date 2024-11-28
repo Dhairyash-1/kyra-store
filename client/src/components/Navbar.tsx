@@ -127,9 +127,9 @@ const Navbar = () => {
         <button className="bg-transparent p-0 focus:outline-none">
           <Search className="h-6 w-6 text-dark-500" aria-label="Search" />
         </button>
-        <button className="bg-transparent p-0 focus:outline-none">
+        <Link to="/wishlists">
           <Heart className="h-6 w-6 text-dark-500" aria-label="Wishlist" />
-        </button>
+        </Link>
         <MiniCart>
           <div className="relative bg-transparent p-0 focus:outline-none">
             <button className="bg-transparent p-0 focus:outline-none">
