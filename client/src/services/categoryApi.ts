@@ -4,6 +4,7 @@ import {
   AllCategoryResponse,
   createCategoryRequest,
   createCategoryResponse,
+  TrendingCategoriesResponse,
 } from "@/types/categoryType";
 
 export const categoryApi = createApi({
@@ -30,8 +31,15 @@ export const categoryApi = createApi({
     getAllCategory: builder.query<AllCategoryResponse, void>({
       query: () => `/category/`,
     }),
+
+    getTrendingCategories: builder.query<TrendingCategoriesResponse, void>({
+      query: () => "/category/get/trending",
+    }),
   }),
 });
 
-export const { useCreateCategoryMutation, useGetAllCategoryQuery } =
-  categoryApi;
+export const {
+  useCreateCategoryMutation,
+  useGetAllCategoryQuery,
+  useGetTrendingCategoriesQuery,
+} = categoryApi;

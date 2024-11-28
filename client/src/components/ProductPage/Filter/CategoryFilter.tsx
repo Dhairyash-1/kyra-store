@@ -41,9 +41,16 @@ const CategoryFilter = () => {
         : [...prev, subcategorySlug]
     );
   };
+  useEffect(() => {
+    const categoriesFromUrl = searchParams.get("categories")?.split(",") || [];
+    const subcategoriesFromUrl =
+      searchParams.get("subcategories")?.split(",") || [];
+
+    setSelectedCategories(categoriesFromUrl);
+    setSelectedSubcategories(subcategoriesFromUrl);
+  }, [searchParams]);
 
   useEffect(() => {
-    // Sync state with URL search params
     const params = new URLSearchParams(searchParams);
 
     if (selectedCategories.length > 0) {

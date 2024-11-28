@@ -21,6 +21,7 @@ interface CategoryType {
   id: number;
   name: string;
   description?: string;
+  imageUrl: string | null;
   parentId?: number | null;
   slug: string;
   children?: CategoryType[];
@@ -31,6 +32,19 @@ interface CategoryType {
 export interface AllCategoryResponse {
   statusCode: number;
   data: CategoryType[];
+  message: string;
+  success: boolean;
+}
+
+export interface TrendingCategoriesResponse {
+  statusCode: number;
+  data: {
+    id: number;
+    name: string;
+    imageUrl: string;
+    slug: string;
+    parentId: null | number;
+  }[];
   message: string;
   success: boolean;
 }

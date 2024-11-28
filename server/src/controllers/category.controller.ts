@@ -159,3 +159,33 @@ export const deleteProductCategory = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, {}, "Category deleted successfully"));
 });
+
+export const getTrendingCategories = asyncHandler(async (req, res) => {
+  const categories = await prisma.category.findMany({
+    where: {
+      imageUrl: { not: null },
+    },
+    include: {
+      _count: {
+        select: {
+          products: true,
+        },
+      },
+    },
+    orderBy: {
+      products: {
+        _count: "desc",
+      },
+    },
+  });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        categories,
+        "Trending categories fetched successfully"
+      )
+    );
+});

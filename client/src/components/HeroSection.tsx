@@ -20,7 +20,7 @@ export default function Component() {
             </p>
           </div>
           <Link
-            to="/"
+            to="/products"
             className="group inline-flex items-center gap-2 rounded-md bg-black px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800"
           >
             Shop Now

@@ -7,6 +7,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+src/Pages/Shipping.tsx
+src/components/AddressCard.tsx
+
 node_modules
 dist
 dist-ssr

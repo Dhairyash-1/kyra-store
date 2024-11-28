@@ -24,6 +24,7 @@ import Products from "./Pages/Products";
 import Shipping from "./Pages/Shipping";
 import Signup from "./Pages/Signup";
 import { useGetCurrentUserQuery } from "./services/authApi";
+import ScrollToTop from "./utils/ScrollToTop";
 
 const App = () => {
   const { data, isLoading, error } = useGetCurrentUserQuery();
@@ -70,6 +71,7 @@ const App = () => {
   return (
     <>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />

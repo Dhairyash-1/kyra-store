@@ -3,20 +3,24 @@ import { useState, useEffect } from "react";
 
 import CategoryCard from "./CategoryCard";
 import { productCategories } from "../constants/index";
+import { useGetTrendingCategoriesQuery } from "@/services/categoryApi";
 
-interface CategoryType {
+interface CategoryStateType {
   id: number;
-  title: string;
-  href: string;
-  image: string;
+  name: string;
+  imageUrl: string;
+  slug: string;
+  parentId: null | number;
 }
 
 const ShopCategory = () => {
+  const { data } = useGetTrendingCategoriesQuery();
+  const shopCategories = data?.data;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [screenSize, setScreenSize] = useState(1);
-  const [visibleCategories, setVisibleCategories] = useState<CategoryType[]>(
-    []
-  );
+  const [visibleCategories, setVisibleCategories] = useState<
+    CategoryStateType[]
+  >([]);
   const [isNextDisabled, setIsNextDisabled] = useState(false);
   const [isPrevDisabled, setIsPrevDisabled] = useState(true);
 
@@ -45,10 +49,11 @@ const ShopCategory = () => {
   useEffect(() => {
     const start = currentIndex;
     const end = start + screenSize;
-    setVisibleCategories(productCategories.slice(start, end));
-    setIsNextDisabled(currentIndex + screenSize >= productCategories.length);
+    if (!shopCategories || shopCategories.length === 0) return;
+    setVisibleCategories(shopCategories.slice(start, end));
+    setIsNextDisabled(currentIndex + screenSize >= shopCategories.length);
     setIsPrevDisabled(currentIndex === 0);
-  }, [currentIndex, screenSize]);
+  }, [currentIndex, screenSize, shopCategories]);
 
   const handleArrowClick = (direction: "left" | "right") => {
     if (direction === "right" && !isNextDisabled) {
@@ -84,15 +89,21 @@ const ShopCategory = () => {
         </div>
       </div>
       <div className="grid grid-cols-1 gap-8 py-14 transition duration-500 ease-in-out sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {visibleCategories.map((category) => (
-          <div key={category.id} className="animate-slide-in-from-left">
-            <CategoryCard
-              title={category.title}
-              href={category.href}
-              image={category.image}
-            />
-          </div>
-        ))}
+        {visibleCategories.map((category) => {
+          const isParentCategory = category.parentId === null;
+          const hrefUrl = isParentCategory
+            ? `/products?categories=${category.slug}`
+            : `/products?subcategories=${category.slug}`;
+          return (
+            <div key={category.id} className="animate-slide-in-from-left">
+              <CategoryCard
+                title={category.name}
+                href={hrefUrl}
+                image={category.imageUrl}
+              />
+            </div>
+          );
+        })}
       </div>
     </section>
   );
