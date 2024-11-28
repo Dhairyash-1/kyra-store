@@ -23,10 +23,12 @@ import errorHandler from "./middlewares/error.middleware";
 import userRouter from "./routes/user.routes";
 import categoryRouter from "./routes/category.routes";
 import productRouter from "./routes/product.routes";
+import wishlistRouter from "./routes/wishlist.routes";
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/product", productRouter);
+app.use("/api/v1/wishlist", wishlistRouter);
 
 // middleware to format all error as json
 app.use(errorHandler);
