@@ -1,27 +1,20 @@
 import { StarIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import ProductToolBar from "./ProductToolBar";
 import ProductCard from "../ProductCard";
 import { ProductPagination } from "./ProductPagination";
 
-import { addToCart } from "@/features/cart/cartSlice";
-import { useToast } from "@/hooks/use-toast";
+import useCart from "@/hooks/useCart";
+import useWishlist from "@/hooks/useWishlist";
 import { PAGE_SIZE } from "@/lib/utils";
 import { useGetAllProductsQuery } from "@/services/productApi";
-import {
-  useGetAllUserWishlistItemQuery,
-  useToggleProductWishlistMutation,
-} from "@/services/wishlistApi";
 import { ProductType } from "@/types/productType";
 
 type SelectedProduct = ProductType & { price?: number };
 
 const ProductContainer = () => {
-  const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const currentPage = !searchParams.get("page")
     ? 1
@@ -41,65 +34,9 @@ const ProductContainer = () => {
 
   const AllProducts = data?.data?.products;
   const productCount = data?.data?.totalProducts || 0;
-  const [toggleWishlist] = useToggleProductWishlistMutation();
-  const { data: wishlistData } = useGetAllUserWishlistItemQuery();
-  const [wishlistProductIds, setWishlistProductIds] = useState<number[]>([]);
-  const dispatch = useDispatch();
-  // console.log(data, AllProducts, error);
 
-  useEffect(() => {
-    if (wishlistData?.data) {
-      console.log(wishlistData);
-      const ids = wishlistData.data.map((item: { id: number }) => item?.id);
-      setWishlistProductIds(ids);
-    }
-  }, [wishlistData]);
-
-  function handleAddToCart(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    product: SelectedProduct
-  ) {
-    e.stopPropagation();
-    e.preventDefault();
-    dispatch(
-      addToCart({
-        id: product.id,
-        image: product.images[0].url,
-        name: product.name,
-        price: product.salePrice,
-        quantity: 1,
-      })
-    );
-  }
-
-  function handleAddToWishlist(
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    id: number
-  ) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    setWishlistProductIds((prevWishlist) =>
-      prevWishlist.includes(id)
-        ? prevWishlist.filter((wishlistId) => wishlistId !== id)
-        : [...prevWishlist, id]
-    );
-
-    toggleWishlist({ id })
-      .unwrap()
-      .catch(() => {
-        setWishlistProductIds((prevWishlist) =>
-          !prevWishlist.includes(id)
-            ? [...prevWishlist, id]
-            : prevWishlist.filter((wishlistId) => wishlistId !== id)
-        );
-
-        return toast({
-          title: "Failed to update wishlist. Please try again.",
-          variant: "destructive",
-        });
-      });
-  }
+  const { handleAddToCart, items } = useCart();
+  const { handleAddToWishlist, wishlistProductIds } = useWishlist();
 
   return (
     <div className="col-span-4 flex flex-col lg:col-span-3">
@@ -146,7 +83,12 @@ const ProductContainer = () => {
                   price={selectedProduct.price as number}
                   topActionButton={
                     <div
-                      onClick={(e) => handleAddToWishlist(e, product.id)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        handleAddToWishlist(product.id);
+                      }}
                       className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white shadow-md"
                     >
                       <StarIcon
@@ -158,12 +100,24 @@ const ProductContainer = () => {
                     </div>
                   }
                   bottomActionButton={
-                    <button
-                      onClick={(e) => handleAddToCart(e, selectedProduct)}
-                      className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm"
-                    >
-                      Add to Cart
-                    </button>
+                    items.some((item) => item.id === product.id) ? (
+                      <Link to="/cart">
+                        <button className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm">
+                          Go to Cart
+                        </button>
+                      </Link>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleAddToCart(selectedProduct);
+                        }}
+                        className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm"
+                      >
+                        Add to Cart
+                      </button>
+                    )
                   }
                 />
               );

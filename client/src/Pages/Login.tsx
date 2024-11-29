@@ -1,8 +1,8 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, redirect, useLocation, useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import LoginPageBanner from "../assets/create-banner.png";
@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { updateAuthStatus } from "@/features/auth/authSlice";
 import { useLoginMutation } from "@/services/authApi";
 import { loginFormSchema } from "@/utils/validations";
+import { RootState } from "@/store/store";
 
 interface LoginFormData {
   email: string;
@@ -29,6 +30,9 @@ export default function Login() {
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
   const [apiError, setApiError] = useState<string | null>(null);
+  const { isAuthenticated, isLoading: isAuthLoading } = useSelector(
+    (state: RootState) => state.auth
+  );
   const {
     register,
     handleSubmit,
@@ -41,6 +45,11 @@ export default function Login() {
       rememberMe: false,
     },
   });
+  useEffect(() => {
+    if (isAuthenticated && !isAuthLoading) {
+      return navigate("/");
+    }
+  }, [isAuthenticated, navigate, isAuthLoading]);
 
   const handleLogin = async (data: LoginFormData) => {
     console.log(data);
@@ -66,7 +75,7 @@ export default function Login() {
       }
     }
   };
-  console.log("Validation Errors:", errors);
+
   return (
     <div className="flex max-h-screen bg-white">
       {/* Left side - Image */}

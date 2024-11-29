@@ -1,43 +1,18 @@
 import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import { Separator } from "@/components/ui/separator";
-import { removeFromCart, updateQuantity } from "@/features/cart/cartSlice";
-import { RootState } from "@/store/store";
+import useCart from "@/hooks/useCart";
 
 const CartPage = () => {
-  const { items } = useSelector((state: RootState) => state.cart);
-  const dispatch = useDispatch();
-
-  const handleIncrement = (item: any) => {
-    dispatch(
-      updateQuantity({
-        id: item.id,
-        quantity: item.quantity + 1,
-      })
-    );
-  };
-
-  const handleDecrement = (item: any) => {
-    if (item && item.quantity > 1) {
-      dispatch(
-        updateQuantity({
-          id: item.id,
-          quantity: item.quantity - 1,
-        })
-      );
-    } else {
-      dispatch(removeFromCart(item.id));
-    }
-  };
-
-  // Calculate total subtotal
-  const totalPrice = items.reduce(
-    (total, item) => total + item.quantity * item.price,
-    0
-  );
+  const {
+    handleIncrement,
+    totalPrice,
+    handleDecrement,
+    handleRemoveFromCart,
+    items,
+  } = useCart();
 
   return (
     <div className="mt-8 md:px-20">
@@ -97,7 +72,7 @@ const CartPage = () => {
                   <div>
                     <TrashIcon
                       className="cursor-pointer text-red-500 hover:text-red-700"
-                      onClick={() => dispatch(removeFromCart(item.id))}
+                      onClick={() => handleRemoveFromCart(item.id)}
                     />
                   </div>
                 </div>
@@ -114,7 +89,7 @@ const CartPage = () => {
           <div className="flex justify-between">
             <h2 className="text-lg font-bold text-dark-500">Subtotal</h2>
             <span className=" font-bold text-dark-500">
-              ₹{totalPrice.toFixed(2)}
+              ₹{totalPrice?.toFixed(2)}
             </span>
           </div>
           <Separator className="mt-4" />
@@ -151,7 +126,10 @@ const CartPage = () => {
             </span>
           </div>
           <Link to="/shipping">
-            <button className="mt-4 w-full  rounded-lg bg-dark-500 py-4 text-lg font-normal text-white">
+            <button
+              disabled={items.length === 0}
+              className="mt-4 w-full  rounded-lg bg-dark-500 py-4 text-lg font-normal text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-[#3A383F] disabled:text-gray-80"
+            >
               Proceed
             </button>
           </Link>

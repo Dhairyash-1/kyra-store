@@ -1,80 +1,20 @@
 import { StarIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 
 import ProductCard from "./ProductCard";
 
-import { addToCart } from "@/features/cart/cartSlice";
-import { useToast } from "@/hooks/use-toast";
+import useCart from "@/hooks/useCart";
+import useWishlist from "@/hooks/useWishlist";
 import { useGetBestSellerProductsQuery } from "@/services/productApi";
-import {
-  useGetAllUserWishlistItemQuery,
-  useToggleProductWishlistMutation,
-} from "@/services/wishlistApi";
 
 const BestSeller = () => {
-  const { toast } = useToast();
   const { data } = useGetBestSellerProductsQuery();
-  const { data: wishlistData } = useGetAllUserWishlistItemQuery();
-  const [wishlistProductIds, setWishlistProductIds] = useState<number[]>([]);
+  const { handleAddToWishlist, wishlistProductIds } = useWishlist();
   const bestSellerProducts = data?.data;
-  const [toggleWishlist] = useToggleProductWishlistMutation();
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (wishlistData?.data) {
-      console.log(wishlistData);
-      const ids = wishlistData.data.map((item: { id: number }) => item?.id);
-      setWishlistProductIds(ids);
-    }
-  }, [wishlistData]);
-
-  function handleAddToCart(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    product: any
-  ) {
-    e.stopPropagation();
-    e.preventDefault();
-    dispatch(
-      addToCart({
-        id: product.id,
-        image: product.images[0].url,
-        name: product.name,
-        price: product.salePrice,
-        quantity: 1,
-      })
-    );
-  }
-  function handleAddToWishlist(
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    id: number
-  ) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    setWishlistProductIds((prevWishlist) =>
-      prevWishlist.includes(id)
-        ? prevWishlist.filter((wishlistId) => wishlistId !== id)
-        : [...prevWishlist, id]
-    );
-
-    toggleWishlist({ id })
-      .unwrap()
-      .catch(() => {
-        setWishlistProductIds((prevWishlist) =>
-          !prevWishlist.includes(id)
-            ? [...prevWishlist, id]
-            : prevWishlist.filter((wishlistId) => wishlistId !== id)
-        );
-
-        return toast({
-          title: "Failed to update wishlist. Please try again.",
-          variant: "destructive",
-        });
-      });
-  }
+  const { handleAddToCart, items } = useCart();
 
   if (!bestSellerProducts) return null;
+
   return (
     <section className="mt-24 lg:px-20">
       <h1 className=" text-center text-3xl font-medium text-dark-90 md:text-4xl ">
@@ -98,7 +38,11 @@ const BestSeller = () => {
               slug={slug}
               topActionButton={
                 <div
-                  onClick={(e) => handleAddToWishlist(e, id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleAddToWishlist(id);
+                  }}
                   className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white shadow-md"
                 >
                   <StarIcon
@@ -110,12 +54,24 @@ const BestSeller = () => {
                 </div>
               }
               bottomActionButton={
-                <button
-                  onClick={(e) => handleAddToCart(e, product)}
-                  className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm"
-                >
-                  Add to Cart
-                </button>
+                items.some((item) => item.id === product.id) ? (
+                  <Link to="/cart">
+                    <button className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm">
+                      Go to Cart
+                    </button>
+                  </Link>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleAddToCart(product);
+                    }}
+                    className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm"
+                  >
+                    Add to Cart
+                  </button>
+                )
               }
             />
           );

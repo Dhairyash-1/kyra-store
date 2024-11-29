@@ -49,19 +49,19 @@ const Footer = () => {
         {/* Information Links Section */}
         <div className="space-y-2">
           <h4 className="mb-4 font-bold">Information</h4>
-          <Link className="block font-light" to="/">
+          <Link className="block font-light" to="/profile">
             My Account
           </Link>
-          <Link className="block font-light" to="/">
+          <Link className="block font-light" to="/login">
             Login
           </Link>
-          <Link className="block font-light" to="/">
+          <Link className="block font-light" to="/cart">
             My Cart
           </Link>
-          <Link className="block font-light" to="/">
+          <Link className="block font-light" to="/wishlists">
             My Wishlist
           </Link>
-          <Link className="block font-light" to="/">
+          <Link className="block font-light" to="/shipping">
             Checkout
           </Link>
         </div>

@@ -1,7 +1,7 @@
 import { HeartIcon, MinusIcon, PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 import BreadCrumb from "@/components/BreadCrumb";
 import FullPageLoader from "@/components/FullPageLoader";
@@ -13,6 +13,7 @@ import {
 } from "@/features/cart/cartSlice";
 import { useGetProductBySlugQuery } from "@/services/productApi";
 import { RootState } from "@/store/store";
+import useCart from "@/hooks/useCart";
 
 const ProductPage = () => {
   const { slug } = useParams();
@@ -21,8 +22,8 @@ const ProductPage = () => {
   const { data, isLoading } = useGetProductBySlugQuery({ slug: slug || "" });
   const product = data?.data;
   const dispatch = useDispatch();
-
-  const { items } = useSelector((state: RootState) => state.cart);
+  const { handleIncrement, handleAddToCart, handleDecrement, items } =
+    useCart();
 
   if (isLoading || !product) {
     return <FullPageLoader />;
@@ -42,39 +43,6 @@ const ProductPage = () => {
 
   const currentImage = images[imgIndex];
   const currentProduct = items.find((item) => item.id === id);
-
-  const handleIncrement = () => {
-    dispatch(
-      updateQuantity({
-        id,
-        quantity: currentProduct ? currentProduct.quantity + 1 : 1,
-      })
-    );
-  };
-
-  const handleDecrement = () => {
-    if (currentProduct && currentProduct.quantity > 1) {
-      dispatch(
-        updateQuantity({
-          id,
-          quantity: currentProduct.quantity - 1,
-        })
-      );
-    } else {
-      dispatch(removeFromCart(id));
-    }
-  };
-  const handleAddToCart = () => {
-    dispatch(
-      addToCart({
-        id,
-        name,
-        image: images[0]?.url,
-        price: salePrice,
-        quantity: 1,
-      })
-    );
-  };
 
   return (
     <div className="mt-8 px-4 sm:px-8 md:px-20 lg:px-28">
@@ -143,25 +111,41 @@ const ProductPage = () => {
             <div className="flex items-center space-x-4 rounded-lg border-2 border-dark-500 px-4 py-3 sm:w-auto">
               <MinusIcon
                 className="cursor-pointer text-dark-500"
-                onClick={handleDecrement}
+                onClick={() => handleDecrement(currentProduct)}
               />
               <span className="text-dark-500">
                 {currentProduct ? currentProduct.quantity : 0}
               </span>
               <PlusIcon
                 className="cursor-pointer text-dark-500"
-                onClick={handleIncrement}
+                onClick={() => handleIncrement(currentProduct)}
               />
             </div>
 
             {/* Add to Cart Button */}
             <div className="flex justify-center sm:w-auto sm:justify-center">
-              <Button
-                onClick={handleAddToCart}
-                className="w-full rounded-lg bg-dark-500 px-8 py-6 text-base font-light text-white sm:w-auto md:px-28"
-              >
-                Add to Cart
-              </Button>
+              {currentProduct ? (
+                <Link to={"/cart"}>
+                  <Button className="w-full rounded-lg bg-dark-500 px-8 py-6 text-base font-light text-white sm:w-auto md:px-28">
+                    Go to Cart
+                  </Button>
+                </Link>
+              ) : (
+                <Button
+                  onClick={() =>
+                    handleAddToCart({
+                      id,
+                      name,
+                      images,
+                      salePrice,
+                      quantity: 1,
+                    })
+                  }
+                  className="w-full rounded-lg bg-dark-500 px-8 py-6 text-base font-light text-white sm:w-auto md:px-28"
+                >
+                  Add to Cart
+                </Button>
+              )}
             </div>
 
             {/* Wishlist Button */}

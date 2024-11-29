@@ -1,10 +1,9 @@
 import { TrashIcon } from "lucide-react";
-import React from "react";
-import { useDispatch } from "react-redux";
 
 import ProductCard from "./ProductCard";
 
-import { addToCart } from "@/features/cart/cartSlice";
+import useCart from "@/hooks/useCart";
+import useWishlist from "@/hooks/useWishlist";
 import {
   useGetAllUserWishlistItemQuery,
   useToggleProductWishlistMutation,
@@ -13,38 +12,9 @@ import {
 const Wishlist = () => {
   const { data } = useGetAllUserWishlistItemQuery();
   const [toggleWishlist] = useToggleProductWishlistMutation();
-  console.log(data);
   const wishlists = data?.data;
-  const dispatch = useDispatch();
-
-  function handleAddToCart(
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    item: any
-  ) {
-    e.stopPropagation();
-    e.preventDefault();
-
-    dispatch(
-      addToCart({
-        id: item.id,
-        image: item.images[0].url,
-        name: item.name,
-        price: item.salePrice,
-        quantity: 1,
-      })
-    );
-
-    toggleWishlist({ id: item.id });
-  }
-
-  function handleWishlistDelete(
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    id: number
-  ) {
-    e.stopPropagation();
-    e.preventDefault();
-    toggleWishlist({ id });
-  }
+  const { handleAddToCart } = useCart();
+  const { handleWishlistDelete } = useWishlist();
 
   return (
     <div className="grid h-full grid-cols-2 gap-8   sm:grid-cols-2 md:grid-cols-3 ">
@@ -65,7 +35,11 @@ const Wishlist = () => {
             slug={item.slug}
             topActionButton={
               <div
-                onClick={(e) => handleWishlistDelete(e, item.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  handleWishlistDelete(item.id);
+                }}
                 className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white shadow-md"
               >
                 <TrashIcon size={28} className="stroke-[1.5] text-red-600" />
@@ -73,7 +47,12 @@ const Wishlist = () => {
             }
             bottomActionButton={
               <button
-                onClick={(e) => handleAddToCart(e, item)}
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleAddToCart(item);
+                  await toggleWishlist({ id: item.id });
+                }}
                 className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm"
               >
                 Move to Cart
