@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 import { useToast } from "./use-toast";
 
@@ -6,11 +7,17 @@ import {
   useGetAllUserWishlistItemQuery,
   useToggleProductWishlistMutation,
 } from "@/services/wishlistApi";
+import { RootState } from "@/store/store";
 
 const useWishlist = () => {
   const { toast } = useToast();
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
   const [wishlistProductIds, setWishlistProductIds] = useState<number[]>([]);
-  const { data: wishlistData } = useGetAllUserWishlistItemQuery();
+  const { data: wishlistData } = useGetAllUserWishlistItemQuery(undefined, {
+    skip: !isAuthenticated,
+  });
 
   const [toggleWishlist] = useToggleProductWishlistMutation();
 
@@ -22,6 +29,12 @@ const useWishlist = () => {
   }, [wishlistData]);
 
   const handleAddToWishlist = (id: number) => {
+    if (!isAuthenticated) {
+      return toast({
+        title: "You need to login in order to add items to the wishlist.",
+        variant: "destructive",
+      });
+    }
     // Optimistically update wishlist in the UI
     setWishlistProductIds((prevWishlist) =>
       prevWishlist.includes(id)

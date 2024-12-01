@@ -47,6 +47,8 @@ const PasswordResetModal = ({
       onClose();
     } catch (error) {
       console.log("Error in password reset", error);
+    } finally {
+      localStorage.removeItem("userEmail");
     }
   };
 

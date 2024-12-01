@@ -1,8 +1,8 @@
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import { Link, redirect, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import LoginPageBanner from "../assets/create-banner.png";
@@ -16,7 +16,6 @@ import { Label } from "@/components/ui/label";
 import { updateAuthStatus } from "@/features/auth/authSlice";
 import { useLoginMutation } from "@/services/authApi";
 import { loginFormSchema } from "@/utils/validations";
-import { RootState } from "@/store/store";
 
 interface LoginFormData {
   email: string;
@@ -30,9 +29,7 @@ export default function Login() {
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
   const [apiError, setApiError] = useState<string | null>(null);
-  const { isAuthenticated, isLoading: isAuthLoading } = useSelector(
-    (state: RootState) => state.auth
-  );
+
   const {
     register,
     handleSubmit,
@@ -45,11 +42,6 @@ export default function Login() {
       rememberMe: false,
     },
   });
-  useEffect(() => {
-    if (isAuthenticated && !isAuthLoading) {
-      return navigate("/");
-    }
-  }, [isAuthenticated, navigate, isAuthLoading]);
 
   const handleLogin = async (data: LoginFormData) => {
     console.log(data);
@@ -64,8 +56,10 @@ export default function Login() {
           isLoading: false,
         })
       );
-      const redirectTo = (location.state as any)?.from || "/";
-      navigate(redirectTo);
+      const redirectTo = (location.state as any)?.from?.pathname;
+      console.log("Redirecting to:", redirectTo);
+      console.log("state", location.state);
+      return navigate(redirectTo || "/");
     } catch (error: any) {
       console.log("Error in login", error);
       if (error?.data?.message) {

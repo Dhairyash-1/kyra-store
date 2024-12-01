@@ -1,8 +1,8 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ChevronLeft } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 
 import BrandLogo from "../assets/logo.png";
@@ -21,6 +21,8 @@ const EnterOtp = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [verifyOtp, { isLoading }] = useVerifyOtpMutation();
   const [apiError, setApiError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const navigate = useNavigate();
   const {
     handleSubmit,
     control,
@@ -31,9 +33,15 @@ const EnterOtp = () => {
     ),
   });
 
+  useEffect(() => {
+    const userEmail = localStorage.getItem("userEmail");
+    if (!userEmail) {
+      return navigate("/");
+    }
+    setEmail(userEmail);
+  }, [navigate]);
+
   async function handleOtpVerification(data: { otp: string }) {
-    console.log(data);
-    const email = localStorage.getItem("userEmail");
     if (!email) {
       return console.error("Email is not found");
     }
