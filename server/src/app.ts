@@ -1,10 +1,14 @@
 import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import Stripe from "stripe";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
+
+export const stripe = new Stripe(STRIPE_KEY as string);
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
@@ -24,11 +28,42 @@ import userRouter from "./routes/user.routes";
 import categoryRouter from "./routes/category.routes";
 import productRouter from "./routes/product.routes";
 import wishlistRouter from "./routes/wishlist.routes";
+import orderRouter from "./routes/order.routes";
+
+app.post(
+  "/webhook",
+  express.json({ type: "application/json" }),
+  (request, response) => {
+    const event = request.body;
+
+    // Handle the event
+    switch (event.type) {
+      case "checkout.session.completed":
+        const paymentIntent = event.data.object as Stripe.Checkout.Session;
+        // Then define and call a method to handle the successful payment intent.
+        console.log("completed", paymentIntent);
+        // handlePaymentIntentSucceeded(paymentIntent);
+        break;
+      case "payment_method.attached":
+        const paymentMethod = event.data.object;
+        // Then define and call a method to handle the successful attachment of a PaymentMethod.
+        // handlePaymentMethodAttached(paymentMethod);
+        break;
+      // ... handle other event types
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    // Return a response to acknowledge receipt of the event
+    response.json({ received: true });
+  }
+);
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/wishlist", wishlistRouter);
+app.use("/api/v1/order", orderRouter);
 
 // middleware to format all error as json
 app.use(errorHandler);
