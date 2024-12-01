@@ -29,6 +29,10 @@ import categoryRouter from "./routes/category.routes";
 import productRouter from "./routes/product.routes";
 import wishlistRouter from "./routes/wishlist.routes";
 import orderRouter from "./routes/order.routes";
+import {
+  handleOrderFailure,
+  handleOrderFullfillment,
+} from "./controllers/order.controller";
 
 app.post(
   "/webhook",
@@ -39,13 +43,17 @@ app.post(
     // Handle the event
     switch (event.type) {
       case "checkout.session.completed":
-        const paymentIntent = event.data.object as Stripe.Checkout.Session;
+        const session = event.data.object as Stripe.Checkout.Session;
         // Then define and call a method to handle the successful payment intent.
-        console.log("completed", paymentIntent);
+        console.log("completed", session);
+        handleOrderFullfillment(session);
+
         // handlePaymentIntentSucceeded(paymentIntent);
         break;
-      case "payment_method.attached":
-        const paymentMethod = event.data.object;
+      case "checkout.session.expired":
+        const expiredSession = event.data.object as Stripe.Checkout.Session;
+        handleOrderFailure(expiredSession);
+        console.log("expire  session");
         // Then define and call a method to handle the successful attachment of a PaymentMethod.
         // handlePaymentMethodAttached(paymentMethod);
         break;

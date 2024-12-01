@@ -14,6 +14,28 @@ interface CartItem {
   totalPrice: number; // It seems like totalPrice might be redundant if you are calculating it in the backend
 }
 
+export async function handleOrderFullfillment(session: any) {
+  const orderId = session.metadata.orderId;
+
+  await prisma.order.update({
+    where: { id: Number(orderId) },
+    data: {
+      orderStatus: "CONFIRMED",
+      paymentStatus: "COMPLETED",
+    },
+  });
+}
+export async function handleOrderFailure(session: any) {
+  const orderId = session.metadata.orderId;
+
+  await prisma.order.update({
+    where: { id: Number(orderId) },
+    data: {
+      orderStatus: "CANCELLED",
+      paymentStatus: "FAILED",
+    },
+  });
+}
 export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
   const {
     addressId,
@@ -111,8 +133,8 @@ export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
     metadata: {
       orderId: unpaidOrder.id,
     },
-    success_url: `http://localhost:5000/`,
-    cancel_url: `http://localhost:5000/cart`,
+    success_url: `http://localhost:5173/`,
+    cancel_url: `http://localhost:5173/cart`,
   });
 
   // 7. Update the order with Stripe checkout session ID
