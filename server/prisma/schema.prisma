@@ -161,7 +161,7 @@ model Order {
   shippingAddressId Int
   shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id], onDelete: Cascade)
 
-  orderStatus   OrderStatus   @default(PENDING)
+  orderStatus   OrderStatus   @default(INPROCESS)
   paymentStatus PaymentStatus @default(PENDING)
   totalAmount Float
   items       OrderItem[]
@@ -191,7 +191,8 @@ enum PaymentStatus {
 }
 
 enum OrderStatus {
-  PENDING // Order has been placed but not yet processed
+  FAILED   //Order has been failed due to transaction
+  INPROCESS // Order has been placed but not yet confirmed
   CONFIRMED // Order has been confirmed (inventory check passed, etc.)
   PACKED // Order has been packed
   SHIPPED // Order has been shipped

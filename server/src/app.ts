@@ -29,49 +29,21 @@ import categoryRouter from "./routes/category.routes";
 import productRouter from "./routes/product.routes";
 import wishlistRouter from "./routes/wishlist.routes";
 import orderRouter from "./routes/order.routes";
-import {
-  handleOrderFailure,
-  handleOrderFullfillment,
-} from "./controllers/order.controller";
-
-app.post(
-  "/webhook",
-  express.json({ type: "application/json" }),
-  (request, response) => {
-    const event = request.body;
-
-    // Handle the event
-    switch (event.type) {
-      case "checkout.session.completed":
-        const session = event.data.object as Stripe.Checkout.Session;
-        // Then define and call a method to handle the successful payment intent.
-        console.log("completed", session);
-        handleOrderFullfillment(session);
-
-        // handlePaymentIntentSucceeded(paymentIntent);
-        break;
-      case "checkout.session.expired":
-        const expiredSession = event.data.object as Stripe.Checkout.Session;
-        handleOrderFailure(expiredSession);
-        console.log("expire  session");
-        // Then define and call a method to handle the successful attachment of a PaymentMethod.
-        // handlePaymentMethodAttached(paymentMethod);
-        break;
-      // ... handle other event types
-      default:
-        console.log(`Unhandled event type ${event.type}`);
-    }
-
-    // Return a response to acknowledge receipt of the event
-    response.json({ received: true });
-  }
-);
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/wishlist", wishlistRouter);
 app.use("/api/v1/order", orderRouter);
+
+// webhook
+import { stripeWebhookHandler } from "./webhook/stripeWebhook";
+
+app.post(
+  "/webhook",
+  express.json({ type: "application/json" }),
+  stripeWebhookHandler
+);
 
 // middleware to format all error as json
 app.use(errorHandler);

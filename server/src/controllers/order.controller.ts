@@ -14,28 +14,6 @@ interface CartItem {
   totalPrice: number; // It seems like totalPrice might be redundant if you are calculating it in the backend
 }
 
-export async function handleOrderFullfillment(session: any) {
-  const orderId = session.metadata.orderId;
-
-  await prisma.order.update({
-    where: { id: Number(orderId) },
-    data: {
-      orderStatus: "CONFIRMED",
-      paymentStatus: "COMPLETED",
-    },
-  });
-}
-export async function handleOrderFailure(session: any) {
-  const orderId = session.metadata.orderId;
-
-  await prisma.order.update({
-    where: { id: Number(orderId) },
-    data: {
-      orderStatus: "CANCELLED",
-      paymentStatus: "FAILED",
-    },
-  });
-}
 export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
   const {
     addressId,
@@ -101,7 +79,7 @@ export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
   const unpaidOrder = await prisma.order.create({
     data: {
       userId: req?.user?.id as number,
-      orderStatus: "PENDING",
+      orderStatus: "INPROCESS",
       paymentStatus: "PENDING",
       shippingAddressId: shippingAddress.id,
       totalAmount,
@@ -135,6 +113,7 @@ export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
     },
     success_url: `http://localhost:5173/`,
     cancel_url: `http://localhost:5173/cart`,
+    expires_at: Math.floor(Date.now() / 1000) + 1800,
   });
 
   // 7. Update the order with Stripe checkout session ID
@@ -152,3 +131,26 @@ export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
       new ApiResponse(200, { sessionId: session.id }, "Stripe session created")
     );
 });
+
+export const getAllUserOrders = asyncHandler(
+  async (req: CustomRequest, res) => {
+    const userId = req?.user?.id;
+
+    const orders = await prisma.order.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    if (!orders) {
+      throw new ApiError(404, "No orders found");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, orders, "All orders fetched"));
+  }
+);
