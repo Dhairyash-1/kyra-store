@@ -6,6 +6,7 @@ export async function handleOrderFulfillment(
   session: Stripe.Checkout.Session | Stripe.PaymentIntent
 ) {
   const orderId = session?.metadata?.orderId;
+  console.log("orderId", orderId);
 
   if (!orderId) {
     throw new Error("Order ID is missing in the session metadata.");
@@ -87,6 +88,7 @@ export async function handleOrderFulfillmentFallback(
   console.log("session", session.data);
 
   const orderId = session.data[0].metadata?.orderId;
+  console.log("orderId", orderId);
 
   if (!orderId) {
     console.error("Missing orderId in paymentIntent metadata");
