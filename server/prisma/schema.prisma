@@ -154,34 +154,53 @@ model Review {
 
 model Order {
   id                Int             @id @default(autoincrement())
-
   userId            Int
   user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   shippingAddressId Int
   shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id], onDelete: Cascade)
 
-  orderStatus   OrderStatus   @default(INPROCESS)
-  paymentStatus PaymentStatus @default(PENDING)
-  totalAmount Float
-  items       OrderItem[]
+  orderStatus       OrderStatus     @default(INPROCESS)
+  paymentStatus     PaymentStatus   @default(PENDING)
+  totalAmount       Float
+  items             OrderItem[]
   stripeCheckoutId  String?
-  paymentFailureDetails  PaymentFailureDetails?
-  failureReason String?   // for order fail reason
+  failureReason     String?         // For order fail reason
+  paymentDetails    PaymentDetails? 
   
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model PaymentDetails {
+  id                  Int             @id @default(autoincrement())
+  stripePaymentIntentId  String
+  stripeChargeId         String?      
+  amount                Float
+  currency              String
+  paymentMethod         String        // e.g., 'card', 'wallet'
+  transactionDate       DateTime      @default(now()) // When the payment was processed
+
+  orderId              Int
+  order                Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  paymentFailureDetails PaymentFailureDetails? 
+  @@unique([orderId])
 }
 
 model PaymentFailureDetails {
-  id  Int @id @default(autoincrement())
-  stripePaymentIntentId  String
-  failureCode            String
-  failureMessage         String
-  failedAt               DateTime
-  order                  Order   @relation(fields: [id],references: [id])
-}
+  id                    Int      @id @default(autoincrement())
+  stripePaymentIntentId  String?
+  failureCode            String?
+  status                 String?
+  failureMessage         String?
+  failedAt               DateTime @default(now())
+  
+  paymentDetailsId      Int
+  paymentDetails        PaymentDetails @relation(fields: [paymentDetailsId], references: [id], onDelete: Cascade) 
 
+  @@unique([paymentDetailsId])
+}
 model OrderItem {
   id        Int     @id @default(autoincrement())
   orderId   Int

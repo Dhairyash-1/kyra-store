@@ -82,14 +82,6 @@ export async function handleOrderFulfillment(
       if (insufficientStockItems.length > 0) {
         console.error("Insufficient stock detected:", insufficientStockItems);
 
-        await prisma.order.update({
-          where: { id: Number(orderId) },
-          data: {
-            orderStatus: "CANCELLED",
-            paymentStatus: "REFUNDED",
-          },
-        });
-
         //  TRIGGER REFUND : AS ITEM IS OUT OF STOCK SO TRIGGER THE REFUND
 
         await handleOutOfStockRefund(session, orderId);
@@ -123,6 +115,31 @@ export async function handleOrderFulfillment(
           paymentStatus: "COMPLETED",
         },
       });
+
+      let paymentIntent: Stripe.PaymentIntent | null = null;
+      if (isCheckoutSession(session)) {
+        if (typeof session.payment_intent === "string") {
+          paymentIntent = await stripe.paymentIntents.retrieve(
+            session.payment_intent
+          );
+        }
+      } else {
+        paymentIntent = session;
+      }
+
+      // update payment details for successfull order
+      if (paymentIntent) {
+        await prisma.paymentDetails.create({
+          data: {
+            amount: paymentIntent?.amount,
+            currency: paymentIntent?.currency,
+            stripePaymentIntentId: paymentIntent?.id,
+            paymentMethod: paymentIntent?.payment_method_types[0],
+            orderId: Number(orderId),
+          },
+        });
+      }
+
       console.log(`Order ${orderId} has been successfully fulfilled.`);
     });
   } catch (error: any) {
@@ -148,23 +165,98 @@ export async function handlePaymentSessionExpiry(
       data: {
         orderStatus: "FAILED",
         paymentStatus: "FAILED",
-        paymentFailureDetails: {
-          create: {
-            failedAt: new Date(),
-            stripePaymentIntentId: (session.payment_intent as string) || "",
-            failureCode: session.status || "",
-            failureMessage: "Payment timeout",
-          },
-        },
       },
     });
 
-    // SEND EMAIL : TO NOTIFY USER ABOUT PAYMENT TIMEOUT
+    const paymentIntentId = session.payment_intent as string;
+
+    let paymentIntent: Stripe.PaymentIntent | null = null;
+
+    if (paymentIntentId) {
+      paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    }
+
+    if (paymentIntent) {
+      await prisma.paymentDetails.create({
+        data: {
+          stripePaymentIntentId: paymentIntent.id,
+          currency: paymentIntent.currency,
+          amount: paymentIntent.amount,
+          paymentMethod: paymentIntent.payment_method_types[0],
+          orderId: Number(orderId),
+          paymentFailureDetails: {
+            create: {
+              failureMessage:
+                paymentIntent.last_payment_error?.message ||
+                `Payment session expired`,
+              failureCode: paymentIntent.last_payment_error?.decline_code,
+              status: paymentIntent.status,
+            },
+          },
+        },
+      });
+    }
+
+    // SEND EMAIL : CAN NOTIFY USER ABOUT PAYMENT TIMEOUT
   } catch (error) {
     console.error(
       `Failed to update order ${orderId} on session expiry:`,
       error
     );
+  }
+}
+
+export async function handlePaymentFailure(
+  paymentIntent: Stripe.PaymentIntent
+) {
+  try {
+    const session = await stripe.checkout.sessions.list({
+      payment_intent: paymentIntent.id,
+      limit: 1,
+    });
+
+    if (!session.data.length) {
+      console.error("No session found for payment intent.");
+      return;
+    }
+
+    const orderId = session.data[0].metadata?.orderId;
+
+    if (!orderId) {
+      console.error("Missing orderId in paymentIntent metadata");
+      return;
+    }
+
+    await prisma.order.update({
+      where: { id: Number(orderId) },
+      data: {
+        orderStatus: "FAILED",
+        paymentStatus: "FAILED",
+      },
+    });
+
+    await prisma.paymentDetails.create({
+      data: {
+        stripePaymentIntentId: paymentIntent.id,
+        amount: paymentIntent.amount,
+        currency: paymentIntent.currency,
+        paymentMethod: paymentIntent.payment_method_types[0],
+        orderId: Number(orderId),
+        paymentFailureDetails: {
+          create: {
+            failureCode: paymentIntent.last_payment_error?.decline_code,
+            failureMessage: paymentIntent.last_payment_error?.message,
+            status: paymentIntent.status,
+          },
+        },
+      },
+    });
+
+    // SEND EMAIL TO USER : ABOUT PAYMENT FAILURE
+
+    console.log(`Payment failed for Order ${orderId}`);
+  } catch (error) {
+    console.error(`Failed to update order  on payment failure:`, error);
   }
 }
 
@@ -192,7 +284,12 @@ export async function handleOrderFulfillmentFallback(
     where: { id: Number(orderId) },
   });
 
-  if (!order || order.paymentStatus === "COMPLETED") {
+  if (!order) {
+    console.log(`No order found with OrderId ${orderId}`);
+    return;
+  }
+
+  if (order.paymentStatus === "COMPLETED") {
     console.log(`Order ${orderId} already processed`);
     return;
   }
@@ -201,53 +298,6 @@ export async function handleOrderFulfillmentFallback(
     await handleOrderFulfillment(paymentIntent, orderId);
   } catch (error) {
     console.error(`Failed to fulfill order ${orderId}:`, error);
-  }
-}
-
-export async function handlePaymentFailure(
-  paymentIntent: Stripe.PaymentIntent
-) {
-  const session = await stripe.checkout.sessions.list({
-    payment_intent: paymentIntent.id,
-    limit: 1,
-  });
-
-  if (!session.data.length) {
-    console.error("No session found for payment intent.");
-    return;
-  }
-
-  const orderId = session.data[0].metadata?.orderId;
-
-  if (!orderId) {
-    console.error("Missing orderId in paymentIntent metadata");
-    return;
-  }
-
-  try {
-    await prisma.order.update({
-      where: { id: Number(orderId) },
-      data: {
-        orderStatus: "FAILED",
-        paymentStatus: "FAILED",
-        paymentFailureDetails: {
-          create: {
-            failedAt: new Date(),
-            stripePaymentIntentId: paymentIntent.id,
-            failureCode: paymentIntent.last_payment_error?.code || "",
-            failureMessage: paymentIntent.last_payment_error?.message || "",
-          },
-        },
-      },
-    });
-
-    // SEND EMAIL : YOU PAYMENT HAS BEEN FAILED WITH REASON
-    console.log(`Payment failed for Order ${orderId}`);
-  } catch (error) {
-    console.error(
-      `Failed to update order ${orderId} on payment failure:`,
-      error
-    );
   }
 }
 
