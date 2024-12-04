@@ -11,7 +11,7 @@ interface CartItem {
   price: number;
   quantity: number;
   image: string;
-  totalPrice: number; // It seems like totalPrice might be redundant if you are calculating it in the backend
+  totalPrice: number;
 }
 
 export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
@@ -111,8 +111,8 @@ export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
     metadata: {
       orderId: unpaidOrder.id,
     },
-    success_url: `http://localhost:5173/`,
-    cancel_url: `http://localhost:5173/cart`,
+    success_url: `http://localhost:5173/orders?status=success`,
+    cancel_url: `http://localhost:5173/orders?status=failed`,
     expires_at: Math.floor(Date.now() / 1000) + 1800,
   });
 
@@ -140,17 +140,138 @@ export const getAllUserOrders = asyncHandler(
       where: {
         userId,
       },
-      include: {
-        items: true,
+      select: {
+        id: true,
+        orderStatus: true,
+        totalAmount: true,
+        items: {
+          select: {
+            id: true,
+            price: true,
+            quantity: true,
+            product: {
+              select: {
+                name: true,
+                brand: true,
+                salePrice: true,
+                images: {
+                  select: {
+                    isMainImage: true,
+                    url: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 
-    if (!orders) {
+    if (!orders || orders.length === 0) {
       throw new ApiError(404, "No orders found");
     }
 
+    // Transform the data structure
+    const transformedOrders = orders.map((order) => ({
+      id: order.id,
+      orderStatus: order.orderStatus,
+      totalAmount: order.totalAmount,
+      items: order.items.map((item) => ({
+        id: item.id,
+        price: item.price,
+        quantity: item.quantity,
+        name: item.product.name,
+        brand: item.product.brand,
+        salePrice: item.product.salePrice,
+        mainImage:
+          item.product.images.find((img) => img.isMainImage)?.url || null, // Get the main image or null
+      })),
+    }));
+
     return res
       .status(200)
-      .json(new ApiResponse(200, orders, "All orders fetched"));
+      .json(new ApiResponse(200, transformedOrders, "All orders fetched"));
+  }
+);
+
+export const getOrderDetailsById = asyncHandler(
+  async (req: CustomRequest, res) => {
+    const { id } = req.params;
+    const userId = req?.user?.id;
+
+    if (!id) {
+      throw new ApiError(400, "Id is required");
+    }
+
+    const order = await prisma.order.findUnique({
+      where: {
+        id: Number(id),
+        userId,
+      },
+      select: {
+        id: true,
+        orderStatus: true,
+        createdAt: true,
+        totalAmount: true,
+        shippingAddress: {
+          select: {
+            id: true,
+            fullName: true,
+            phone: true,
+            addressLine1: true,
+            city: true,
+            state: true,
+            pincode: true,
+          },
+        },
+        items: {
+          select: {
+            id: true,
+            price: true,
+            quantity: true,
+            product: {
+              select: {
+                id: true,
+                name: true,
+                images: true,
+                salePrice: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const formatedOrder = {
+      id: order?.id,
+      orderStatus: order?.orderStatus,
+      orderDate: order?.createdAt,
+      totalAmount: order?.totalAmount,
+      items: order?.items.map((item) => ({
+        id: item.id,
+        name: item.product.name,
+        salePrice: item.product.salePrice,
+        quantity: item.quantity,
+        mainImage:
+          item.product.images.find((img) => img.isMainImage)?.url || null,
+      })),
+      shippingAddress: {
+        id: order?.shippingAddress.id,
+        phone: order?.shippingAddress.phone,
+        addressLine1: order?.shippingAddress.addressLine1,
+        postalCode: order?.shippingAddress.pincode,
+        city: order?.shippingAddress.city,
+        state: order?.shippingAddress.state,
+        fullName: order?.shippingAddress.fullName,
+        country: "USA",
+      },
+    };
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, formatedOrder, "Order details fetched"));
   }
 );
