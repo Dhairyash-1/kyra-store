@@ -1,6 +1,7 @@
 import { SquarePenIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import Loader from "./Loader";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import userIcon from "../assets/t1.jpeg";
 import { Button } from "./ui/button";
@@ -11,7 +12,6 @@ import {
   useGetCurrentUserQuery,
   useUpdateUserProfileMutation,
 } from "@/services/authApi";
-import Loader from "./Loader";
 
 const UserProfile = () => {
   const { data, isLoading } = useGetCurrentUserQuery();

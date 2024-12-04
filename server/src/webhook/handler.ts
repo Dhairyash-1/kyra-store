@@ -46,11 +46,20 @@ export async function handleOrderFulfillment(
       }
 
       const productIds = order.items.map((item) => item.productId);
-
+      console.log("productIds", productIds);
       // Fetch all products associated with the order and apply a lock
-      const products = (await prisma.$queryRawUnsafe(
-        `SELECT * FROM product WHERE id IN (${productIds.join(",")}) FOR UPDATE`
-      )) as Product[];
+      const products =
+        productIds.length === 1
+          ? await prisma.$queryRawUnsafe<Product[]>(
+              `SELECT * FROM "Product" WHERE id = $1 FOR UPDATE`,
+              productIds[0]
+            )
+          : await prisma.$queryRawUnsafe<Product[]>(
+              `SELECT * FROM "Product" WHERE id IN (${productIds
+                .map((_, i) => `$${i + 1}`)
+                .join(", ")}) FOR UPDATE`,
+              ...productIds
+            );
 
       const productMap = new Map(
         products.map((product) => [product.id, product])
