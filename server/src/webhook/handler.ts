@@ -1,22 +1,36 @@
 import Stripe from "stripe";
 import prisma from "../prismaClient/prismaClient";
 import { stripe } from "../app";
+import { Product } from "@prisma/client";
+import { isCheckoutSession } from "../utils/helpter";
 
 export async function handleOrderFulfillment(
-  session: Stripe.Checkout.Session | Stripe.PaymentIntent
+  session: Stripe.Checkout.Session | Stripe.PaymentIntent,
+  id?: string
 ) {
-  const orderId = session?.metadata?.orderId;
-  console.log("orderId", orderId);
+  let orderId = session?.metadata?.orderId;
 
   if (!orderId) {
-    throw new Error("Order ID is missing in the session metadata.");
+    if (id) {
+      orderId = id;
+    } else {
+      throw new Error("Order ID is missing in the session metadata.");
+    }
   }
 
-  const order = await prisma.order.findUnique({
+  console.log("orderId", orderId);
+
+  const existingOrder = await prisma.order.findUnique({
     where: { id: Number(orderId) },
+    select: { paymentStatus: true },
   });
-  if (!order || order.paymentStatus === "COMPLETED") {
-    console.log(`Order ${orderId} already confirmed`);
+
+  if (!existingOrder) {
+    throw new Error(`Order with ID ${orderId} not found.`);
+  }
+
+  if (existingOrder.paymentStatus === "COMPLETED") {
+    console.log(`Order ${orderId} has already been processed.`);
     return;
   }
 
@@ -31,24 +45,77 @@ export async function handleOrderFulfillment(
         throw new Error(`Order with ID ${orderId} not found.`);
       }
 
-      for (const item of order.items) {
-        const product = await prisma.product.findUnique({
-          where: { id: item.productId },
-        });
+      const productIds = order.items.map((item) => item.productId);
 
-        if (!product?.stockQuantity || product.stockQuantity < item.quantity) {
-          throw new Error(
-            `Insufficient stock for product ID ${item.productId}.`
-          );
+      // Fetch all products associated with the order and apply a lock
+      const products = (await prisma.$queryRawUnsafe(
+        `SELECT * FROM product WHERE id IN (${productIds.join(",")}) FOR UPDATE`
+      )) as Product[];
+
+      const productMap = new Map(
+        products.map((product) => [product.id, product])
+      );
+
+      const insufficientStockItems: {
+        productId: number;
+        available: number;
+        required: number;
+      }[] = [];
+
+      for (const item of order.items) {
+        const product = productMap.get(item.productId);
+
+        if (!product) {
+          throw new Error(`Product with ID ${item.productId} not found.`);
         }
 
-        await prisma.product.update({
-          where: { id: item.productId },
-          data: { stockQuantity: product.stockQuantity - item.quantity },
-        });
+        if (!product.stockQuantity || product.stockQuantity < item.quantity) {
+          insufficientStockItems.push({
+            productId: item.productId,
+            available: product.stockQuantity || 0,
+            required: item.quantity,
+          });
+        }
       }
 
-      // Update order status
+      // If there are items with insufficient stock, handle appropriately
+      if (insufficientStockItems.length > 0) {
+        console.error("Insufficient stock detected:", insufficientStockItems);
+
+        await prisma.order.update({
+          where: { id: Number(orderId) },
+          data: {
+            orderStatus: "CANCELLED",
+            paymentStatus: "REFUNDED",
+          },
+        });
+
+        //  TRIGGER REFUND : AS ITEM IS OUT OF STOCK SO TRIGGER THE REFUND
+
+        await handleOutOfStockRefund(session, orderId);
+
+        throw new Error(
+          `Order cannot be fulfilled due to insufficient stock: ${JSON.stringify(
+            insufficientStockItems
+          )}`
+        );
+      }
+
+      const updatePromises = Array.from(productMap.values()).map((product) => {
+        const orderItem = order.items.find(
+          (item) => item.productId === product.id
+        );
+        if (orderItem && product.stockQuantity) {
+          product.stockQuantity -= orderItem.quantity;
+        }
+        return prisma.product.update({
+          where: { id: product.id },
+          data: { stockQuantity: product.stockQuantity },
+        });
+      });
+
+      await Promise.all(updatePromises);
+
       await prisma.order.update({
         where: { id: Number(orderId) },
         data: {
@@ -56,26 +123,49 @@ export async function handleOrderFulfillment(
           paymentStatus: "COMPLETED",
         },
       });
+      console.log(`Order ${orderId} has been successfully fulfilled.`);
     });
-
-    console.log("Order fulfillment completed successfully.");
   } catch (error: any) {
+    // NOTIFY : ADMIN ABOUT FAILURE IN ORDER
     console.error("Error fulfilling order:", error);
     throw new Error(`Order fulfillment failed: ${error.message}`);
   }
 }
 
-export async function handlePaymentSessionExpiry(session: any) {
-  const orderId = session.metadata.orderId;
+export async function handlePaymentSessionExpiry(
+  session: Stripe.Checkout.Session
+) {
+  const orderId = session.metadata?.orderId;
 
-  await prisma.order.update({
-    where: { id: Number(orderId) },
-    data: {
-      orderStatus: "FAILED",
-      paymentStatus: "FAILED",
-      failureReason: "Payment timeout",
-    },
-  });
+  if (!orderId) {
+    console.error("Session metadata missing order ID.");
+    return;
+  }
+
+  try {
+    await prisma.order.update({
+      where: { id: Number(orderId) },
+      data: {
+        orderStatus: "FAILED",
+        paymentStatus: "FAILED",
+        paymentFailureDetails: {
+          create: {
+            failedAt: new Date(),
+            stripePaymentIntentId: (session.payment_intent as string) || "",
+            failureCode: session.status || "",
+            failureMessage: "Payment timeout",
+          },
+        },
+      },
+    });
+
+    // SEND EMAIL : TO NOTIFY USER ABOUT PAYMENT TIMEOUT
+  } catch (error) {
+    console.error(
+      `Failed to update order ${orderId} on session expiry:`,
+      error
+    );
+  }
 }
 
 export async function handleOrderFulfillmentFallback(
@@ -85,10 +175,13 @@ export async function handleOrderFulfillmentFallback(
     payment_intent: paymentIntent.id,
     limit: 1,
   });
-  console.log("session", session.data);
+
+  if (!session.data.length) {
+    console.error("No session found for payment intent.");
+    return;
+  }
 
   const orderId = session.data[0].metadata?.orderId;
-  console.log("orderId", orderId);
 
   if (!orderId) {
     console.error("Missing orderId in paymentIntent metadata");
@@ -98,14 +191,19 @@ export async function handleOrderFulfillmentFallback(
   const order = await prisma.order.findUnique({
     where: { id: Number(orderId) },
   });
+
   if (!order || order.paymentStatus === "COMPLETED") {
-    console.log(`Order ${orderId} already confirmed`);
+    console.log(`Order ${orderId} already processed`);
     return;
   }
 
-  // Fulfill the order
-  await handleOrderFulfillment(paymentIntent);
+  try {
+    await handleOrderFulfillment(paymentIntent, orderId);
+  } catch (error) {
+    console.error(`Failed to fulfill order ${orderId}:`, error);
+  }
 }
+
 export async function handlePaymentFailure(
   paymentIntent: Stripe.PaymentIntent
 ) {
@@ -114,21 +212,85 @@ export async function handlePaymentFailure(
     limit: 1,
   });
 
+  if (!session.data.length) {
+    console.error("No session found for payment intent.");
+    return;
+  }
+
   const orderId = session.data[0].metadata?.orderId;
 
   if (!orderId) {
     console.error("Missing orderId in paymentIntent metadata");
     return;
   }
-  console.log(orderId);
 
-  const order = await prisma.order.update({
-    where: { id: Number(orderId) },
-    data: {
-      orderStatus: "FAILED",
-      paymentStatus: "FAILED",
-    },
-  });
+  try {
+    await prisma.order.update({
+      where: { id: Number(orderId) },
+      data: {
+        orderStatus: "FAILED",
+        paymentStatus: "FAILED",
+        paymentFailureDetails: {
+          create: {
+            failedAt: new Date(),
+            stripePaymentIntentId: paymentIntent.id,
+            failureCode: paymentIntent.last_payment_error?.code || "",
+            failureMessage: paymentIntent.last_payment_error?.message || "",
+          },
+        },
+      },
+    });
 
-  console.log(`Payment failed for Order ${orderId}`);
+    // SEND EMAIL : YOU PAYMENT HAS BEEN FAILED WITH REASON
+    console.log(`Payment failed for Order ${orderId}`);
+  } catch (error) {
+    console.error(
+      `Failed to update order ${orderId} on payment failure:`,
+      error
+    );
+  }
+}
+
+export async function handleOutOfStockRefund(
+  session: Stripe.Checkout.Session | Stripe.PaymentIntent,
+  orderId: string
+) {
+  let paymentIntentId: string;
+
+  if (isCheckoutSession(session)) {
+    paymentIntentId = session.payment_intent as string;
+  } else {
+    paymentIntentId = session.id;
+  }
+
+  if (!paymentIntentId) {
+    throw new Error("Payment intent ID is missing.");
+  }
+
+  try {
+    const refund = await stripe.refunds.create({
+      payment_intent: paymentIntentId,
+      reason: "requested_by_customer",
+    });
+    console.log(`Refund successful for Order ${orderId}:`, refund);
+
+    await prisma.$transaction(async (prisma) => {
+      await prisma.order.update({
+        where: { id: Number(orderId) },
+        data: {
+          orderStatus: "FAILED",
+          paymentStatus: "REFUNDED",
+          failureReason: "Out of stock",
+        },
+      });
+
+      console.log(`Order ${orderId} updated to FAILED due to out-of-stock.`);
+    });
+  } catch (error: any) {
+    console.error(`Failed to process refund for Order ${orderId}:`, error);
+    if (error instanceof Stripe.errors.StripeError) {
+      console.error("Stripe error details:", error.raw);
+    }
+    throw new Error(`Refund failed: ${error.message}`);
+  }
 }

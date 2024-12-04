@@ -165,12 +165,21 @@ model Order {
   paymentStatus PaymentStatus @default(PENDING)
   totalAmount Float
   items       OrderItem[]
-  razorpayOrderId   String?
-  razorpayPaymentId String?
   stripeCheckoutId  String?
-  failureReason     String?
+  paymentFailureDetails  PaymentFailureDetails?
+  failureReason String?   // for order fail reason
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PaymentFailureDetails {
+  id  Int @id @default(autoincrement())
+  stripePaymentIntentId  String
+  failureCode            String
+  failureMessage         String
+  failedAt               DateTime
+  order                  Order   @relation(fields: [id],references: [id])
 }
 
 model OrderItem {
