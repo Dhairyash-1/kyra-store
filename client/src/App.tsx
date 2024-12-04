@@ -5,8 +5,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import AppLayout from "./components/AppLayout";
 import FullPageLoader from "./components/FullPageLoader";
 import ManageAddresses from "./components/ManageAddresses";
-import MyOrders from "./components/MyOrders";
 import Notifications from "./components/Notifications";
+import MyOrders from "./Pages/MyOrders";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SavedCards from "./components/SavedCards";
 import Settings from "./components/Settings";
@@ -28,6 +28,7 @@ import Signup from "./Pages/Signup";
 import { useGetCurrentUserQuery } from "./services/authApi";
 import { RootState } from "./store/store";
 import ScrollToTop from "./utils/ScrollToTop";
+import OrderDetails from "./Pages/OrderDetails";
 
 const App = () => {
   const { data, isLoading, error } = useGetCurrentUserQuery();
@@ -106,9 +107,11 @@ const App = () => {
               }
             >
               <Route path="/profile" element={<UserProfile />} />
-              <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/orders" element={<MyOrders />} />
+              <Route path="/orders/:orderId" element={<OrderDetails />} />
               <Route path="/wishlists" element={<Wishlist />} />
               <Route path="/manage-address" element={<ManageAddresses />} />
+
               <Route path="/saved-cards" element={<SavedCards />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/settings" element={<Settings />} />

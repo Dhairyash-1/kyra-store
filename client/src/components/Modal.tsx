@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -15,8 +15,9 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   description: string;
-  icon?: string; // Optional icon for success modals
+  icon?: string | ReactNode; // Optional icon for success modals
   actionText: string;
+  variant?: "failed" | "success";
   onActionClick?: () => void;
   actionLink?: string; // Optional link for reset success modal
 }
@@ -30,6 +31,7 @@ const Modal: React.FC<ModalProps> = ({
   actionText,
   onActionClick,
   actionLink,
+  variant,
 }) => {
   return (
     <Dialog open={isModalOpen} onOpenChange={onClose}>
@@ -38,10 +40,26 @@ const Modal: React.FC<ModalProps> = ({
           <DialogHeader className="w-full">
             <div className="flex-center">
               {icon && (
-                <div className="flex-center h-[108px] w-[108px] rounded-full bg-dark-5">
-                  <div className="flex-center h-[86px] w-[86px] rounded-full bg-dark-20">
-                    <div className="flex-center h-16 w-16 rounded-full bg-dark-500">
-                      <img src={icon} className="h-5 w-5" alt="check" />
+                <div
+                  className={`flex-center h-[108px] w-[108px] rounded-full  ${
+                    variant === "success" ? "bg-dark-5" : "bg-red-50"
+                  }`}
+                >
+                  <div
+                    className={`flex-center h-[86px] w-[86px] rounded-full  ${
+                      variant === "success" ? "bg-dark-20" : "bg-red-200"
+                    }`}
+                  >
+                    <div
+                      className={`flex-center h-16 w-16 rounded-full ${
+                        variant === "success" ? "bg-dark-500" : "bg-red-500"
+                      }`}
+                    >
+                      {typeof icon === "string" ? (
+                        <img src={icon} className="h-5 w-5" alt="check" />
+                      ) : (
+                        icon
+                      )}
                     </div>
                   </div>
                 </div>

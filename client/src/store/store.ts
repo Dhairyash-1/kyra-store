@@ -5,6 +5,7 @@ import cartReducer from "@/features/cart/cartSlice";
 import wishlistReducer from "@/features/wishlist/wishlistSlice";
 import { authApi } from "@/services/authApi";
 import { categoryApi } from "@/services/categoryApi";
+import { orderApi } from "@/services/orderApi";
 import { productApi } from "@/services/productApi";
 import { wishlistApi } from "@/services/wishlistApi";
 
@@ -14,6 +15,7 @@ export const store = configureStore({
     [categoryApi.reducerPath]: categoryApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
     [wishlistApi.reducerPath]: wishlistApi.reducer,
+    [orderApi.reducerPath]: orderApi.reducer,
     auth: authReducer,
     cart: cartReducer,
     wishlist: wishlistReducer,
@@ -24,7 +26,8 @@ export const store = configureStore({
       .concat(authApi.middleware)
       .concat(categoryApi.middleware)
       .concat(productApi.middleware)
-      .concat(wishlistApi.middleware),
+      .concat(wishlistApi.middleware)
+      .concat(orderApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

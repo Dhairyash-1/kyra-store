@@ -1,5 +1,6 @@
 import { TrashIcon } from "lucide-react";
 
+import Loader from "./Loader";
 import ProductCard from "./ProductCard";
 
 import useCart from "@/hooks/useCart";
@@ -10,11 +11,15 @@ import {
 } from "@/services/wishlistApi";
 
 const Wishlist = () => {
-  const { data } = useGetAllUserWishlistItemQuery();
+  const { data, isLoading } = useGetAllUserWishlistItemQuery();
   const [toggleWishlist] = useToggleProductWishlistMutation();
   const wishlists = data?.data;
   const { handleAddToCart } = useCart();
   const { handleWishlistDelete } = useWishlist();
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <div className="grid h-full grid-cols-2 gap-8   sm:grid-cols-2 md:grid-cols-3 ">

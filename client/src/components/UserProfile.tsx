@@ -11,11 +11,12 @@ import {
   useGetCurrentUserQuery,
   useUpdateUserProfileMutation,
 } from "@/services/authApi";
+import Loader from "./Loader";
 
 const UserProfile = () => {
-  const { data } = useGetCurrentUserQuery();
+  const { data, isLoading } = useGetCurrentUserQuery();
   const [isEditing, setIsEditing] = useState(false);
-  const [updateProfile, { isLoading }] = useUpdateUserProfileMutation();
+  const [updateProfile] = useUpdateUserProfileMutation();
   const [userData, setUserData] = useState({
     firstName: "",
     lastName: "",
@@ -47,7 +48,9 @@ const UserProfile = () => {
       await updateProfile(userData).unwrap();
     }
   }
-
+  if (isLoading) {
+    return <Loader />;
+  }
   if (!user) return null;
 
   return (

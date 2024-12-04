@@ -21,7 +21,7 @@ const menuLinks = [
     icon: <UserRoundIcon />,
     href: "/profile",
   },
-  { id: 2, name: "My Orders", icon: <PackageIcon />, href: "/my-orders" },
+  { id: 2, name: "My Orders", icon: <PackageIcon />, href: "/orders" },
   { id: 3, name: "My Wishlists", icon: <HeartIcon />, href: "/wishlists" },
   {
     id: 4,

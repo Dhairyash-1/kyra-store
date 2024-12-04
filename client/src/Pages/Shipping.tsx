@@ -1,4 +1,6 @@
+import { loadStripe } from "@stripe/stripe-js";
 import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import AddressCard from "@/components/AddressCard";
@@ -15,6 +17,12 @@ import {
   useGetShippingAddressQuery,
   useUpdateShippingAddressMutation,
 } from "@/services/authApi";
+import { useCreateOrderMutation } from "@/services/orderApi";
+import { RootState } from "@/store/store";
+
+const stripePromise = loadStripe(
+  "pk_test_51PuK56P76TUji6q9c0aFYwIKOO31SXrHWXzH4NHucF8NzLIWWaq3coMQYwWUUJq8Z4nO07VjDLBTnUznlFRdkTJD00aPPtN7uv"
+);
 
 const initialAddress = {
   fullName: "",
@@ -39,6 +47,9 @@ const Shipping = () => {
     useAddShippingAddressMutation();
   const [updateShippingAddress, { isLoading: isUpdating }] =
     useUpdateShippingAddressMutation();
+  const [createOrder, { isLoading: isOrdering, data: orderResponse }] =
+    useCreateOrderMutation();
+  const { items, totalPrice } = useSelector((state: RootState) => state.cart);
 
   const { data: existingAddressData } = useGetShippingAddressByIdQuery(
     { id: editId || 0 },
@@ -88,6 +99,29 @@ const Shipping = () => {
       await addShippingAddress(address).unwrap();
     }
   };
+
+  async function handlePayment() {
+    if (!selectedAddressId) return alert("addressId not vaild");
+    try {
+      const response = await createOrder({
+        addressId: selectedAddressId,
+        cartItems: items,
+        totalAmount: totalPrice,
+      }).unwrap();
+      console.log("order", response);
+      const stripe = await stripePromise;
+      if (stripe) {
+        const { error } = await stripe.redirectToCheckout({
+          sessionId: response?.data?.sessionId as string,
+        });
+        console.log(error, "stripecheckout");
+      } else {
+        console.error("Stripe is not loaded");
+      }
+    } catch (error) {
+      console.log("error in creating order", error);
+    }
+  }
 
   return (
     <div className="mt-8 md:px-20">
@@ -239,7 +273,7 @@ const Shipping = () => {
         <div className="mt-8 h-fit w-full rounded-md border border-gray-200 p-6 shadow-sm md:ml-8 md:mt-0 md:w-[40%]">
           <div className="flex justify-between">
             <h2 className="text-lg font-bold text-dark-500">Subtotal</h2>
-            <span className=" font-bold text-dark-500">₹{8282}</span>
+            <span className=" font-bold text-dark-500">₹{totalPrice}</span>
           </div>
           <Separator className="mt-4" />
 
@@ -259,27 +293,28 @@ const Shipping = () => {
               </button>
             </div>
           </div>
-          <div className="mt-2 flex items-center justify-between">
+          {/* <div className="mt-2 flex items-center justify-between">
             <span className="text-base font-normal text-dark-500">
               Delivery Charge:
             </span>
             <span className="text-base font-normal text-dark-500">₹{50.0}</span>
-          </div>
+          </div> */}
 
           <div className="mt-4 flex justify-between border-t pt-4">
             <span className="text-lg font-bold text-dark-500">
               Grand Total:
             </span>
             <span className="text-lg font-semibold text-dark-500">
-              ₹{(8272 + 50).toFixed(2)}
+              ₹{totalPrice.toFixed(2)}
             </span>
           </div>
           <Link to="/shipping">
             <button
+              onClick={handlePayment}
               disabled={selectedAddressId === null}
               className="mt-4 w-full  rounded-lg bg-dark-500 py-4 text-lg font-normal text-white  hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-[#3A383F] disabled:text-gray-80"
             >
-              Proceed
+              {isOrdering ? "Processing" : "Proceed to pay"}
             </button>
           </Link>
         </div>

@@ -110,19 +110,19 @@ const CartPage = () => {
               </button>
             </div>
           </div>
-          <div className="mt-2 flex items-center justify-between">
+          {/* <div className="mt-2 flex items-center justify-between">
             <span className="text-base font-normal text-dark-500">
               Delivery Charge:
             </span>
             <span className="text-base font-normal text-dark-500">₹{50.0}</span>
-          </div>
+          </div> */}
 
           <div className="mt-4 flex justify-between border-t pt-4">
             <span className="text-lg font-bold text-dark-500">
               Grand Total:
             </span>
             <span className="text-lg font-semibold text-dark-500">
-              ₹{(totalPrice + 50).toFixed(2)}
+              ₹{totalPrice.toFixed(2)}
             </span>
           </div>
           <Link to="/shipping">
