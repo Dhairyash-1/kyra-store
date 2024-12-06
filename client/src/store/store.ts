@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 
 import authReducer from "@/features/auth/authSlice";
-import cartReducer from "@/features/cart/cartSlice";
+import cartReducer, { cartMiddleware } from "@/features/cart/cartSlice";
 import wishlistReducer from "@/features/wishlist/wishlistSlice";
 import { authApi } from "@/services/authApi";
 import { categoryApi } from "@/services/categoryApi";
@@ -27,7 +27,8 @@ export const store = configureStore({
       .concat(categoryApi.middleware)
       .concat(productApi.middleware)
       .concat(wishlistApi.middleware)
-      .concat(orderApi.middleware),
+      .concat(orderApi.middleware)
+      .concat(cartMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

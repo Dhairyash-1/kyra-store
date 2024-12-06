@@ -11,16 +11,27 @@ interface CartItem {
 
 interface CartState {
   items: CartItem[];
+  shippingCharge: number;
   totalQuantity: number;
   totalPrice: number;
 }
 
-const initialState: CartState = {
-  items: [],
-  totalQuantity: 0,
-  totalPrice: 0,
+const loadCartFromLocalStorage = (): CartState => {
+  const savedCart = localStorage.getItem("cart");
+  if (savedCart) {
+    return JSON.parse(savedCart) as CartState;
+  }
+  return {
+    items: [],
+    shippingCharge: 0,
+    totalQuantity: 0,
+    totalPrice: 0,
+  };
 };
 
+const initialState: CartState = loadCartFromLocalStorage();
+
+// Create cart slice
 const cartSlice = createSlice({
   name: "cart",
   initialState,
@@ -81,9 +92,29 @@ const cartSlice = createSlice({
       state.totalQuantity = 0;
       state.totalPrice = 0;
     },
+    setShippingCharge(state, action: PayloadAction<{ charge: number }>) {
+      state.shippingCharge = action.payload.charge;
+    },
   },
 });
 
-export const { addToCart, removeFromCart, updateQuantity, clearCart } =
-  cartSlice.actions;
+const saveCartToLocalStorage = (state: CartState) => {
+  localStorage.setItem("cart", JSON.stringify(state));
+};
+
+export const cartMiddleware =
+  (storeAPI: any) => (next: any) => (action: any) => {
+    const result = next(action);
+    const state = storeAPI.getState().cart;
+    saveCartToLocalStorage(state);
+    return result;
+  };
+
+export const {
+  addToCart,
+  removeFromCart,
+  updateQuantity,
+  clearCart,
+  setShippingCharge,
+} = cartSlice.actions;
 export default cartSlice.reducer;
