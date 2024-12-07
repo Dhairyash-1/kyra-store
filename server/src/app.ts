@@ -39,12 +39,14 @@ import categoryRouter from "./routes/category.routes";
 import productRouter from "./routes/product.routes";
 import wishlistRouter from "./routes/wishlist.routes";
 import orderRouter from "./routes/order.routes";
+import cartRouter from "./routes/cart.routes";
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/wishlist", wishlistRouter);
 app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/cart", cartRouter);
 
 // middleware to format all error as json
 app.use(errorHandler);

@@ -31,6 +31,7 @@ model User {
   addresses             ShippingAddress[]
   wishlist              Wishlist[]
   orders                Order[]
+  cart                  Cart?
 }
 
 model ForgotPasswordRequest {
@@ -113,6 +114,7 @@ model Product {
 
   wishlist  Wishlist[]
   orderItem OrderItem[]
+  CartItem  CartItem[]
 }
 
 model ProductVariant {
@@ -126,6 +128,7 @@ model ProductVariant {
   images        ProductImage[]
   productId     Int
   product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  CartItem      CartItem[]
 }
 
 model ProductImage {
@@ -153,62 +156,111 @@ model Review {
 }
 
 model Order {
-  id                Int             @id @default(autoincrement())
-  userId            Int
-  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   shippingAddressId Int
   shippingAddress   ShippingAddress @relation(fields: [shippingAddressId], references: [id], onDelete: Cascade)
 
-  orderStatus       OrderStatus     @default(INPROCESS)
-  paymentStatus     PaymentStatus   @default(PENDING)
-  totalAmount       Float
-  items             OrderItem[]
-  stripeCheckoutId  String?
-  failureReason     String?         // For order fail reason
-  paymentDetails    PaymentDetails? 
-  
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  orderStatus      OrderStatus     @default(INPROCESS)
+  paymentStatus    PaymentStatus   @default(PENDING)
+  totalAmount      Float
+  items            OrderItem[]
+  stripeCheckoutId String?
+  failureReason    String? // For order fail reason
+  paymentDetails   PaymentDetails?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model PaymentDetails {
-  id                  Int             @id @default(autoincrement())
-  stripePaymentIntentId  String
-  stripeChargeId         String?      
+  id                    Int      @id @default(autoincrement())
+  stripePaymentIntentId String
+  stripeChargeId        String?
   amount                Float
   currency              String
-  paymentMethod         String        // e.g., 'card', 'wallet'
-  transactionDate       DateTime      @default(now()) // When the payment was processed
+  paymentMethod         String // e.g., 'card', 'wallet'
+  transactionDate       DateTime @default(now()) // When the payment was processed
 
-  orderId              Int
-  order                Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId Int
+  order   Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-  paymentFailureDetails PaymentFailureDetails? 
+  paymentFailureDetails PaymentFailureDetails?
+
   @@unique([orderId])
 }
 
 model PaymentFailureDetails {
   id                    Int      @id @default(autoincrement())
-  stripePaymentIntentId  String?
-  failureCode            String?
-  status                 String?
-  failureMessage         String?
-  failedAt               DateTime @default(now())
-  
-  paymentDetailsId      Int
-  paymentDetails        PaymentDetails @relation(fields: [paymentDetailsId], references: [id], onDelete: Cascade) 
+  stripePaymentIntentId String?
+  failureCode           String?
+  status                String?
+  failureMessage        String?
+  failedAt              DateTime @default(now())
+
+  paymentDetailsId Int
+  paymentDetails   PaymentDetails @relation(fields: [paymentDetailsId], references: [id], onDelete: Cascade)
 
   @@unique([paymentDetailsId])
 }
+
 model OrderItem {
   id        Int     @id @default(autoincrement())
   orderId   Int
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId Int
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  quantity  Int    
+  quantity  Int
   price     Float
+}
+
+model Cart {
+  id     Int        @id @default(autoincrement())
+  userId Int        @unique
+  user   User       @relation(fields: [userId], references: [id])
+  items  CartItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CartItem {
+  id     Int  @id @default(autoincrement())
+  cartId Int
+  cart   Cart @relation(fields: [cartId], references: [id])
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  variantId Int?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
+  quantity  Int
+}
+
+model Coupon {
+  id            Int         @id @default(autoincrement())
+  name          String
+  couponCode    String
+  type          CouponTypes
+  discountValue Float
+  minCartValue  Float?
+  isActive      Boolean     @default(false)
+  startDate     DateTime
+  endDate       DateTime
+  usageLimit    Int?
+  usedCount     Int         @default(0)
+  // applicableProducts     for future : on which products copuon valid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum CouponTypes {
+  FLAT
+  PERCENTAGE
+  FREE_SHIPPING
 }
 
 enum PaymentStatus {
@@ -219,7 +271,7 @@ enum PaymentStatus {
 }
 
 enum OrderStatus {
-  FAILED   //Order has been failed due to transaction
+  FAILED //Order has been failed due to transaction
   INPROCESS // Order has been placed but not yet confirmed
   CONFIRMED // Order has been confirmed (inventory check passed, etc.)
   PACKED // Order has been packed

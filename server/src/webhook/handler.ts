@@ -140,7 +140,7 @@ export async function handleOrderFulfillment(
       if (paymentIntent) {
         await prisma.paymentDetails.create({
           data: {
-            amount: paymentIntent?.amount,
+            amount: paymentIntent?.amount / 100,
             currency: paymentIntent?.currency,
             stripePaymentIntentId: paymentIntent?.id,
             paymentMethod: paymentIntent?.payment_method_types[0],
@@ -190,7 +190,7 @@ export async function handlePaymentSessionExpiry(
         data: {
           stripePaymentIntentId: paymentIntent.id,
           currency: paymentIntent.currency,
-          amount: paymentIntent.amount,
+          amount: paymentIntent.amount / 100,
           paymentMethod: paymentIntent.payment_method_types[0],
           orderId: Number(orderId),
           paymentFailureDetails: {
@@ -247,7 +247,7 @@ export async function handlePaymentFailure(
     await prisma.paymentDetails.create({
       data: {
         stripePaymentIntentId: paymentIntent.id,
-        amount: paymentIntent.amount,
+        amount: paymentIntent.amount / 100,
         currency: paymentIntent.currency,
         paymentMethod: paymentIntent.payment_method_types[0],
         orderId: Number(orderId),
@@ -326,6 +326,8 @@ export async function handleOutOfStockRefund(
     throw new Error("Payment intent ID is missing.");
   }
 
+  const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+
   try {
     const refund = await stripe.refunds.create({
       payment_intent: paymentIntentId,
@@ -340,6 +342,17 @@ export async function handleOutOfStockRefund(
           orderStatus: "FAILED",
           paymentStatus: "REFUNDED",
           failureReason: "Out of stock",
+        },
+      });
+
+      // add the refund payment details
+      await prisma.paymentDetails.create({
+        data: {
+          amount: paymentIntent.amount / 100,
+          currency: paymentIntent.currency,
+          paymentMethod: paymentIntent.payment_method_types[0],
+          stripePaymentIntentId: paymentIntent.id,
+          orderId: Number(orderId),
         },
       });
 
