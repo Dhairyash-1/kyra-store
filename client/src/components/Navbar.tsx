@@ -11,11 +11,11 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
+import MiniCart from "./MiniCart";
 import ProfileDropdown from "./ProfileDropdown";
 import brandLogo from "../assets/logo.png";
 
 import { RootState } from "@/store/store";
-import MiniCart from "./MiniCart";
 
 const Links = [
   { id: 1, name: "Home", url: "/" },
@@ -66,13 +66,20 @@ const Navbar = () => {
         </div>
 
         {/* Right side with Cart button */}
-        <div className="flex gap-4">
-          <button className="bg-transparent p-0 focus:outline-none">
-            <ShoppingBag
-              className="h-6 w-6  text-dark-500"
-              aria-label="Add to Cart"
-            />
-          </button>
+        <div className="flex items-center gap-4">
+          <Link className="relative " to="/cart">
+            <button className="bg-transparent p-0 focus:outline-none">
+              <ShoppingBag
+                className="h-6 w-6  text-dark-500"
+                aria-label="Add to Cart"
+              />
+            </button>
+            {cartItemCount > 0 && (
+              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-dark-500 text-xs font-bold text-white">
+                {cartItemCount}
+              </span>
+            )}
+          </Link>
           <button className="hidden bg-transparent p-0 focus:outline-none xs:block">
             <Search className="h-6 w-6 text-dark-500" aria-label="Search" />
           </button>

@@ -37,10 +37,10 @@ const TestimonialSection = () => {
   };
 
   return (
-    <section className="mt-24 w-full bg-gray-5 lg:px-20 pb-8">
+    <section className="mt-24 w-full bg-gray-5 p-2 pb-8 lg:px-20">
       <Carousel setApi={setApi} orientation="horizontal">
-        <div className="my-12 flex items-center justify-between">
-          <h1 className="text-3xl font-normal text-dark-90 md:text-4xl">
+        <div className="my-12 flex items-start justify-between">
+          <h1 className="text-2xl font-normal text-dark-90 xs:text-3xl md:text-4xl">
             What our Customers say
           </h1>
           <div className="flex gap-4">
@@ -65,11 +65,11 @@ const TestimonialSection = () => {
           </div>
         </div>
 
-        <CarouselContent className="flex h-full items-stretch">
+        <CarouselContent className="flex h-full  items-stretch py-4">
           {testimonials.map((item) => (
             <CarouselItem
               key={item.id}
-              className="h-full flex-grow sm:basis-1/2 lg:basis-1/3"
+              className="h-full flex-grow sm:basis-1/2  lg:basis-1/3"
             >
               <TestimonialCard {...item} />
             </CarouselItem>

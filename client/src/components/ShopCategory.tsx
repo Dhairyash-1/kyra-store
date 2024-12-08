@@ -2,8 +2,9 @@ import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 
 import CategoryCard from "./CategoryCard";
-import { productCategories } from "../constants/index";
+
 import { useGetTrendingCategoriesQuery } from "@/services/categoryApi";
+import CategoryCardSkeleton from "./CategoryCardSkeleton";
 
 interface CategoryStateType {
   id: number;
@@ -14,7 +15,7 @@ interface CategoryStateType {
 }
 
 const ShopCategory = () => {
-  const { data } = useGetTrendingCategoriesQuery();
+  const { data, isLoading } = useGetTrendingCategoriesQuery();
   const shopCategories = data?.data;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [screenSize, setScreenSize] = useState(1);
@@ -27,7 +28,7 @@ const ShopCategory = () => {
   useEffect(() => {
     const handleResize = () => {
       const screenSize = window.innerWidth;
-      if (screenSize < 640) {
+      if (screenSize < 414) {
         setScreenSize(1);
       } else if (screenSize < 768) {
         setScreenSize(2);
@@ -65,8 +66,8 @@ const ShopCategory = () => {
 
   return (
     <section className="mt-24 w-full lg:px-20">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-medium text-dark-90 md:text-4xl">
+      <div className="flex items-start justify-between">
+        <h1 className=" text-2xl font-medium text-dark-90 xs:text-3xl md:text-4xl">
           Shop by Categories
         </h1>
         <div className="flex gap-4">
@@ -88,22 +89,28 @@ const ShopCategory = () => {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-8 py-14 transition duration-500 ease-in-out sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {visibleCategories.map((category) => {
-          const isParentCategory = category.parentId === null;
-          const hrefUrl = isParentCategory
-            ? `/products?categories=${category.slug}`
-            : `/products?subcategories=${category.slug}`;
-          return (
-            <div key={category.id} className="animate-slide-in-from-left">
-              <CategoryCard
-                title={category.name}
-                href={hrefUrl}
-                image={category.imageUrl}
-              />
-            </div>
-          );
-        })}
+      <div className="grid grid-cols-1 gap-8 py-14 transition duration-500 ease-in-out xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {isLoading
+          ? Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="animate-slide-in-from-left">
+                <CategoryCardSkeleton />
+              </div>
+            ))
+          : visibleCategories.map((category) => {
+              const isParentCategory = category.parentId === null;
+              const hrefUrl = isParentCategory
+                ? `/products?categories=${category.slug}`
+                : `/products?subcategories=${category.slug}`;
+              return (
+                <div key={category.id} className="animate-slide-in-from-left">
+                  <CategoryCard
+                    title={category.name}
+                    href={hrefUrl}
+                    image={category.imageUrl}
+                  />
+                </div>
+              );
+            })}
       </div>
     </section>
   );

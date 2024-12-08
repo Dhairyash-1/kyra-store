@@ -13,7 +13,7 @@ const TestimonialCard = ({
   image,
 }: TestimonialCardProp) => {
   return (
-    <div className="  flex h-auto flex-col items-start space-y-4 rounded-sm bg-white p-8 shadow-xl ">
+    <div className="flex h-auto flex-col items-start space-y-4 rounded-md  bg-white p-8 shadow-sm">
       <div className="flex">
         <StarIcon fill="#FFA500" color="#FFA500" />
         <StarIcon fill="#FFA500" color="#FFA500" />

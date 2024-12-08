@@ -1,9 +1,5 @@
-import { StarIcon } from "lucide-react";
 import { ReactNode } from "react";
-import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-
-import { addToCart } from "@/features/cart/cartSlice";
 
 interface ProductCardProp {
   id: number;
@@ -33,54 +29,42 @@ const ProductCard = ({
   const imageUrl = images.filter((img) => img.isMainImage)[0].url;
 
   return (
-    <div className="flex w-full flex-col items-start justify-center">
+    <div className="flex min-w-[150px] flex-col rounded-lg bg-white ">
+      {/* Product Image Section */}
       <Link
         to={`/products/${slug}`}
-        className="group relative block w-full overflow-hidden rounded bg-gray-5 p-4 hover:bg-gray-20 sm:p-6"
+        className="relative block overflow-hidden rounded-t-lg bg-gray-5"
       >
-        {/* Star Icon - Positioned without any movement */}
-        <div className="absolute right-4 top-4 hidden group-hover:block">
-          {/* <div className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white shadow-md">
-            <StarIcon size={28} className="stroke-dark-90-500 stroke-[1.5]" />
-          </div> */}
+        {/* Top Action Button */}
+        <div className="absolute right-4 top-4 z-10 hidden group-hover:block">
           {topActionButton && topActionButton}
         </div>
 
         {/* Product Image */}
-        <div className="h-60 w-full sm:h-72 md:h-80 lg:h-96">
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-gray-10">
           <img
             src={imageUrl}
             alt={name}
-            className="h-full w-full object-cover" // Ensures image scaling without distortion
+            className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 object-contain"
           />
         </div>
 
-        {/* "Add to Cart" Button - Appear on Hover */}
-        <div className="absolute bottom-4 left-1/2 hidden w-[80%] -translate-x-1/2 transition-all duration-300 group-hover:block">
-          {/* <button
-            onClick={(e) => handleAddToCart(e)}
-            className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm"
-          >
-            Add to Cart
-          </button> */}
+        {/* Bottom Action Button */}
+        <div className="absolute bottom-4 left-1/2 z-10 hidden w-[80%] -translate-x-1/2 group-hover:block">
           {bottomActionButton && bottomActionButton}
         </div>
       </Link>
 
-      {/* Product Details */}
-      <div className="mt-4 flex flex-col gap-2 sm:gap-3">
-        <h4 className="text-lg font-semibold text-dark-500 sm:text-xl">
-          {brand}
-        </h4>
-        <h5 className="text-sm font-normal text-dark-80 sm:text-base">
-          {name}
-        </h5>
-        <div className="flex items-center">
-          <span className="text-lg font-medium text-dark-500">
+      {/* Product Details Section */}
+      <div className="flex flex-grow flex-col gap-2 p-4">
+        <h4 className="text-base font-semibold text-gray-800">{brand}</h4>
+        <h5 className="text-sm font-normal text-gray-600">{name}</h5>
+        <div className="flex items-center space-x-2">
+          <span className="text-lg font-medium text-gray-800">
             ₹{salePrice}.00
           </span>
-          <span className="ml-2 text-sm font-normal text-gray-80 line-through">
-            ₹{basePrice || (price as number)}.00
+          <span className="text-sm font-normal text-gray-400 line-through">
+            ₹{basePrice || price}.00
           </span>
         </div>
       </div>

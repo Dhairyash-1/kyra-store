@@ -134,7 +134,12 @@ export default {
         "gradient-3": "linear-gradient(135deg, #7B68EE 0%, #D80B9D 100%)",
       },
       screens: {
-        xs: "375px",
+        xs: "414px",
+        sm: "640px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
+        "2xl": "1600px",
       },
       borderRadius: {
         lg: "var(--radius)",
