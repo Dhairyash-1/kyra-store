@@ -15,12 +15,16 @@ const useCart = () => {
   const { toast } = useToast();
 
   function handleAddToCart(product: any) {
+    console.log(product);
     dispatch(
       addToCart({
         id: product.id,
-        image: product.images[0].url,
+        productId: product.productId,
+        size: product.size,
+        color: product.color,
+        image: product.image.url,
         name: product.name,
-        price: product.salePrice,
+        price: product.price,
         quantity: 1,
       })
     );

@@ -1,7 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface CartItem {
+interface ColorType {
   id: number;
+  name: string;
+}
+interface SizeType {
+  name: string;
+  id: number;
+}
+interface CartItem {
+  id: number; //variantId
+  productId: number;
+  color: ColorType;
+  size: SizeType;
   name: string;
   price: number;
   quantity: number;
@@ -40,13 +51,25 @@ const cartSlice = createSlice({
       state,
       action: PayloadAction<{
         id: number;
+        productId: number;
         name: string;
         price: number;
+        size: SizeType;
+        color: ColorType;
         quantity?: number;
         image: string;
       }>
     ) {
-      const { id, name, price, quantity = 1, image } = action.payload;
+      const {
+        id,
+        productId,
+        name,
+        price,
+        color,
+        size,
+        quantity = 1,
+        image,
+      } = action.payload;
       const existingItem = state.items.find((item) => item.id === id);
       if (existingItem) {
         existingItem.quantity += quantity;
@@ -54,7 +77,10 @@ const cartSlice = createSlice({
       } else {
         state.items.push({
           id,
+          productId,
           name,
+          color,
+          size,
           price,
           quantity,
           image,

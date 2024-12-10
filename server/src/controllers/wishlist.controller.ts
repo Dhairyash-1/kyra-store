@@ -73,10 +73,25 @@ export const getAllUserWishlistProducts = asyncHandler(
       where: {
         userId,
       },
-      include: {
+      select: {
         product: {
-          include: {
-            images: true,
+          select: {
+            id: true,
+            name: true,
+            brand: true,
+            slug: true,
+            variants: {
+              take: 1,
+              select: {
+                listPrice: true,
+                price: true,
+                images: {
+                  where: {
+                    isMainImage: true,
+                  },
+                },
+              },
+            },
           },
         },
       },

@@ -10,41 +10,41 @@ import { OrderTimeline } from "@/components/orders/OrderTimeline";
 import { useGetOrderByIdQuery } from "@/services/orderApi";
 
 // This would typically come from your API
-const mockOrder = {
-  id: 123456,
-  orderStatus: "SHIPPED",
-  orderDate: "2024-03-15T10:30:00Z",
-  expectedDelivery: "2024-03-20",
-  trackingNumber: "IW3475453455",
-  totalAmount: 200.0,
-  items: [
-    {
-      id: 1,
-      name: "Girls Pink Moana Printed Dress",
-      mainImage: "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03",
-      salePrice: 80.0,
-      quantity: 1,
-      size: "S",
-    },
-    {
-      id: 2,
-      name: "Women Textured Handheld Bag",
-      mainImage: "https://images.unsplash.com/photo-1584917865442-de89df76afd3",
-      salePrice: 80.0,
-      quantity: 1,
-      size: "Regular",
-    },
-  ],
-  shippingAddress: {
-    fullName: "John Doe",
-    streetAddress: "123 Main Street",
-    city: "Mumbai",
-    state: "Maharashtra",
-    postalCode: "400001",
-    country: "India",
-    phone: "+91 9876543210",
-  },
-};
+// const mockOrder = {
+//   id: 123456,
+//   orderStatus: "SHIPPED",
+//   orderDate: "2024-03-15T10:30:00Z",
+//   expectedDelivery: "2024-03-20",
+//   trackingNumber: "IW3475453455",
+//   totalAmount: 200.0,
+//   items: [
+//     {
+//       id: 1,
+//       name: "Girls Pink Moana Printed Dress",
+//       mainImage: "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03",
+//       salePrice: 80.0,
+//       quantity: 1,
+//       size: "S",
+//     },
+//     {
+//       id: 2,
+//       name: "Women Textured Handheld Bag",
+//       mainImage: "https://images.unsplash.com/photo-1584917865442-de89df76afd3",
+//       salePrice: 80.0,
+//       quantity: 1,
+//       size: "Regular",
+//     },
+//   ],
+//   shippingAddress: {
+//     fullName: "John Doe",
+//     streetAddress: "123 Main Street",
+//     city: "Mumbai",
+//     state: "Maharashtra",
+//     postalCode: "400001",
+//     country: "India",
+//     phone: "+91 9876543210",
+//   },
+// };
 
 export default function OrderDetails() {
   const { orderId } = useParams();
@@ -57,7 +57,7 @@ export default function OrderDetails() {
     return <Loader />;
   }
   const order = data?.data;
-  console.log(order); // In real app, fetch using orderId
+
   return (
     <div className="container mx-auto max-w-6xl px-4 py-2">
       {/* Header */}
@@ -116,7 +116,7 @@ export default function OrderDetails() {
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <h3 className="text-lg font-medium text-gray-900">Order Items</h3>
             <div className="mt-4">
-              {order.items.map((item) => (
+              {order.items.map((item: any) => (
                 <OrderDetailsItem key={item.id} item={item} />
               ))}
             </div>

@@ -18,6 +18,12 @@ interface createOrderResponse {
   message: string;
   success: boolean;
 }
+interface OrderResponse {
+  statusCode: number;
+  data: any;
+  message: string;
+  success: boolean;
+}
 
 export const orderApi = createApi({
   reducerPath: "orderApi",
@@ -43,12 +49,12 @@ export const orderApi = createApi({
       invalidatesTags: ["orders"],
     }),
 
-    getOrderById: builder.query<void, { id: number }>({
+    getOrderById: builder.query<OrderResponse, { id: number }>({
       query: (data) => `/order/details/${data.id}`,
 
       providesTags: ["orderItem"],
     }),
-    getAllOrders: builder.query<void, void>({
+    getAllOrders: builder.query<OrderResponse, void>({
       query: () => "/order/",
     }),
   }),

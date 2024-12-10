@@ -2,13 +2,10 @@ export interface ProductType {
   id: number;
   name: string;
   brand: string;
-  basePrice: number;
-  salePrice: number;
-  inStock: boolean;
+  listPrice: number;
+  price: number;
   images: any[];
   description: string;
-  longDescription: string;
-  isVariant: boolean;
   slug: string;
   variants: any[];
 }

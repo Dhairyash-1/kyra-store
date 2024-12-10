@@ -20,7 +20,6 @@ const Wishlist = () => {
   if (isLoading) {
     return <Loader />;
   }
-
   return (
     <div className="grid h-full grid-cols-2 gap-8   sm:grid-cols-2 md:grid-cols-3 ">
       {wishlists?.length === 0 ? (
@@ -34,9 +33,9 @@ const Wishlist = () => {
             id={item.id}
             name={item.name}
             brand={item.brand}
-            basePrice={item.basePrice}
-            salePrice={item.salePrice}
-            images={item.images}
+            listPrice={item.variants[0].listPrice}
+            price={item.variants[0].price}
+            image={item.variants[0].images[0].url}
             slug={item.slug}
             topActionButton={
               <div

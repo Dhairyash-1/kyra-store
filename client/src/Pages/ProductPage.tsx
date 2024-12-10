@@ -1,75 +1,140 @@
 import { HeartIcon, MinusIcon, PlusIcon } from "lucide-react";
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import BreadCrumb from "@/components/BreadCrumb";
+import CartButton from "@/components/CartButton";
 import FullPageLoader from "@/components/FullPageLoader";
+import ProductInfoTab from "@/components/ProductPage/ProductInfoTab";
+import QuantityController from "@/components/QuantityController";
 import { Button } from "@/components/ui/button";
-import {
-  addToCart,
-  removeFromCart,
-  updateQuantity,
-} from "@/features/cart/cartSlice";
-import { useGetProductBySlugQuery } from "@/services/productApi";
-import { RootState } from "@/store/store";
+import { useToast } from "@/hooks/use-toast";
 import useCart from "@/hooks/useCart";
+import useWishlist from "@/hooks/useWishlist";
+import {
+  useGetProductBySlugQuery,
+  useGetVariantIdQuery,
+} from "@/services/productApi";
 
 const ProductPage = () => {
   const { slug } = useParams();
+  const { toast } = useToast();
   const [imgIndex, setImgIndex] = useState(0);
-
-  const { data, isLoading } = useGetProductBySlugQuery({ slug: slug || "" });
-  const product = data?.data;
-  const dispatch = useDispatch();
-  const { handleIncrement, handleAddToCart, handleDecrement, items } =
+  const [hoverColorId, setHoverColorId] = useState(null);
+  const [currentVariantId, setCurrentVariantId] = useState(null);
+  const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
+  const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null);
+  const { handleAddToCart, handleDecrement, handleIncrement, items } =
     useCart();
 
-  if (isLoading || !product) {
-    return <FullPageLoader />;
+  const { data, isLoading, error } = useGetProductBySlugQuery({
+    slug: slug || "",
+  });
+
+  const product = data?.data;
+  const productColors = product?.colors;
+  const { handleAddToWishlist, wishlistProductIds } = useWishlist();
+
+  useEffect(() => {
+    if (productColors?.length > 0 && selectedColorId === null) {
+      const firstColorId = productColors[0]?.id;
+      if (firstColorId) {
+        setSelectedColorId(firstColorId);
+      }
+    }
+  }, [selectedColorId, productColors]);
+
+  useEffect(() => {
+    if (selectedColorId && selectedSizeId) {
+      const color = productColors?.find(
+        (color) => color.id === selectedColorId
+      );
+      if (color) {
+        const size = color.sizes.find((size) => size.id === selectedSizeId);
+
+        if (size) {
+          setCurrentVariantId(size.variantId);
+          console.log("var", size.variantId);
+        }
+      }
+    }
+  }, [selectedColorId, selectedSizeId, productColors]);
+
+  if (isLoading) return <FullPageLoader />;
+  if (error) return <div>Error loading product</div>;
+  if (!product || productColors.length === 0) {
+    return <div>No product found</div>;
+  }
+  const { id, name, listPrice, price, brand, description, additionalInfo } =
+    product;
+  const selectedColor = productColors.find(
+    (color) => color.id === selectedColorId
+  );
+
+  const images = selectedColor?.images || [];
+  const sizes = selectedColor?.sizes || [];
+  const currentImage = hoverColorId
+    ? productColors.find((color) => color.id === hoverColorId)?.images[0]
+    : images[imgIndex];
+
+  const currentProduct = items.find((item) => item.id === currentVariantId);
+  const isWishlist = wishlistProductIds.includes(id);
+
+  function handleProductAddToCart() {
+    if (!selectedColorId || !selectedSizeId) {
+      toast({ title: "Please select both color and size", variant: "default" });
+      return;
+    }
+
+    if (currentVariantId) {
+      const cartItem = {
+        id: currentVariantId,
+        name,
+        productId: id, // Include product ID
+        color: {
+          id: selectedColorId,
+          name: selectedColor?.name,
+        },
+        size: {
+          id: selectedSizeId,
+          name: sizes.find((size) => size.id === selectedSizeId)?.name,
+        },
+        image: selectedColor?.images[0],
+        price,
+        quantity: 1,
+      };
+      handleAddToCart(cartItem);
+    }
   }
 
-  const {
-    id,
-    name,
-    images,
-    salePrice,
-    inStock,
-    longDescription,
-    description,
-    basePrice,
-    brand,
-  } = product;
-
-  const currentImage = images[imgIndex];
-  const currentProduct = items.find((item) => item.id === id);
-
   return (
-    <div className="mt-8 px-4 sm:px-8 md:px-20 lg:px-28">
+    <div className="mt-8 xl:px-20">
       <BreadCrumb path={name} />
 
-      {/* Main Product Layout */}
-      <div className="mt-8 flex flex-col gap-6 md:flex-row">
-        {/* Left Section: Main Image */}
-        <div className="w-full md:w-1/2">
-          <div className="flex items-center justify-center bg-gray-5">
+      <div className="mt-8 flex flex-col items-center gap-10 lg:flex-row">
+        {/* Left Section: Images */}
+        <div className="w-full lg:w-[40%]">
+          <div className="flex items-center justify-center ">
             <img
-              src={currentImage.url}
+              src={currentImage?.url}
               alt={`Product ${name}`}
-              className="h-auto max-h-[500px] w-full max-w-full object-contain"
+              className="h-auto max-h-[500px] w-full object-contain"
             />
           </div>
-          <div className="mt-8 flex gap-4">
+
+          <div className="mt-8 flex gap-4 overflow-x-auto">
             {images.map((img, i) => (
               <div
-                key={img.url}
+                key={i}
                 onClick={() => setImgIndex(i)}
-                className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-md bg-gray-5 sm:h-24 sm:w-24 md:h-28 md:w-28"
+                className={`flex  h-24 w-24 cursor-pointer items-center justify-center rounded-md border ${
+                  imgIndex === i ? "border-dark-500" : "border-gray-300"
+                } `}
               >
                 <img
                   src={img.url}
                   alt={`Thumbnail ${i + 1}`}
-                  className="h-auto w-full object-contain"
+                  className="aspect-square h-full w-full object-contain"
                 />
               </div>
             ))}
@@ -77,84 +142,129 @@ const ProductPage = () => {
         </div>
 
         {/* Right Section: Product Details */}
-        <div className="flex-1 md:w-[50%]">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold sm:text-3xl">{brand}</h1>
-            <div
-              className={`rounded-sm p-2 text-sm font-normal ${
-                inStock
-                  ? "bg-green-100 text-green-400"
-                  : "bg-red-100 text-red-400"
-              }`}
-            >
-              {inStock ? "In Stock" : "Out of Stock"}
-            </div>
-          </div>
-
+        <div className="flex-1 lg:w-[60%]">
+          <h1 className="text-2xl font-bold sm:text-3xl">{brand}</h1>
           <h5 className="mt-2 text-lg font-normal sm:text-xl">{name}</h5>
 
           <div className="mt-2 flex gap-4">
-            <span className="text-xl font-semibold sm:text-2xl">
-              ₹{salePrice}
-            </span>
+            <span className="text-xl font-semibold sm:text-2xl">₹{price}</span>
             <span className="text-gray-400 line-through sm:text-xl">
-              ₹{basePrice}
+              ₹{listPrice}
             </span>
           </div>
 
           <p className="mt-4 text-gray-700 sm:text-base md:text-lg">
-            {longDescription.slice(0, 220)}...
+            {description.slice(0, 220)}...
           </p>
 
-          <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6 md:gap-8">
-            {/* Quantity Controller */}
-            <div className="flex items-center space-x-4 rounded-lg border-2 border-dark-500 px-4 py-3 sm:w-auto">
-              <MinusIcon
-                className="cursor-pointer text-dark-500"
-                onClick={() => handleDecrement(currentProduct)}
-              />
-              <span className="text-dark-500">
-                {currentProduct ? currentProduct.quantity : 0}
-              </span>
-              <PlusIcon
-                className="cursor-pointer text-dark-500"
-                onClick={() => handleIncrement(currentProduct)}
-              />
-            </div>
-
-            {/* Add to Cart Button */}
-            <div className="flex justify-center sm:w-auto sm:justify-center">
-              {currentProduct ? (
-                <Link to={"/cart"}>
-                  <Button className="w-full rounded-lg bg-dark-500 px-8 py-6 text-base font-light text-white sm:w-auto md:px-28">
-                    Go to Cart
-                  </Button>
-                </Link>
-              ) : (
-                <Button
-                  onClick={() =>
-                    handleAddToCart({
-                      id,
-                      name,
-                      images,
-                      salePrice,
-                      quantity: 1,
-                    })
+          {/* Color Options */}
+          <div className="mt-6">
+            <h4 className="text-lg font-semibold">Color</h4>
+            <div className="mt-4 flex items-center gap-4">
+              {productColors.map((color) => (
+                <div
+                  key={color.id}
+                  onClick={() => {
+                    setSelectedColorId(color.id);
+                    setImgIndex(0);
+                  }}
+                  className={`
+                  group relative cursor-pointer
+                  transition-all duration-300 ease-in-out
+                  ${
+                    selectedColorId === color.id
+                      ? " scale-105 "
+                      : "hover:scale-105"
                   }
-                  className="w-full rounded-lg bg-dark-500 px-8 py-6 text-base font-light text-white sm:w-auto md:px-28"
+                   `}
+                  onMouseEnter={() => setHoverColorId(color.id)}
+                  onMouseLeave={() => setHoverColorId(null)}
                 >
-                  Add to Cart
-                </Button>
-              )}
+                  <div
+                    className={`
+                    flex h-14 w-14 items-center
+                    justify-center overflow-hidden 
+                    rounded-sm transition-all duration-300
+                    ${
+                      selectedColorId === color.id
+                        ? "border-2 border-black"
+                        : "border border-transparent"
+                    }
+                      ${
+                        hoverColorId === color.id ? "opacity-80" : "opacity-100"
+                      }
+                    `}
+                  >
+                    <img
+                      src={color.images[0].url}
+                      alt={color.name}
+                      className="h-full w-full  object-cover"
+                    />
+                  </div>
+                  {/* Selected Color Name */}
+                  {selectedColorId === color.id && (
+                    <div className="absolute left-1/2 mb-2 mt-1 w-full -translate-x-1/2 transform text-center">
+                      <p className=" text-xs text-gray-700 opacity-100 transition-opacity duration-300">
+                        {color.name}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
+          </div>
 
+          {/* Size Options */}
+          <div className="mt-10">
+            <h4 className="text-lg font-semibold">Size</h4>
+            <div className="mt-4 flex gap-2">
+              {sizes.map((size) => (
+                <button
+                  key={size.id}
+                  className={`rounded-md border px-4 py-2 ${
+                    selectedSizeId === size.id
+                      ? "border-dark-500 bg-dark-500 text-white"
+                      : "border-gray-300 bg-gray-100 text-gray-700"
+                  }`}
+                  onClick={() => setSelectedSizeId(size.id)}
+                >
+                  {size.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Add to Cart Button */}
+
+          <div className="mt-10 flex h-12 items-center gap-16 sm:gap-8">
+            {/* Quantity Controller */}
+            <QuantityController product={currentProduct} />
+            {/* Add to Cart Button */}
+            <CartButton
+              product={currentProduct}
+              handleProductAddToCart={handleProductAddToCart}
+            />
             {/* Wishlist Button */}
-            <div className="flex items-center justify-center rounded-lg border-2 border-dark-500 px-2 py-3 sm:w-auto sm:px-4">
-              <HeartIcon strokeWidth={1.8} className="text-dark-500" />
+            <div
+              onClick={() => handleAddToWishlist(id)}
+              className="flex h-full  w-auto items-center justify-center rounded-lg border-2 border-dark-500 px-2 py-2 sm:px-4"
+            >
+              <HeartIcon
+                strokeWidth={1.8}
+                fill={isWishlist ? "red" : "none"}
+                size={32}
+                className={`${
+                  isWishlist ? "text-red-500" : "text-dark-500"
+                } cursor-pointer`}
+              />
             </div>
           </div>
         </div>
       </div>
+      <ProductInfoTab
+        description={description}
+        additionalInfo={additionalInfo}
+      />
     </div>
   );
 };

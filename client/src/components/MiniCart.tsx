@@ -1,12 +1,12 @@
 import { CrossIcon, XIcon } from "lucide-react";
 import { ReactNode } from "react";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 import { Popover, PopoverTrigger, PopoverContent } from "./ui/popover";
 import { Separator } from "./ui/separator";
 
 import { RootState } from "@/store/store";
-import { Link } from "react-router-dom";
 
 const MiniCart = ({ children }: { children: ReactNode }) => {
   const { items, totalPrice, totalQuantity } = useSelector(

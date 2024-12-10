@@ -24,28 +24,31 @@ const BestSeller = () => {
       </h1>
       <div className="grid grid-cols-1 gap-6 py-14 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
         {isLoading
-          ? Array.from({ length: 8 }).map((_, index) => <ProductCardSkeleton />)
+          ? Array.from({ length: 8 }).map((_, index) => (
+              <ProductCardSkeleton key={index} />
+            ))
           : bestSellerProducts?.map((product) => {
-              const { id, name, salePrice, basePrice, brand, images, slug } =
-                product;
-              const isWishlist = wishlistProductIds.includes(id);
+              const selectedProduct: any = {
+                id: product.id,
+                name: product.name,
+                brand: product.brand,
+                price: product.variants[0].price,
+                listPrice: product.variants[0].listPrice,
+                image: product.variants[0].images[0].url,
+                slug: product.slug,
+              };
+              const isWishlist = wishlistProductIds.includes(product.id);
 
               return (
                 <ProductCard
-                  key={id}
-                  id={id}
-                  name={name}
-                  brand={brand}
-                  basePrice={basePrice}
-                  salePrice={salePrice}
-                  images={images}
-                  slug={slug}
+                  key={product.id}
+                  {...selectedProduct}
                   topActionButton={
                     <div
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        handleAddToWishlist(id);
+                        handleAddToWishlist(product.id);
                       }}
                       className="flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white shadow-md"
                     >
@@ -74,7 +77,7 @@ const BestSeller = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleAddToCart(product);
+                          handleAddToCart(selectedProduct);
                         }}
                         className="w-full rounded-lg bg-white px-4 py-3  text-center text-sm font-medium text-dark-500 shadow-sm md:px-[12px] md:py-4"
                       >

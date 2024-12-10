@@ -5,11 +5,10 @@ interface ProductCardProp {
   id: number;
   brand: string;
   name: string;
-  basePrice: number;
-  salePrice: number;
-  price?: number;
+  listPrice: number;
+  price: number;
   slug: string;
-  images: any[];
+  image: string;
   topActionButton: ReactNode;
   bottomActionButton: ReactNode;
 }
@@ -18,22 +17,19 @@ const ProductCard = ({
   id,
   name,
   brand,
-  basePrice,
-  salePrice,
+  listPrice,
   price,
-  images,
+  image,
   slug,
   topActionButton,
   bottomActionButton,
 }: ProductCardProp) => {
-  const imageUrl = images.filter((img) => img.isMainImage)[0].url;
-
   return (
     <div className="flex min-w-[150px] flex-col rounded-lg bg-white ">
       {/* Product Image Section */}
       <Link
         to={`/products/${slug}`}
-        className="relative block overflow-hidden rounded-t-lg bg-gray-5"
+        className="group relative block overflow-hidden rounded-t-lg bg-gray-5"
       >
         {/* Top Action Button */}
         <div className="absolute right-4 top-4 z-10 hidden group-hover:block">
@@ -43,7 +39,7 @@ const ProductCard = ({
         {/* Product Image */}
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-gray-10">
           <img
-            src={imageUrl}
+            src={image}
             alt={name}
             className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 object-contain"
           />
@@ -60,11 +56,9 @@ const ProductCard = ({
         <h4 className="text-base font-semibold text-gray-800">{brand}</h4>
         <h5 className="text-sm font-normal text-gray-600">{name}</h5>
         <div className="flex items-center space-x-2">
-          <span className="text-lg font-medium text-gray-800">
-            ₹{salePrice}.00
-          </span>
+          <span className="text-lg font-medium text-gray-800">₹{price}.00</span>
           <span className="text-sm font-normal text-gray-400 line-through">
-            ₹{basePrice || price}.00
+            ₹{listPrice}.00
           </span>
         </div>
       </div>

@@ -42,7 +42,12 @@ const CartPage = () => {
                       alt={item.name}
                       className="h-16 w-24 rounded-md bg-gray-5 object-contain p-1"
                     />
-                    <h4 className="font-medium text-dark-500">{item.name}</h4>
+                    <div className="flex flex-col">
+                      <h4 className="font-medium text-dark-500">{item.name}</h4>
+                      {item.size && (
+                        <span className="font-bol">Size: {item.size.name}</span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Price Column */}
@@ -85,7 +90,7 @@ const CartPage = () => {
         </div>
 
         {/* Subtotal Section */}
-        <div className="mt-8 w-full rounded-md border border-gray-200 p-6 shadow-sm md:ml-8 md:mt-0 md:w-1/3">
+        <div className="mt-8 w-full rounded-md border border-gray-200 p-6 shadow-sm md:ml-8 md:mt-0 md:w-1/3 lg:w-[30%]">
           <div className="flex justify-between">
             <h2 className="text-lg font-bold text-dark-500">Subtotal</h2>
             <span className=" font-bold text-dark-500">

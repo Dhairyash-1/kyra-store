@@ -55,6 +55,13 @@ export const productApi = createApi({
     getBestSellerProducts: builder.query<bestSellerProductsResponse, void>({
       query: () => `/product/bestseller`,
     }),
+    getVariantId: builder.query<
+      void,
+      { productId: number; sizeId: number; colorId: number }
+    >({
+      query: (data) =>
+        `product/variantId/${data.productId}/${data.colorId}/${data.sizeId}`,
+    }),
   }),
 });
 
@@ -62,4 +69,5 @@ export const {
   useGetAllProductsQuery,
   useGetProductBySlugQuery,
   useGetBestSellerProductsQuery,
+  useGetVariantIdQuery,
 } = productApi;

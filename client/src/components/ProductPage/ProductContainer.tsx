@@ -1,5 +1,5 @@
 import { StarIcon } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
 import ProductToolBar from "./ProductToolBar";
@@ -15,6 +15,7 @@ import { ProductType } from "@/types/productType";
 type SelectedProduct = ProductType & { price?: number };
 
 const ProductContainer = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const currentPage = !searchParams.get("page")
     ? 1
@@ -48,39 +49,28 @@ const ProductContainer = () => {
           <ClipLoader size={50} color="#131118" />
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 xs:grid-cols-2 sm:grid-cols-3  2xl:grid-cols-4">
           {!AllProducts || AllProducts.length === 0 ? (
             <div className="col-span-full flex h-[300px] items-center justify-center">
               No Products Found
             </div>
           ) : (
             AllProducts?.map((product) => {
-              let selectedProduct: SelectedProduct = product;
+              const selectedProduct: any = {
+                id: product.id,
+                name: product.name,
+                brand: product.brand,
+                price: product.variants[0].price,
+                listPrice: product.variants[0].listPrice,
+                image: product.variants[0].images[0].url,
+                slug: product.slug,
+              };
 
-              if (product.isVariant && product.variants.length > 0) {
-                const { name, brand, slug, images } = product;
-                const { images: variantImg, ...withoutImageVariant } =
-                  product.variants[0];
-                selectedProduct = {
-                  name,
-                  brand,
-                  slug,
-                  images,
-                  ...withoutImageVariant,
-                };
-              }
               const isWishlist = wishlistProductIds.includes(product.id);
               return (
                 <ProductCard
                   key={selectedProduct.id}
-                  name={selectedProduct.name}
-                  brand={selectedProduct.brand}
-                  basePrice={selectedProduct.basePrice}
-                  salePrice={selectedProduct.salePrice}
-                  images={selectedProduct.images}
-                  id={selectedProduct.id}
-                  slug={selectedProduct.slug}
-                  price={selectedProduct.price as number}
+                  {...selectedProduct}
                   topActionButton={
                     <div
                       onClick={(e) => {
@@ -101,11 +91,16 @@ const ProductContainer = () => {
                   }
                   bottomActionButton={
                     items.some((item) => item.id === product.id) ? (
-                      <Link to="/cart">
-                        <button className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm">
-                          Go to Cart
-                        </button>
-                      </Link>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          navigate("/cart");
+                        }}
+                        className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm"
+                      >
+                        Go to Cart
+                      </button>
                     ) : (
                       <button
                         onClick={(e) => {

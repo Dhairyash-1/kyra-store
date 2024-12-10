@@ -17,6 +17,36 @@ import person3 from "../assets/t3.jpeg";
 import person4 from "../assets/t4.jpeg";
 import westernWear from "../assets/western-wear.png";
 
+export const sampleReviews = [
+  {
+    userIcon: person4, // Add image URL here
+    userName: "John Doe",
+    rating: 5,
+    reviewTitle: "Great product, but could be better",
+    reviewContent:
+      "I really like the product, but there are a few things that could be improved. The fabric is soft, and the fit is perfect. However, the stitching on the sleeves could be more durable.",
+    postDate: "March 25, 2024",
+  },
+  {
+    userIcon: person3, // Add image URL here
+    userName: "Sarah Lee",
+    rating: 5,
+    reviewTitle: "Amazing quality and fit!",
+    reviewContent:
+      "I absolutely love this product! It fits perfectly, and the quality is top-notch. I've worn it multiple times already, and it hasn't shown any signs of wear. Definitely recommend!",
+    postDate: "April 14, 2024",
+  },
+  {
+    userIcon: person1, // Add image URL here
+    userName: "Michael Smith",
+    rating: 3,
+    reviewTitle: "Decent, but not great",
+    reviewContent:
+      "The product is okay for the price, but the material feels a bit cheap. It's not as comfortable as I expected, but it's wearable. I'd say it's good for casual wear but not for long days.",
+    postDate: "May 3, 2024",
+  },
+];
+
 export const productCategories = [
   {
     id: 1,
