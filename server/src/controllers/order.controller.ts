@@ -116,6 +116,10 @@ export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
         product_data: {
           name: item.name,
           images: [item.image],
+          metadata: {
+            size: item.size.name,
+            color: item.color.name,
+          },
         },
         unit_amount: item.price * 100,
       },

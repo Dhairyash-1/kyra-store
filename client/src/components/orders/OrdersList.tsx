@@ -1,5 +1,6 @@
-import { Order } from "@/types/order";
 import { OrderCard } from "./OrderCard";
+
+import { Order } from "@/types/order";
 
 interface OrdersListProps {
   orders: Order[];
