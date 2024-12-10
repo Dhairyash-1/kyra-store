@@ -1,11 +1,9 @@
-import { StarIcon } from "lucide-react";
 import { FC } from "react";
 
 import ReviewCard from "../ReviewCard.tsx";
 import ReviewForm from "../ReviewForm.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs.tsx";
 
-import userIcon from "@/assets/t4.jpeg";
 import { sampleReviews } from "@/constants/index.ts";
 interface ProductInfoTabPropType {
   description: string;

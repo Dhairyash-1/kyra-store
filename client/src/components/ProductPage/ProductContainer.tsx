@@ -10,9 +10,6 @@ import useCart from "@/hooks/useCart";
 import useWishlist from "@/hooks/useWishlist";
 import { PAGE_SIZE } from "@/lib/utils";
 import { useGetAllProductsQuery } from "@/services/productApi";
-import { ProductType } from "@/types/productType";
-
-type SelectedProduct = ProductType & { price?: number };
 
 const ProductContainer = () => {
   const navigate = useNavigate();
@@ -24,6 +21,9 @@ const ProductContainer = () => {
   const subCategories = searchParams.get("subcategories") || "";
   const lowPrice = searchParams.get("low") || 0;
   const highPrice = searchParams.get("high") || 3000;
+  const color = searchParams.get("color");
+  const size = searchParams.get("size");
+
   const { data, isFetching } = useGetAllProductsQuery({
     page: currentPage,
     limit: PAGE_SIZE,
@@ -31,6 +31,8 @@ const ProductContainer = () => {
     subcategory: subCategories,
     sortBy: searchParams.get("sortBy") || "newest",
     price: `${lowPrice}-${highPrice}`,
+    color: color || "",
+    size: size || "",
   });
 
   const AllProducts = data?.data?.products;
@@ -56,7 +58,7 @@ const ProductContainer = () => {
             </div>
           ) : (
             AllProducts?.map((product) => {
-              const selectedProduct: any = {
+              const selectedProduct = {
                 id: product.id,
                 name: product.name,
                 brand: product.brand,
@@ -64,6 +66,7 @@ const ProductContainer = () => {
                 listPrice: product.variants[0].listPrice,
                 image: product.variants[0].images[0].url,
                 slug: product.slug,
+                variantId: product.variants[0].id,
               };
 
               const isWishlist = wishlistProductIds.includes(product.id);
@@ -106,7 +109,17 @@ const ProductContainer = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleAddToCart(selectedProduct);
+                          handleAddToCart({
+                            id: product.variants[0].id,
+                            name: product.name,
+                            price: product.variants[0].price,
+                            color: product.variants[0].color,
+                            size: product.variants[0].size,
+                            image: product.variants[0].images[0].url,
+                            productId: product.id,
+                            slug: product.slug,
+                            quantity: 1,
+                          });
                         }}
                         className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm"
                       >

@@ -1,39 +1,39 @@
-import { HeartIcon, MinusIcon, PlusIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { HeartIcon } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
 
 import BreadCrumb from "@/components/BreadCrumb";
 import CartButton from "@/components/CartButton";
 import FullPageLoader from "@/components/FullPageLoader";
 import ProductInfoTab from "@/components/ProductPage/ProductInfoTab";
 import QuantityController from "@/components/QuantityController";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import useCart from "@/hooks/useCart";
 import useWishlist from "@/hooks/useWishlist";
-import {
-  useGetProductBySlugQuery,
-  useGetVariantIdQuery,
-} from "@/services/productApi";
+import { useGetProductBySlugQuery } from "@/services/productApi";
 
 const ProductPage = () => {
+  const location = useLocation();
   const { slug } = useParams();
   const { toast } = useToast();
   const [imgIndex, setImgIndex] = useState(0);
-  const [hoverColorId, setHoverColorId] = useState(null);
-  const [currentVariantId, setCurrentVariantId] = useState(null);
+  const [hoverImageColorId, setHoverImageColorId] = useState<number | null>(
+    null
+  );
+  const [currentVariantId, setCurrentVariantId] = useState<number | null>(null);
+  const selectedVariantId = location.state.variantId;
   const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
   const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null);
-  const { handleAddToCart, handleDecrement, handleIncrement, items } =
-    useCart();
+  const { handleAddToCart, items } = useCart();
+  const { handleAddToWishlist, wishlistProductIds } = useWishlist();
 
   const { data, isLoading, error } = useGetProductBySlugQuery({
     slug: slug || "",
   });
 
   const product = data?.data;
-  const productColors = product?.colors;
-  const { handleAddToWishlist, wishlistProductIds } = useWishlist();
+
+  const productColors = useMemo(() => product?.colors || [], [product]);
 
   useEffect(() => {
     if (productColors?.length > 0 && selectedColorId === null) {
@@ -60,8 +60,24 @@ const ProductPage = () => {
     }
   }, [selectedColorId, selectedSizeId, productColors]);
 
+  useEffect(() => {
+    if (selectedVariantId && productColors.length > 0) {
+      // Loop through colors to find the variant
+      for (const color of productColors) {
+        const matchingSize = color.sizes.find(
+          (size) => size.variantId === selectedVariantId
+        );
+        if (matchingSize) {
+          setSelectedColorId(color.id);
+          setSelectedSizeId(matchingSize.id);
+          break;
+        }
+      }
+    }
+  }, [selectedVariantId, productColors]);
+
   if (isLoading) return <FullPageLoader />;
-  if (error) return <div>Error loading product</div>;
+  if (error) return <div className="text-red-500">Error loading product</div>;
   if (!product || productColors.length === 0) {
     return <div>No product found</div>;
   }
@@ -73,8 +89,8 @@ const ProductPage = () => {
 
   const images = selectedColor?.images || [];
   const sizes = selectedColor?.sizes || [];
-  const currentImage = hoverColorId
-    ? productColors.find((color) => color.id === hoverColorId)?.images[0]
+  const currentImage = hoverImageColorId
+    ? productColors.find((color) => color.id === hoverImageColorId)?.images[0]
     : images[imgIndex];
 
   const currentProduct = items.find((item) => item.id === currentVariantId);
@@ -90,16 +106,18 @@ const ProductPage = () => {
       const cartItem = {
         id: currentVariantId,
         name,
-        productId: id, // Include product ID
+        slug: slug as string,
+        productId: id,
         color: {
           id: selectedColorId,
-          name: selectedColor?.name,
+          name: selectedColor?.name as string,
         },
         size: {
           id: selectedSizeId,
-          name: sizes.find((size) => size.id === selectedSizeId)?.name,
+          name: sizes.find((size) => size.id === selectedSizeId)
+            ?.name as string,
         },
-        image: selectedColor?.images[0],
+        image: selectedColor?.images[0].url as string,
         price,
         quantity: 1,
       };
@@ -177,8 +195,8 @@ const ProductPage = () => {
                       : "hover:scale-105"
                   }
                    `}
-                  onMouseEnter={() => setHoverColorId(color.id)}
-                  onMouseLeave={() => setHoverColorId(null)}
+                  onMouseEnter={() => setHoverImageColorId(color.id)}
+                  onMouseLeave={() => setHoverImageColorId(null)}
                 >
                   <div
                     className={`
@@ -191,7 +209,9 @@ const ProductPage = () => {
                         : "border border-transparent"
                     }
                       ${
-                        hoverColorId === color.id ? "opacity-80" : "opacity-100"
+                        hoverImageColorId === color.id
+                          ? "opacity-80"
+                          : "opacity-100"
                       }
                     `}
                   >

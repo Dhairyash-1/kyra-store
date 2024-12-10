@@ -63,6 +63,67 @@ export const addColor = asyncHandler(async (req, res) => {
     .status(201)
     .json(new ApiResponse(201, color, "Color created successfully."));
 });
+
+export const getAllProductColors = asyncHandler(async (req, res) => {
+  const colors = await prisma.color.findMany({
+    include: {
+      variants: {
+        where: { stockQuantity: { gt: 0 } },
+        select: {
+          productId: true,
+        },
+      },
+    },
+  });
+
+  const colorsWithAvailableProductCount = colors.map((color) => {
+    const uniqueProductIds = new Set(
+      color.variants.map((variant) => variant.productId)
+    );
+    return {
+      ...color,
+      productCount: uniqueProductIds.size,
+    };
+  });
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        colorsWithAvailableProductCount,
+        "All colors fetched"
+      )
+    );
+});
+
+export const getAllProductSizes = asyncHandler(async (req, res) => {
+  const sizes = await prisma.size.findMany({
+    include: {
+      variants: {
+        select: {
+          productId: true,
+        },
+      },
+    },
+  });
+
+  const sizesWithProductCount = sizes.map((size) => {
+    const uniqueProductIds = new Set(
+      size.variants.map((variant) => variant.productId)
+    );
+    return {
+      id: size.id,
+      name: size.name,
+      productCount: uniqueProductIds.size,
+    };
+  });
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, sizesWithProductCount, "All sizes fetched"));
+});
+
 interface colorType {
   id: number;
   name: string;
@@ -94,9 +155,7 @@ interface addProductBodyType {
   additionalInfo: object;
   variants: variantType[];
 }
-// export const addProduct = asyncHandler(async (req, res) => {});
-// export const getProductBySlug = asyncHandler(async (req, res) => {});
-// export const getAllProducts = asyncHandler(async (req, res) => {});
+
 export const addProduct = asyncHandler(async (req, res) => {
   const {
     name,
@@ -526,8 +585,21 @@ export const getBestSellerProduct = asyncHandler(async (req, res) => {
       variants: {
         take: 1,
         select: {
+          id: true,
           listPrice: true,
           price: true,
+          color: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          size: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
           images: {
             where: {
               isMainImage: true,

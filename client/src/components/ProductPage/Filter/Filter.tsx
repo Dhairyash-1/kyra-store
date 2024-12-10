@@ -12,9 +12,9 @@ const Filter = () => {
       <Separator />
       <PriceFilter />
       <Separator />
-      {/* <ColorFilter />
+      <ColorFilter />
       <Separator />
-      <SizeFilter /> */}
+      <SizeFilter />
     </div>
   );
 };

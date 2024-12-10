@@ -4,7 +4,9 @@ import {
   addColor,
   addProduct,
   addSize,
+  getAllProductColors,
   getAllProducts,
+  getAllProductSizes,
   getBestSellerProduct,
   getProductBySlug,
   getProductVariantId,
@@ -12,7 +14,9 @@ import {
 
 const router = Router();
 
-router.route("/color/add").post(verifyJWT, addColor);
+router.route("/colors/add").post(verifyJWT, addColor);
+router.route("/colors/").get(verifyJWT, getAllProductColors);
+router.route("/sizes/").get(verifyJWT, getAllProductSizes);
 router.route("/size/add").post(verifyJWT, addSize);
 
 router.route("/add").post(verifyJWT, addProduct);
