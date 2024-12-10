@@ -37,6 +37,7 @@ const Wishlist = () => {
             price={item.variants[0].price}
             image={item.variants[0].images[0].url}
             slug={item.slug}
+            variantId={item.variants[0].id}
             topActionButton={
               <div
                 onClick={(e) => {

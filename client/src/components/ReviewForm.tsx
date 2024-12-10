@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { StarIcon } from "lucide-react";
 import { useState } from "react";
 

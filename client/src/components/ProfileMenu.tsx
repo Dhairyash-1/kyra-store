@@ -1,6 +1,5 @@
 import {
   BellIcon,
-  CreditCardIcon,
   HeartIcon,
   MapPinIcon,
   PackageIcon,
@@ -29,12 +28,7 @@ const menuLinks = [
     icon: <MapPinIcon />,
     href: "/manage-address",
   },
-  {
-    id: 5,
-    name: "Saved Cards",
-    icon: <CreditCardIcon />,
-    href: "/saved-cards",
-  },
+
   { id: 6, name: "Notifications", icon: <BellIcon />, href: "/notifications" },
   { id: 7, name: "Settings", icon: <SettingsIcon />, href: "/settings" },
 ];

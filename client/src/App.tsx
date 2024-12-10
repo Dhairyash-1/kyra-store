@@ -7,7 +7,6 @@ import FullPageLoader from "./components/FullPageLoader";
 import ManageAddresses from "./components/ManageAddresses";
 import Notifications from "./components/Notifications";
 import ProtectedRoute from "./components/ProtectedRoute";
-import SavedCards from "./components/SavedCards";
 import Settings from "./components/Settings";
 import { Toaster } from "./components/ui/toaster";
 import UserProfile from "./components/UserProfile";
@@ -112,7 +111,6 @@ const App = () => {
               <Route path="/wishlists" element={<Wishlist />} />
               <Route path="/manage-address" element={<ManageAddresses />} />
 
-              <Route path="/saved-cards" element={<SavedCards />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/settings" element={<Settings />} />
             </Route>
