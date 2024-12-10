@@ -15,8 +15,8 @@ import {
 const router = Router();
 
 router.route("/colors/add").post(verifyJWT, addColor);
-router.route("/colors/").get(verifyJWT, getAllProductColors);
-router.route("/sizes/").get(verifyJWT, getAllProductSizes);
+router.route("/colors/").get(getAllProductColors);
+router.route("/sizes/").get(getAllProductSizes);
 router.route("/size/add").post(verifyJWT, addSize);
 
 router.route("/add").post(verifyJWT, addProduct);
