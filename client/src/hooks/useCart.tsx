@@ -4,6 +4,7 @@ import { useToast } from "./use-toast";
 
 import {
   addToCart,
+  CartItem,
   removeFromCart,
   updateQuantity,
 } from "@/features/cart/cartSlice";
@@ -14,15 +15,16 @@ const useCart = () => {
   const dispatch = useDispatch();
   const { toast } = useToast();
 
-  function handleAddToCart(product: any) {
+  function handleAddToCart(product: CartItem) {
     console.log(product);
     dispatch(
       addToCart({
         id: product.id,
         productId: product.productId,
         size: product.size,
+        slug: product.slug,
         color: product.color,
-        image: product.image.url,
+        image: product.image,
         name: product.name,
         price: product.price,
         quantity: 1,

@@ -6,7 +6,7 @@ interface OrderSummaryProps {
 
 export function OrderSummary({ order }: OrderSummaryProps) {
   const subtotal = order.items.reduce(
-    (sum, item) => sum + item.salePrice * item.quantity,
+    (sum, item) => sum + item.price * item.quantity,
     0
   );
   const shipping = 40; // Example shipping cost

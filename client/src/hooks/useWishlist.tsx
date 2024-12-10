@@ -51,6 +51,7 @@ const useWishlist = () => {
             wishlistProductIds.includes(id) ? "removed from" : "added to"
           } wishlist`,
           variant: "success",
+          duration: 500,
         });
       })
       .catch(() => {

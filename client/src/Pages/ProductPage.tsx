@@ -62,7 +62,6 @@ const ProductPage = () => {
 
   useEffect(() => {
     if (selectedVariantId && productColors.length > 0) {
-      // Loop through colors to find the variant
       for (const color of productColors) {
         const matchingSize = color.sizes.find(
           (size) => size.variantId === selectedVariantId

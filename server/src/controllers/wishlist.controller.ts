@@ -83,8 +83,21 @@ export const getAllUserWishlistProducts = asyncHandler(
             variants: {
               take: 1,
               select: {
+                id: true,
                 listPrice: true,
                 price: true,
+                color: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+                size: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
                 images: {
                   where: {
                     isMainImage: true,

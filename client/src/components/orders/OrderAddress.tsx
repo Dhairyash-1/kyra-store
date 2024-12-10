@@ -1,5 +1,6 @@
-import { Address } from "@/types/order";
 import { MapPin } from "lucide-react";
+
+import { Address } from "@/types/order";
 
 interface OrderAddressProps {
   address: Address;

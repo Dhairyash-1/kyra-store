@@ -67,7 +67,7 @@ const ReviewForm = ({ onSubmit }) => {
       <div>
         <button
           type="submit"
-          className="rounded-md bg-dark-500 px-6 py-2 text-light-500 hover:bg-gray-800 focus:outline-none font-normal"
+          className="rounded-md bg-dark-500 px-6 py-2 font-normal text-light-500 hover:bg-gray-800 focus:outline-none"
         >
           Submit Review
         </button>

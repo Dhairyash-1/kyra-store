@@ -2,9 +2,9 @@ import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 
 import CategoryCard from "./CategoryCard";
+import CategoryCardSkeleton from "./CategoryCardSkeleton";
 
 import { useGetTrendingCategoriesQuery } from "@/services/categoryApi";
-import CategoryCardSkeleton from "./CategoryCardSkeleton";
 
 interface CategoryStateType {
   id: number;

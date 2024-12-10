@@ -1,4 +1,4 @@
-import { CrossIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { ReactNode } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -60,9 +60,11 @@ const MiniCart = ({ children }: { children: ReactNode }) => {
             View Cart
           </button>
         </Link>
-        <button className="mt-4 w-full rounded-lg bg-dark-500 py-2 font-normal text-white">
-          Checkout
-        </button>
+        <Link to={"/shipping"}>
+          <button className="mt-4 w-full rounded-lg bg-dark-500 py-2 font-normal text-white">
+            Checkout
+          </button>
+        </Link>
       </PopoverContent>
     </Popover>
   );

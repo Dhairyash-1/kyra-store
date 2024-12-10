@@ -1,14 +1,14 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-interface wishlistType {
-  id: number;
-  name: string;
-  brand: string;
-  salePrice: number;
-  basePrice: number;
-  slug: string;
-  images: any[];
-}
+// interface wishlistType {
+//   id: number;
+//   name: string;
+//   brand: string;
+//   salePrice: number;
+//   basePrice: number;
+//   slug: string;
+//   images: any[];
+// }
 
 interface createOrderResponse {
   statusCode: number;

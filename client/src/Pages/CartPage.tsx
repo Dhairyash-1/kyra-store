@@ -36,7 +36,10 @@ const CartPage = () => {
               <React.Fragment key={item.id}>
                 <div className="grid grid-cols-[2fr_1fr_1fr_1fr_50px] items-center gap-4">
                   {/* Product Column */}
-                  <div className="flex items-center space-x-4">
+                  <Link
+                    to={`/products/${item.slug}`}
+                    className="flex items-center space-x-4"
+                  >
                     <img
                       src={item.image}
                       alt={item.name}
@@ -48,7 +51,7 @@ const CartPage = () => {
                         <span className="font-bol">Size: {item.size.name}</span>
                       )}
                     </div>
-                  </div>
+                  </Link>
 
                   {/* Price Column */}
                   <div className="font-medium text-dark-500">

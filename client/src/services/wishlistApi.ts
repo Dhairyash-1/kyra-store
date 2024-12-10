@@ -4,10 +4,15 @@ interface wishlistType {
   id: number;
   name: string;
   brand: string;
-  salePrice: number;
-  basePrice: number;
   slug: string;
-  images: any[];
+  variants: {
+    id: number;
+    price: number;
+    listPrice: number;
+    color: { id: number; name: string };
+    size: { id: number; name: string };
+    images: { url: string }[];
+  }[];
 }
 
 interface allWishlistResponse {

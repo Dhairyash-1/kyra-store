@@ -9,7 +9,7 @@ export interface OrderItem {
   id: number;
   name: string;
   mainImage: string;
-  salePrice: number;
+  price: number;
   quantity: number;
   size?: string;
 }

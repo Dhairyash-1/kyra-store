@@ -6,11 +6,16 @@ import {
   singleProductRespose,
 } from "@/types/productType";
 
-// import {
-//   AllCategoryResponse,
-//   createCategoryRequest,
-//   createCategoryResponse,
-// } from "@/types/categoryType";
+interface colorResponse {
+  statusCode: number;
+  data: { id: number; name: string; hexCode: string; productCount: number }[];
+  message: string;
+}
+interface sizeResponse {
+  statusCode: number;
+  data: { id: number; name: string; productCount: number }[];
+  message: string;
+}
 
 export const productApi = createApi({
   reducerPath: "productApi",
@@ -31,9 +36,20 @@ export const productApi = createApi({
         subcategory?: string;
         sortBy?: string;
         price?: string;
+        color?: string;
+        size?: string;
       }
     >({
-      query: ({ page, limit, category, subcategory, sortBy, price }) => {
+      query: ({
+        page,
+        limit,
+        category,
+        subcategory,
+        sortBy,
+        price,
+        color,
+        size,
+      }) => {
         const params = new URLSearchParams();
         params.append("page", page.toString());
         params.append("limit", limit.toString());
@@ -43,6 +59,8 @@ export const productApi = createApi({
         if (subcategory) params.append("subCategory", subcategory);
         if (sortBy) params.append("sortBy", sortBy);
         if (price) params.append("price", price);
+        if (color) params.append("color", color);
+        if (size) params.append("size", size);
 
         return `/product/?${params.toString()}`;
       },
@@ -62,6 +80,12 @@ export const productApi = createApi({
       query: (data) =>
         `product/variantId/${data.productId}/${data.colorId}/${data.sizeId}`,
     }),
+    getProductColors: builder.query<colorResponse, void>({
+      query: () => `/product/colors`,
+    }),
+    getProductSizes: builder.query<sizeResponse, void>({
+      query: () => `/product/sizes`,
+    }),
   }),
 });
 
@@ -70,4 +94,6 @@ export const {
   useGetProductBySlugQuery,
   useGetBestSellerProductsQuery,
   useGetVariantIdQuery,
+  useGetProductColorsQuery,
+  useGetProductSizesQuery,
 } = productApi;

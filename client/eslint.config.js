@@ -7,7 +7,7 @@ import tailwindcss from "eslint-plugin-tailwindcss";
 import importPlugin from "eslint-plugin-import";
 
 export default tseslint.config(
-  { ignores: ["dist"] },
+  { ignores: ["dist", "src/components/ui"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
@@ -23,6 +23,7 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      "@typescript-eslint/no-explicit-any": "off",
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },

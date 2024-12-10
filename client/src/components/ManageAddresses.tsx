@@ -20,8 +20,7 @@ const ManageAddresses = () => {
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { data, isLoading } = useGetShippingAddressQuery();
-  const [deleteShippingAddress, { isLoading: idDeleting }] =
-    useDeleteShippingAddressMutation();
+  const [deleteShippingAddress] = useDeleteShippingAddressMutation();
   const allAddresses = data?.data;
 
   if (isLoading) return <FullPageLoader />;

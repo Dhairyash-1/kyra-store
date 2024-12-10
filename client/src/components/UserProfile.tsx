@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 
 import Loader from "./Loader";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import userIcon from "../assets/t1.jpeg";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";

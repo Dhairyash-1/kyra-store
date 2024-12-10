@@ -1,7 +1,7 @@
 import Stripe from "stripe";
 import prisma from "../prismaClient/prismaClient";
 import { stripe } from "../app";
-import { Product } from "@prisma/client";
+import { Product, ProductVariant } from "@prisma/client";
 import { isCheckoutSession } from "../utils/helpter";
 
 export async function handleOrderFulfillment(
@@ -45,20 +45,22 @@ export async function handleOrderFulfillment(
         throw new Error(`Order with ID ${orderId} not found.`);
       }
 
-      const productIds = order.items.map((item) => item.productId);
-      console.log("productIds", productIds);
+      const productVariantIds = order.items.map(
+        (item) => item.productVariantId
+      );
+      console.log("productVariantIds", productVariantIds);
       // Fetch all products associated with the order and apply a lock
       const products =
-        productIds.length === 1
-          ? await prisma.$queryRawUnsafe<Product[]>(
-              `SELECT * FROM "Product" WHERE id = $1 FOR UPDATE`,
-              productIds[0]
+        productVariantIds.length === 1
+          ? await prisma.$queryRawUnsafe<ProductVariant[]>(
+              `SELECT * FROM "ProductVariant" WHERE id = $1 FOR UPDATE`,
+              productVariantIds[0]
             )
-          : await prisma.$queryRawUnsafe<Product[]>(
-              `SELECT * FROM "Product" WHERE id IN (${productIds
+          : await prisma.$queryRawUnsafe<ProductVariant[]>(
+              `SELECT * FROM "ProductVariant" WHERE id IN (${productVariantIds
                 .map((_, i) => `$${i + 1}`)
                 .join(", ")}) FOR UPDATE`,
-              ...productIds
+              ...productVariantIds
             );
 
       const productMap = new Map(
@@ -66,21 +68,23 @@ export async function handleOrderFulfillment(
       );
 
       const insufficientStockItems: {
-        productId: number;
+        productVariantId: number;
         available: number;
         required: number;
       }[] = [];
 
       for (const item of order.items) {
-        const product = productMap.get(item.productId);
+        const product = productMap.get(item.productVariantId);
 
         if (!product) {
-          throw new Error(`Product with ID ${item.productId} not found.`);
+          throw new Error(
+            `Product with ID ${item.productVariantId} not found.`
+          );
         }
 
         if (!product.stockQuantity || product.stockQuantity < item.quantity) {
           insufficientStockItems.push({
-            productId: item.productId,
+            productVariantId: item.productId,
             available: product.stockQuantity || 0,
             required: item.quantity,
           });
@@ -104,12 +108,12 @@ export async function handleOrderFulfillment(
 
       const updatePromises = Array.from(productMap.values()).map((product) => {
         const orderItem = order.items.find(
-          (item) => item.productId === product.id
+          (item) => item.productVariantId === product.id
         );
         if (orderItem && product.stockQuantity) {
           product.stockQuantity -= orderItem.quantity;
         }
-        return prisma.product.update({
+        return prisma.productVariant.update({
           where: { id: product.id },
           data: { stockQuantity: product.stockQuantity },
         });

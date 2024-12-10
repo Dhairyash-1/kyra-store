@@ -1,4 +1,5 @@
 import { CheckCircle2, Clock, Package, Truck } from "lucide-react";
+
 import { OrderStatus } from "@/types/order";
 
 interface OrderTimelineProps {

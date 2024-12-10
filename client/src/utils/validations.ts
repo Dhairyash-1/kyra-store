@@ -34,7 +34,7 @@ export const resetPasswordSchema = yup.object({
 
   confirmNewPassword: yup
     .string()
-    // @ts-ignore
+    // @ts-expect-error //error coming
     .oneOf([yup.ref("newPassword"), null], "Passwords must match")
     .required("Confirm Password is required"),
 });

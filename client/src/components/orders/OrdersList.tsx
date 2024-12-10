@@ -1,3 +1,4 @@
+import { Order } from "@/types/order";
 import { OrderCard } from "./OrderCard";
 
 interface OrdersListProps {
@@ -17,16 +18,16 @@ export interface OrderItem {
   id: number;
   name: string;
   mainImage: string;
-  salePrice: number;
+  price: number;
   quantity: number;
 }
 
-export interface Order {
-  id: number;
-  items: OrderItem[];
-  orderStatus: OrderStatus;
-  totalAmount: number;
-}
+// export interface Order {
+//   id: number;
+//   items: OrderItem[];
+//   orderStatus: OrderStatus;
+//   totalAmount: number;
+// }
 
 export interface OrdersResponse {
   data: Order[];

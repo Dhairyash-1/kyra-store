@@ -54,7 +54,17 @@ const Wishlist = () => {
                 onClick={async (e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  handleAddToCart(item);
+                  handleAddToCart({
+                    id: item.variants[0].id,
+                    name: item.name,
+                    price: item.variants[0].price,
+                    color: item.variants[0].color,
+                    size: item.variants[0].size,
+                    image: item.variants[0].images[0].url,
+                    productId: item.id,
+                    slug: item.slug,
+                    quantity: 1,
+                  });
                   await toggleWishlist({ id: item.id });
                 }}
                 className="w-full rounded-lg bg-white px-[12px] py-4 text-center text-sm font-medium text-dark-500 shadow-sm"

@@ -7,6 +7,7 @@ interface OrderDetailsItemProps {
 }
 
 export function OrderDetailsItem({ item }: OrderDetailsItemProps) {
+  console.log(item);
   return (
     <div className="flex items-start gap-4 border-b border-gray-200 py-4">
       <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
@@ -35,7 +36,7 @@ export function OrderDetailsItem({ item }: OrderDetailsItemProps) {
             </p>
           </div>
           <p className="text-right font-medium text-gray-900">
-            ₹{(item.salePrice * item.quantity).toFixed(2)}
+            ₹{(item.price * item.quantity).toFixed(2)}
           </p>
         </div>
       </div>

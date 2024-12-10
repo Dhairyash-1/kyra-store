@@ -1,13 +1,54 @@
-export interface ProductType {
+interface ProductColorsTypes {
+  id: number;
+  variantId: number;
+  name: string;
+  hexCode: string;
+  images: {
+    url: string;
+    isMainImage: string;
+  }[];
+  sizes: {
+    id: number;
+    variantId: number;
+    name: string;
+    stockQuantity?: number;
+  }[];
+}
+
+interface ProductType {
   id: number;
   name: string;
   brand: string;
-  listPrice: number;
-  price: number;
-  images: any[];
+  slug: string;
+  description: string;
+  categoryId: number;
+  category: {
+    id: number;
+    name: string;
+  };
+  variants: {
+    id: number;
+    price: number;
+    listPrice: number;
+    color: { id: number; name: string };
+    size: { id: number; name: string };
+    images: { url: string }[];
+  }[];
+}
+
+export interface SingleProductType {
+  id: number;
+  name: string;
+  brand: string;
   description: string;
   slug: string;
-  variants: any[];
+  price: number;
+  listPrice: number;
+  additionalInfo: object;
+  category: { id: number; name: string; slug: string; parentId: number };
+  colors: ProductColorsTypes[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface getAllProductsResponseType {
@@ -30,7 +71,7 @@ export interface bestSellerProductsResponse {
 
 export interface singleProductRespose {
   statusCode: number;
-  data: ProductType;
+  data: SingleProductType;
   message: string;
   success: boolean;
 }

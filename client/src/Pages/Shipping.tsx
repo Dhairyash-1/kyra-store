@@ -47,8 +47,7 @@ const Shipping = () => {
     useAddShippingAddressMutation();
   const [updateShippingAddress, { isLoading: isUpdating }] =
     useUpdateShippingAddressMutation();
-  const [createOrder, { isLoading: isOrdering, data: orderResponse }] =
-    useCreateOrderMutation();
+  const [createOrder, { isLoading: isOrdering }] = useCreateOrderMutation();
   const { items, totalPrice } = useSelector((state: RootState) => state.cart);
 
   const { data: existingAddressData } = useGetShippingAddressByIdQuery(

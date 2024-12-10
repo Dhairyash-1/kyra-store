@@ -10,14 +10,14 @@ const STRIPE_KEY = process.env.STRIPE_SECRET_KEY;
 
 export const stripe = new Stripe(STRIPE_KEY as string);
 
-// webhook
-// import { stripeWebhookHandler } from "./webhook/stripeWebhook";
+// webhook;
+import { stripeWebhookHandler } from "./webhook/stripeWebhook";
 
-// app.post(
-//   "/webhook",
-//   express.raw({ type: "application/json" }),
-//   stripeWebhookHandler
-// );
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhookHandler
+);
 
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
@@ -38,14 +38,14 @@ import userRouter from "./routes/user.routes";
 import categoryRouter from "./routes/category.routes";
 import productRouter from "./routes/product.routes";
 import wishlistRouter from "./routes/wishlist.routes";
-// import orderRouter from "./routes/order.routes";
+import orderRouter from "./routes/order.routes";
 // import cartRouter from "./routes/cart.routes";
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/category", categoryRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/wishlist", wishlistRouter);
-// app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/order", orderRouter);
 // app.use("/api/v1/cart", cartRouter);
 
 // middleware to format all error as json

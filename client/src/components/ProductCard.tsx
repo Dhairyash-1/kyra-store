@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface ProductCardProp {
   id: number;
@@ -9,12 +9,12 @@ interface ProductCardProp {
   price: number;
   slug: string;
   image: string;
+  variantId: number;
   topActionButton: ReactNode;
   bottomActionButton: ReactNode;
 }
 
 const ProductCard = ({
-  id,
   name,
   brand,
   listPrice,
@@ -23,12 +23,18 @@ const ProductCard = ({
   slug,
   topActionButton,
   bottomActionButton,
+  variantId,
 }: ProductCardProp) => {
+  const navigate = useNavigate();
+
+  function handleClick() {
+    navigate(`/products/${slug}`, { state: { variantId: variantId } });
+  }
   return (
     <div className="flex min-w-[150px] flex-col rounded-lg bg-white ">
       {/* Product Image Section */}
-      <Link
-        to={`/products/${slug}`}
+      <div
+        onClick={handleClick}
         className="group relative block overflow-hidden rounded-t-lg bg-gray-5"
       >
         {/* Top Action Button */}
@@ -49,7 +55,7 @@ const ProductCard = ({
         <div className="absolute bottom-4 left-1/2 z-10 hidden w-[80%] -translate-x-1/2 group-hover:block">
           {bottomActionButton && bottomActionButton}
         </div>
-      </Link>
+      </div>
 
       {/* Product Details Section */}
       <div className="flex flex-grow flex-col gap-2 p-4">

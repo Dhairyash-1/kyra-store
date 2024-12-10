@@ -8,16 +8,17 @@ interface SizeType {
   name: string;
   id: number;
 }
-interface CartItem {
+export interface CartItem {
   id: number; //variantId
   productId: number;
+  slug: string;
   color: ColorType;
   size: SizeType;
   name: string;
   price: number;
   quantity: number;
   image: string;
-  totalPrice: number;
+  totalPrice?: number;
 }
 
 interface CartState {
@@ -53,6 +54,7 @@ const cartSlice = createSlice({
         id: number;
         productId: number;
         name: string;
+        slug: string;
         price: number;
         size: SizeType;
         color: ColorType;
@@ -64,6 +66,7 @@ const cartSlice = createSlice({
         id,
         productId,
         name,
+        slug,
         price,
         color,
         size,
@@ -73,12 +76,13 @@ const cartSlice = createSlice({
       const existingItem = state.items.find((item) => item.id === id);
       if (existingItem) {
         existingItem.quantity += quantity;
-        existingItem.totalPrice += price * quantity;
+        (existingItem.totalPrice as number) += price * quantity;
       } else {
         state.items.push({
           id,
           productId,
           name,
+          slug,
           color,
           size,
           price,
@@ -95,7 +99,7 @@ const cartSlice = createSlice({
       const existingItem = state.items.find((item) => item.id === id);
       if (existingItem) {
         state.totalQuantity -= existingItem.quantity;
-        state.totalPrice -= existingItem.totalPrice;
+        state.totalPrice -= existingItem.totalPrice as number;
         state.items = state.items.filter((item) => item.id !== id);
       }
     },

@@ -5,8 +5,20 @@ import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 
-interface CartItem {
+interface ColorType {
   id: number;
+  name: string;
+}
+interface SizeType {
+  name: string;
+  id: number;
+}
+interface CartItem {
+  id: number; //variantId
+  productId: number;
+  slug: string;
+  color: ColorType;
+  size: SizeType;
   name: string;
   price: number;
   quantity: number;
@@ -35,22 +47,22 @@ export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
     throw new ApiError(404, "Address not found");
   }
 
-  // 2. Fetch the products in the cart
-  const productIds = cartItems.map((item) => item.id);
-  const products = await prisma.product.findMany({
+  // 2. Fetch the productVariants in the cart
+  const productVariantIds = cartItems.map((item) => item.id);
+  const productVariants = await prisma.productVariant.findMany({
     where: {
-      id: { in: productIds },
+      id: { in: productVariantIds },
     },
   });
 
-  if (products.length !== cartItems.length) {
-    throw new ApiError(404, "One or more products not found");
+  if (productVariants.length !== cartItems.length) {
+    throw new ApiError(404, "One or more productVariants not found");
   }
 
   // 3. Validate product stock and calculate total
   let calculatedTotal = 0;
   for (const item of cartItems) {
-    const product = products.find((p) => p.id === item.id);
+    const product = productVariants.find((p) => p.id === item.id);
 
     if (
       !product ||
@@ -63,7 +75,7 @@ export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
       );
     }
     // If the product has a sale price, use it
-    const productPrice = product.salePrice || 0;
+    const productPrice = product.price || 0;
     calculatedTotal += productPrice * item.quantity;
   }
 
@@ -85,9 +97,11 @@ export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
       totalAmount,
       items: {
         create: cartItems.map((item) => ({
-          productId: item.id,
+          id: item.id,
+          productId: item.productId,
           quantity: item.quantity,
           price: item.totalPrice,
+          productVariantId: item.id,
         })),
       },
     },
@@ -153,11 +167,20 @@ export const getAllUserOrders = asyncHandler(
               select: {
                 name: true,
                 brand: true,
-                salePrice: true,
+              },
+            },
+            productVariant: {
+              select: {
+                price: true,
                 images: {
-                  select: {
+                  where: {
                     isMainImage: true,
-                    url: true,
+                  },
+                },
+                size: {
+                  select: {
+                    name: true,
+                    id: true,
                   },
                 },
               },
@@ -181,13 +204,12 @@ export const getAllUserOrders = asyncHandler(
       totalAmount: order.totalAmount,
       items: order.items.map((item) => ({
         id: item.id,
-        price: item.price,
         quantity: item.quantity,
         name: item.product.name,
         brand: item.product.brand,
-        salePrice: item.product.salePrice,
-        mainImage:
-          item.product.images.find((img) => img.isMainImage)?.url || null, // Get the main image or null
+        price: item.productVariant.price,
+        size: item.productVariant.size?.name,
+        mainImage: item.productVariant.images[0].url,
       })),
     }));
 
@@ -236,8 +258,23 @@ export const getOrderDetailsById = asyncHandler(
               select: {
                 id: true,
                 name: true,
-                images: true,
-                salePrice: true,
+              },
+            },
+            productVariant: {
+              select: {
+                id: true,
+                price: true,
+                images: {
+                  where: {
+                    isMainImage: true,
+                  },
+                },
+                size: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
           },
@@ -251,12 +288,12 @@ export const getOrderDetailsById = asyncHandler(
       orderDate: order?.createdAt,
       totalAmount: order?.totalAmount,
       items: order?.items.map((item) => ({
-        id: item.id,
+        id: item.productVariant.id,
         name: item.product.name,
-        salePrice: item.product.salePrice,
+        price: item.productVariant.price,
         quantity: item.quantity,
-        mainImage:
-          item.product.images.find((img) => img.isMainImage)?.url || null,
+        mainImage: item.productVariant.images[0].url || null,
+        size: item.productVariant.size?.name,
       })),
       shippingAddress: {
         id: order?.shippingAddress.id,

@@ -6,7 +6,6 @@ import AppLayout from "./components/AppLayout";
 import FullPageLoader from "./components/FullPageLoader";
 import ManageAddresses from "./components/ManageAddresses";
 import Notifications from "./components/Notifications";
-import MyOrders from "./Pages/MyOrders";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SavedCards from "./components/SavedCards";
 import Settings from "./components/Settings";
@@ -20,7 +19,9 @@ import EnterOtp from "./Pages/EnterOtp";
 import ForgotPassword from "./Pages/ForgotPassword";
 import HomePage from "./Pages/HomePage";
 import Login from "./Pages/Login";
+import MyOrders from "./Pages/MyOrders";
 import MyProfileLayout from "./Pages/MyProfileLayout";
+import OrderDetails from "./Pages/OrderDetails";
 import ProductPage from "./Pages/ProductPage";
 import Products from "./Pages/Products";
 import Shipping from "./Pages/Shipping";
@@ -28,7 +29,6 @@ import Signup from "./Pages/Signup";
 import { useGetCurrentUserQuery } from "./services/authApi";
 import { RootState } from "./store/store";
 import ScrollToTop from "./utils/ScrollToTop";
-import OrderDetails from "./Pages/OrderDetails";
 
 const App = () => {
   const { data, isLoading, error } = useGetCurrentUserQuery();
