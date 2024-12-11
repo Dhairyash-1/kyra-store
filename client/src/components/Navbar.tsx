@@ -169,30 +169,31 @@ const Navbar = () => {
 
       {/* Mobile Navigation Drawer */}
       <div
-        className={`fixed top-0 left-0 z-20 h-full w-full bg-white transform ${
+        className={`fixed left-0 top-0 z-20 h-full w-[60%] transform bg-white md:w-[50%] ${
           navOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out md:hidden`}
+        } shadow-lg transition-transform duration-500 ease-in-out md:hidden`}
       >
-        <div className="flex justify-between items-center px-4 py-4">
+        <div className="flex items-center justify-between bg-white px-6 py-4">
           <button
             className="bg-transparent p-0 focus:outline-none"
             onClick={handleNavToggle}
           >
-            <XIcon className="h-6 w-6 text-dark-500" aria-label="Close menu" />
+            <XIcon className="h-8 w-8 text-dark-500" aria-label="Close menu" />
           </button>
 
-          <Link to={"/"} className="flex items-center">
-            <img src={brandLogo} className="mr-2 h-6 w-6" alt="logo" />
-            <h1 className="text-xl font-normal text-dark-500">Kyra</h1>
+          <Link to={"/"} className="flex items-center space-x-2">
+            <img src={brandLogo} className="h-10 w-10" alt="logo" />
+            <h1 className="text-3xl font-semibold text-dark-500">Kyra</h1>
           </Link>
         </div>
 
-        <nav className="flex flex-col px-4">
-          {Links.map((item) => (
+        <nav className="flex flex-col space-y-6 bg-white px-6 py-4">
+          {Links.map((item, index) => (
             <Link
-              className="py-2 text-base font-normal text-dark-500"
+              className="transform py-3 text-2xl font-medium text-dark-500 transition-colors hover:scale-105 hover:text-primary-500"
               key={item.id}
               to={item.url}
+              style={{ transitionDelay: `${index * 0.1}s` }} // Delay for animation
             >
               {item.name}
             </Link>
@@ -203,7 +204,7 @@ const Navbar = () => {
       {/* Overlay for Mobile Menu */}
       {navOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden"
+          className="fixed inset-0 z-10 bg-gray-500 bg-opacity-50 md:hidden"
           onClick={handleNavToggle}
         ></div>
       )}
