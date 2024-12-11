@@ -23,6 +23,7 @@ model User {
   refreshToken  String?
   phone         String?
   imgUrl        String?  @default("https://t3.ftcdn.net/jpg/06/33/54/78/360_F_633547842_AugYzexTpMJ9z1YcpTKUBoqBF0CUCk10.jpg")
+  role          UserRole @default(user)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -32,6 +33,11 @@ model User {
   wishlist              Wishlist[]
   orders                Order[]
   cart                  Cart?
+}
+
+enum UserRole {
+  admin
+  user
 }
 
 model ForgotPasswordRequest {

@@ -26,6 +26,7 @@ const verifyJWT = asyncHandler(
         select: {
           id: true,
           email: true,
+          role: true,
         },
       });
 

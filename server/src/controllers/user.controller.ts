@@ -330,6 +330,7 @@ export const getCurrentUser = asyncHandler(async (req: CustomRequest, res) => {
       id: true,
       firstName: true,
       lastName: true,
+      role: true,
       email: true,
       phone: true,
       imgUrl: true,
