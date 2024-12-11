@@ -41,7 +41,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="flex justify-between gap-4 px-4 py-4 md:px-8 xl:px-24">
+    <header className="flex justify-between gap-4 px-4 py-4 lg:px-24">
       {/* Navigation links and menu icons for small screens */}
       <div className="flex w-full items-center justify-between md:hidden">
         <div className="flex items-center gap-4">
@@ -167,26 +167,46 @@ const Navbar = () => {
         )}
       </div>
 
-      {/* Navigation links for small screens */}
-      <nav
-        className={`flex flex-col items-center lg:hidden ${
-          navOpen ? "block" : "hidden"
-        }`}
+      {/* Mobile Navigation Drawer */}
+      <div
+        className={`fixed top-0 left-0 z-20 h-full w-full bg-white transform ${
+          navOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out md:hidden`}
       >
-        {Links.map((item) => (
-          <Link
-            className="flex py-2 text-base font-normal text-dark-500"
-            key={item.id}
-            to={item.url}
+        <div className="flex justify-between items-center px-4 py-4">
+          <button
+            className="bg-transparent p-0 focus:outline-none"
+            onClick={handleNavToggle}
           >
-            {item.name}
-            {item?.icon && item.icon}
-          </Link>
-        ))}
+            <XIcon className="h-6 w-6 text-dark-500" aria-label="Close menu" />
+          </button>
 
-        {/* mega menu for large screen
-         */}
-      </nav>
+          <Link to={"/"} className="flex items-center">
+            <img src={brandLogo} className="mr-2 h-6 w-6" alt="logo" />
+            <h1 className="text-xl font-normal text-dark-500">Kyra</h1>
+          </Link>
+        </div>
+
+        <nav className="flex flex-col px-4">
+          {Links.map((item) => (
+            <Link
+              className="py-2 text-base font-normal text-dark-500"
+              key={item.id}
+              to={item.url}
+            >
+              {item.name}
+            </Link>
+          ))}
+        </nav>
+      </div>
+
+      {/* Overlay for Mobile Menu */}
+      {navOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden"
+          onClick={handleNavToggle}
+        ></div>
+      )}
     </header>
   );
 };
