@@ -35,7 +35,7 @@ const loadCartFromLocalStorage = (): CartState => {
   }
   return {
     items: [],
-    shippingCharge: 0,
+    shippingCharge: 40,
     totalQuantity: 0,
     totalPrice: 0,
   };

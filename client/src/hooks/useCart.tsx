@@ -11,7 +11,9 @@ import {
 import { RootState } from "@/store/store";
 
 const useCart = () => {
-  const { items } = useSelector((state: RootState) => state.cart);
+  const { items, shippingCharge } = useSelector(
+    (state: RootState) => state.cart
+  );
   const dispatch = useDispatch();
   const { toast } = useToast();
 
@@ -70,6 +72,7 @@ const useCart = () => {
     handleAddToCart,
     handleRemoveFromCart,
     totalPrice,
+    shippingCharge,
     items,
   };
 };

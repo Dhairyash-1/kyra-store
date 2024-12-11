@@ -18,18 +18,36 @@ const AddressCard = ({
   const isSelected = address.id === selectedAddressId;
 
   return (
-    <div className="flex min-w-[200px] flex-1 flex-col gap-6" key={address.id}>
-      <div className="flex flex-col space-y-4 rounded-md border bg-gray-5 px-5 py-3 ">
+    <div
+      className="
+    mx-auto flex w-full 
+    min-w-[250px] max-w-[400px] flex-col 
+    gap-4
+  "
+      key={address.id}
+    >
+      <div
+        className="
+          flex w-full 
+          flex-col space-y-4 
+          rounded-md 
+          border bg-gray-50 
+          px-4
+          py-3
+    "
+      >
         <div className="flex flex-col space-y-3 font-normal text-dark-500">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">{address.fullName}</h1>
+          <div className="flex w-full items-center justify-between">
+            <h1 className="mr-2 truncate text-lg font-bold sm:text-xl">
+              {address.fullName}
+            </h1>
             <Checkbox
-              className="h-6 w-6"
+              className="h-5 w-5 sm:h-6 sm:w-6"
               checked={isSelected}
               onCheckedChange={() => onAddressSelect(address.id)}
             />
           </div>
-          <p className="line-clamp-2 text-base">
+          <p className="line-clamp-2 text-sm sm:text-base">
             {[
               address.addressLine1,
               address.city,
@@ -38,23 +56,38 @@ const AddressCard = ({
             ].join(", ")}
           </p>
         </div>
-        <div className="flex items-center justify-between gap-4 align-bottom">
+        <div className="flex items-center justify-between gap-3 sm:gap-4">
           <button
             onClick={() => setEditId(address.id)}
-            className="flex-center flex-1 gap-2 rounded-xl bg-gray-20 px-4 py-3 font-normal text-dark-500"
+            className="
+          flex 
+          flex-1 items-center justify-center 
+          gap-2 
+          rounded-xl 
+          bg-gray-100 
+          px-3 py-2 
+          text-xs font-normal 
+          text-dark-500 
+          transition-colors
+          hover:bg-gray-200
+          sm:text-sm
+        "
           >
-            <PenSquareIcon /> Edit
+            <PenSquareIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">Edit</span>
           </button>
           <button
             onClick={() => onAddressDelete(address.id)}
-            className="flex-center flex-1 gap-2 rounded-xl bg-red-100 px-4 py-3 font-normal text-red-400"
+            className="flex  flex-1 items-center justify-center  gap-2  rounded-xl bg-red-100  px-3 py-2  text-xs font-normal  text-red-400  transition-colors hover:bg-red-200 sm:text-sm
+        "
           >
-            <TrashIcon /> Delete
+            <TrashIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">Delete</span>
           </button>
         </div>
       </div>
       {isSelected && (
-        <button className=" mx-2 rounded-lg bg-dark-500 px-6 py-4 text-white">
+        <button className="hover:bg-dark-600  w-full  rounded-lg  bg-dark-500 px-4  py-3 text-sm text-white transition-colors sm:text-base">
           Deliver Here
         </button>
       )}
