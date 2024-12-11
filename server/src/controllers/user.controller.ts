@@ -96,9 +96,14 @@ export const loginUser = asyncHandler(async (req, res) => {
   );
   await prisma.user.update({ where: { id: user.id }, data: { refreshToken } });
 
-  const option = {
+  const option: {
+    httpOnly: boolean;
+    secure: boolean;
+    sameSite: "none" | "strict" | "lax";
+  } = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
+    sameSite: "none",
   };
 
   const { password: _, refreshToken: __, ...userWithoutPasword } = user;
