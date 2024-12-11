@@ -35,7 +35,7 @@ const ProductCard = ({
       {/* Product Image Section */}
       <div
         onClick={handleClick}
-        className="group relative block overflow-hidden rounded-t-lg bg-gray-5"
+        className="group relative block cursor-pointer overflow-hidden rounded-t-lg bg-gray-5"
       >
         {/* Top Action Button */}
         <div className="absolute right-4 top-4 z-10 hidden group-hover:block">

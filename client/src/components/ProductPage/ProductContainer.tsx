@@ -51,7 +51,7 @@ const ProductContainer = () => {
           <ClipLoader size={50} color="#131118" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 xs:grid-cols-2 sm:grid-cols-3  2xl:grid-cols-4">
+        <div className="grid grid-cols-1  gap-6 xs:grid-cols-2 sm:grid-cols-3  2xl:grid-cols-4">
           {!AllProducts || AllProducts.length === 0 ? (
             <div className="col-span-full flex h-[300px] items-center justify-center">
               No Products Found

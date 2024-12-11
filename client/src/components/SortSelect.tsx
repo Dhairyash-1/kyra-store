@@ -16,7 +16,7 @@ const SortSelect = () => {
   }
   return (
     <div className="flex items-center gap-2">
-      <p className="text-sm font-medium">Sort By</p>
+      <p className="text-sm font-normal">Sort By</p>
       <div className="w-fit">
         <Select defaultValue="newest" onValueChange={handleValueChange}>
           <SelectTrigger className="flex items-center space-x-1 border-none bg-transparent p-0 shadow-none focus:outline-none focus:ring-0 focus:ring-offset-0">

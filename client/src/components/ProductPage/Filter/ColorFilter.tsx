@@ -63,7 +63,7 @@ const ColorFilter = () => {
   };
 
   return (
-    <div className="border-b border-gray-200 py-6">
+    <div className="py-6">
       {/* Header with toggle button */}
       <div className="flex items-center justify-between">
         <h1 className="text-base font-bold">Filter By Color</h1>
