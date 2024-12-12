@@ -102,6 +102,7 @@ model Product {
   brand           String
   slug            String   @unique  
   description     String
+  isPublished     Boolean  @default(false)
   additionalInfo Json?
 
   createdAt       DateTime @default(now())
@@ -138,6 +139,9 @@ model ProductVariant {
 
   CartItem      CartItem[]
   orderItem     OrderItem[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Color {

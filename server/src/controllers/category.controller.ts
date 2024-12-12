@@ -112,14 +112,39 @@ export const updateProductCategory = asyncHandler(async (req, res) => {
 });
 
 export const getAllProductCategory = asyncHandler(async (req, res) => {
+  // Fetch the categories with their children
   const categories = await prisma.category.findMany({
-    where: { parentId: null },
-    include: { children: true },
+    where: { parentId: null }, // Only parent categories
+    include: { children: true }, // Include children for each category
   });
 
+  // Define an interface for category hierarchy with ids and names
+  interface CategoryHierarchy {
+    [key: string]: {
+      id: number;
+      subcategories: { id: number; name: string }[];
+    };
+  }
+
+  // Map the categories to the new structure
+  const categoryHierarchy: CategoryHierarchy = categories.reduce(
+    (acc, category) => {
+      acc[category.name] = {
+        id: category.id,
+        subcategories: category.children.map((child) => ({
+          id: child.id,
+          name: child.name,
+        })),
+      };
+      return acc;
+    },
+    {} as CategoryHierarchy
+  );
   res
     .status(200)
-    .json(new ApiResponse(200, categories, "Categories fetched successfully"));
+    .json(
+      new ApiResponse(200, categoryHierarchy, "Categories fetched successfully")
+    );
 });
 
 export const getProductCategoryById = asyncHandler(async (req, res) => {

@@ -267,7 +267,7 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
   }
 
   const product = await prisma.product.findUnique({
-    where: { slug: slug as string },
+    where: { slug: slug as string, isPublished: true },
     select: {
       createdAt: true,
       updatedAt: true,
@@ -426,9 +426,9 @@ export const getAllProducts = asyncHandler(async (req, res) => {
   // Sort by logic
   let sort: any = {};
   if (sortBy === "price-asc") {
-    sort.basePrice = "asc";
+    sort.listPrice = "asc";
   } else if (sortBy === "price-desc") {
-    sort.basePrice = "desc";
+    sort.listPrice = "desc";
   } else if (sortBy === "newest") {
     sort.createdAt = "desc";
   }
@@ -449,7 +449,11 @@ export const getAllProducts = asyncHandler(async (req, res) => {
 
   // Construct filters
   const filters: any = {
-    AND: [],
+    AND: [
+      {
+        isPublished: true,
+      },
+    ],
   };
 
   // Search filter
@@ -526,6 +530,7 @@ export const getAllProducts = asyncHandler(async (req, res) => {
           }),
           ...(sizeFilter.length > 0 && { size: { name: { in: sizeFilter } } }),
         },
+        orderBy: sort,
         take: 1,
         select: {
           id: true,
@@ -541,7 +546,6 @@ export const getAllProducts = asyncHandler(async (req, res) => {
         },
       },
     },
-    orderBy: sort,
     skip,
     take: pageSize,
   });
@@ -576,6 +580,9 @@ export const getAllProducts = asyncHandler(async (req, res) => {
 
 export const getBestSellerProduct = asyncHandler(async (req, res) => {
   const products = await prisma.product.findMany({
+    where: {
+      isPublished: true,
+    },
     take: 8,
     select: {
       id: true,
