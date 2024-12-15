@@ -19,6 +19,7 @@ interface sizeResponse {
 
 export const productApi = createApi({
   reducerPath: "productApi",
+  tagTypes: ["colors", "size", "allProducts", "bestseller", "Product"],
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_SERVER_URL}`,
     headers: {
@@ -64,27 +65,52 @@ export const productApi = createApi({
 
         return `/product/?${params.toString()}`;
       },
+      providesTags: ["allProducts"],
+      keepUnusedDataFor: 3600,
     }),
 
     getProductBySlug: builder.query<singleProductRespose, { slug: string }>({
       query: ({ slug }) => `/product/slug?slug=${slug}`,
+      providesTags: (result, error, { slug }) => [
+        { type: "Product", id: slug },
+      ],
     }),
 
     getBestSellerProducts: builder.query<bestSellerProductsResponse, void>({
       query: () => `/product/bestseller`,
-    }),
-    getVariantId: builder.query<
-      void,
-      { productId: number; sizeId: number; colorId: number }
-    >({
-      query: (data) =>
-        `product/variantId/${data.productId}/${data.colorId}/${data.sizeId}`,
+      providesTags: ["bestseller"],
     }),
     getProductColors: builder.query<colorResponse, void>({
       query: () => `/product/colors`,
+      providesTags: ["colors"],
     }),
     getProductSizes: builder.query<sizeResponse, void>({
       query: () => `/product/sizes`,
+      providesTags: ["size"],
+    }),
+    createColor: builder.mutation<void, { name: string; hexCode?: string }>({
+      query: (data) => ({
+        url: "/product/colors/add",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["colors"],
+    }),
+    createSize: builder.mutation<void, { name: string }>({
+      query: (data) => ({
+        url: "/product/size/add",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["size"],
+    }),
+    AddProduct: builder.mutation<void, any>({
+      query: (data) => ({
+        url: "/product/add",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["allProducts", "bestseller"],
     }),
   }),
 });
@@ -93,7 +119,9 @@ export const {
   useGetAllProductsQuery,
   useGetProductBySlugQuery,
   useGetBestSellerProductsQuery,
-  useGetVariantIdQuery,
   useGetProductColorsQuery,
   useGetProductSizesQuery,
+  useCreateColorMutation,
+  useCreateSizeMutation,
+  useAddProductMutation,
 } = productApi;

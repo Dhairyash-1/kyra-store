@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { useGetAllCategoryQuery } from "@/services/categoryApi";
+import {
+  useGetAllCategoryQuery,
+  useGetFilterCategoryQuery,
+} from "@/services/categoryApi";
 
 const CategoryFilter = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -16,7 +19,7 @@ const CategoryFilter = () => {
     []
   );
 
-  const { data, isLoading } = useGetAllCategoryQuery();
+  const { data, isLoading } = useGetFilterCategoryQuery();
   const categories = data?.data;
 
   const toggleSubCategory = (categoryName: string) => {

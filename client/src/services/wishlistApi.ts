@@ -9,9 +9,8 @@ interface wishlistType {
     id: number;
     price: number;
     listPrice: number;
-    color: { id: number; name: string };
+    color: { id: number; name: string; images: { url: string }[] };
     size: { id: number; name: string };
-    images: { url: string }[];
   }[];
 }
 

@@ -3,6 +3,21 @@ export interface createCategoryRequest {
   description?: string;
   parentId?: number | null;
 }
+
+interface Subcategory {
+  id: number;
+  name: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
+  subcategories: Subcategory[];
+}
+
+export interface Categories {
+  [key: string]: Category;
+}
 export interface createCategoryResponse {
   statusCode: number;
   data: {
@@ -31,7 +46,7 @@ interface CategoryType {
 
 export interface AllCategoryResponse {
   statusCode: number;
-  data: CategoryType[];
+  data: Categories;
   message: string;
   success: boolean;
 }

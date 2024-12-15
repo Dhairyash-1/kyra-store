@@ -31,6 +31,7 @@ export interface LoginUserResponse {
   data: {
     id: number;
     email: string;
+    role: "admin" | "user";
     firstName: string;
     lastName: string;
     termsAccepted: boolean;
@@ -64,6 +65,7 @@ export interface CurrentUserResponse {
   statusCode: number;
   data: {
     id: number;
+    role: "admin" | "user";
     firstName: string;
     lastName: string;
     phone: string;

@@ -164,9 +164,11 @@ const ProductPage = () => {
           <h5 className="mt-2 text-lg font-normal sm:text-xl">{name}</h5>
 
           <div className="mt-2 flex gap-4">
-            <span className="text-xl font-semibold sm:text-2xl">₹{price}</span>
+            <span className="text-xl font-semibold sm:text-2xl">
+              ₹{selectedColor?.price}
+            </span>
             <span className="text-gray-400 line-through sm:text-xl">
-              ₹{listPrice}
+              ₹{selectedColor?.listPrice}
             </span>
           </div>
 

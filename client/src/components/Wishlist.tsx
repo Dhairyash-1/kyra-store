@@ -35,7 +35,7 @@ const Wishlist = () => {
             brand={item.brand}
             listPrice={item.variants[0].listPrice}
             price={item.variants[0].price}
-            image={item.variants[0].images[0].url}
+            image={item.variants[0].color.images[0].url}
             slug={item.slug}
             variantId={item.variants[0].id}
             topActionButton={
@@ -61,7 +61,7 @@ const Wishlist = () => {
                     price: item.variants[0].price,
                     color: item.variants[0].color,
                     size: item.variants[0].size,
-                    image: item.variants[0].images[0].url,
+                    image: item.variants[0].color.images[0].url,
                     productId: item.id,
                     slug: item.slug,
                     quantity: 1,
