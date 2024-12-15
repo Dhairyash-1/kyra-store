@@ -1,12 +1,7 @@
 import ClipLoader from "react-spinners/ClipLoader";
+
 import { Button } from "../ui/button";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { FormItem, FormLabel, FormControl } from "../ui/form";
 import { Input } from "../ui/input";
 import {

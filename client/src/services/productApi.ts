@@ -71,9 +71,7 @@ export const productApi = createApi({
 
     getProductBySlug: builder.query<singleProductRespose, { slug: string }>({
       query: ({ slug }) => `/product/slug?slug=${slug}`,
-      providesTags: (result, error, { slug }) => [
-        { type: "Product", id: slug },
-      ],
+      providesTags: (_, __, { slug }) => [{ type: "Product", id: slug }],
     }),
 
     getBestSellerProducts: builder.query<bestSellerProductsResponse, void>({

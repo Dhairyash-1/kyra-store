@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import {
   AllCategoryResponse,
+  CategoryType,
   createCategoryRequest,
   createCategoryResponse,
   TrendingCategoriesResponse,
@@ -34,7 +35,7 @@ export const categoryApi = createApi({
       query: () => `/category/`,
       providesTags: ["categories"],
     }),
-    getFilterCategory: builder.query<AllCategoryResponse, void>({
+    getFilterCategory: builder.query<{ data: CategoryType[] }, void>({
       query: () => `/category/filter`,
       providesTags: ["categories"],
     }),

@@ -32,7 +32,7 @@ export interface createCategoryResponse {
   success: boolean;
 }
 
-interface CategoryType {
+export interface CategoryType {
   id: number;
   name: string;
   description?: string;

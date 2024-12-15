@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
+import { AddProductForm } from "./components/admin/AddProductForm";
 import AppLayout from "./components/AppLayout";
 import FullPageLoader from "./components/FullPageLoader";
 import ManageAddresses from "./components/ManageAddresses";
@@ -12,6 +13,9 @@ import { Toaster } from "./components/ui/toaster";
 import UserProfile from "./components/UserProfile";
 import Wishlist from "./components/Wishlist";
 import { updateAuthStatus } from "./features/auth/authSlice";
+import AdminLayout from "./Pages/admin/AdminLayout";
+import Dashboard from "./Pages/admin/Dashboard";
+import ProductManage from "./Pages/admin/ProductManage";
 import AuthLayout from "./Pages/AuthLayout";
 import CartPage from "./Pages/CartPage";
 import EnterOtp from "./Pages/EnterOtp";
@@ -28,10 +32,6 @@ import Signup from "./Pages/Signup";
 import { useGetCurrentUserQuery } from "./services/authApi";
 import { RootState } from "./store/store";
 import ScrollToTop from "./utils/ScrollToTop";
-import AdminLayout from "./Pages/admin/AdminLayout";
-import Dashboard from "./Pages/admin/Dashboard";
-import ProductManage from "./Pages/admin/ProductManage";
-import { AddProductForm } from "./components/admin/AddProductForm";
 
 const App = () => {
   const { data, isLoading, error } = useGetCurrentUserQuery();
@@ -91,14 +91,13 @@ const App = () => {
         <ScrollToTop />
         <Routes>
           {/* Auth Layout */}
-
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/enter-otp" element={<EnterOtp />} />
           </Route>
-
+          {/* layout for regular user */}
           <Route element={<AppLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/products" element={<Products />} />
@@ -122,21 +121,18 @@ const App = () => {
               <Route path="/settings" element={<Settings />} />
               <Route path="/shipping" element={<Shipping />} />
             </Route>
-
-            <Route
-              element={
-                <ProtectedRoute allowedRoles={["admin"]}>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="/admin/" element={<Dashboard />} />
-              <Route path="/admin/products" element={<ProductManage />} />
-              <Route
-                path="/admin/products/create"
-                element={<AddProductForm />}
-              />
-            </Route>
+          </Route>
+          {/* layout for admin panel */}
+          <Route
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/admin/" element={<Dashboard />} />
+            <Route path="/admin/products" element={<ProductManage />} />
+            <Route path="/admin/products/create" element={<AddProductForm />} />
           </Route>
         </Routes>
       </BrowserRouter>

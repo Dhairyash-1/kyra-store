@@ -3,10 +3,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  useGetAllCategoryQuery,
-  useGetFilterCategoryQuery,
-} from "@/services/categoryApi";
+import { useGetFilterCategoryQuery } from "@/services/categoryApi";
 
 const CategoryFilter = () => {
   const [searchParams, setSearchParams] = useSearchParams();

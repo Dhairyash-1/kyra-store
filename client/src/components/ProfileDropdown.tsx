@@ -22,6 +22,7 @@ const ProfileDropdown = ({ children }: { children: ReactNode }) => {
         updateAuthStatus({
           isAuthenticated: false,
           userId: null,
+          role: null,
           isLoading: false,
           name: "",
           profileImage: "",
