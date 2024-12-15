@@ -323,16 +323,18 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
   interface ColorType {
     id: number;
     name: string;
-    listPrice: number;
-    price: number;
     variantId: number;
     hexCode: string | null;
+    listPrice: number;
+    price: number;
     images: { url: string; isMainImage: boolean }[];
     sizes: {
       id: number;
       name: string;
       variantId: number;
       stockQuantity: number;
+      listPrice: number;
+      price: number;
     }[];
   }
 
@@ -346,8 +348,6 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
         colorsMap.set(colorId, {
           id: colorId,
           variantId: variant.id,
-          listPrice: variant.listPrice,
-          price: variant.price,
           name: variant.color.name,
           hexCode: variant.color.hexCode,
           images: variant.color.images.map((img) => ({
@@ -355,6 +355,8 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
             isMainImage: img.isMainImage,
           })),
           sizes: [],
+          listPrice: variant.listPrice,
+          price: variant.price,
         });
       }
 
@@ -367,6 +369,8 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
             name: variant.size.name,
             variantId: variant.id,
             stockQuantity: variant.stockQuantity,
+            listPrice: variant.listPrice,
+            price: variant.price,
           });
         }
       }

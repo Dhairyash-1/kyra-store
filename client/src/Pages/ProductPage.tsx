@@ -12,6 +12,25 @@ import useCart from "@/hooks/useCart";
 import useWishlist from "@/hooks/useWishlist";
 import { useGetProductBySlugQuery } from "@/services/productApi";
 
+const getPrices = (selectedColor: any, selectedSizeId: number | null) => {
+  if (!selectedColor) return { price: null, listPrice: null };
+
+  let price = selectedColor.price;
+  let listPrice = selectedColor.listPrice;
+
+  if (selectedSizeId) {
+    const selectedSize = selectedColor.sizes.find(
+      (size: any) => size.id === selectedSizeId
+    );
+    if (selectedSize) {
+      price = selectedSize.price || price;
+      listPrice = selectedSize.listPrice || listPrice;
+    }
+  }
+
+  return { price, listPrice }; // Return both price and listPrice
+};
+
 const ProductPage = () => {
   const location = useLocation();
   const { slug } = useParams();
@@ -80,8 +99,7 @@ const ProductPage = () => {
   if (!product || productColors.length === 0) {
     return <div>No product found</div>;
   }
-  const { id, name, listPrice, price, brand, description, additionalInfo } =
-    product;
+  const { id, name, brand, description, additionalInfo } = product;
   const selectedColor = productColors.find(
     (color) => color.id === selectedColorId
   );
@@ -94,6 +112,7 @@ const ProductPage = () => {
 
   const currentProduct = items.find((item) => item.id === currentVariantId);
   const isWishlist = wishlistProductIds.includes(id);
+  const { price, listPrice } = getPrices(selectedColor, selectedSizeId);
 
   function handleProductAddToCart() {
     if (!selectedColorId || !selectedSizeId) {
@@ -164,11 +183,9 @@ const ProductPage = () => {
           <h5 className="mt-2 text-lg font-normal sm:text-xl">{name}</h5>
 
           <div className="mt-2 flex gap-4">
-            <span className="text-xl font-semibold sm:text-2xl">
-              ₹{selectedColor?.price}
-            </span>
+            <span className="text-xl font-semibold sm:text-2xl">₹{price}</span>
             <span className="text-gray-400 line-through sm:text-xl">
-              ₹{selectedColor?.listPrice}
+              ₹{listPrice}
             </span>
           </div>
 

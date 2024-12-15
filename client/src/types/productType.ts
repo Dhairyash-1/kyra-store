@@ -3,6 +3,8 @@ interface ProductColorsTypes {
   variantId: number;
   name: string;
   hexCode: string;
+  price: number;
+  listPrice: number;
   images: {
     url: string;
     isMainImage: string;
@@ -12,6 +14,8 @@ interface ProductColorsTypes {
     variantId: number;
     name: string;
     stockQuantity?: number;
+    price: number;
+    listPrice: number;
   }[];
 }
 
