@@ -6,12 +6,16 @@ import FullPageLoader from "./FullPageLoader";
 
 import { RootState } from "@/store/store";
 
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  allowedRoles: string[];
+}
+
 const ProtectedRoute = ({
   children,
-}: {
-  children: React.ReactNode;
-}): React.ReactNode => {
-  const { isAuthenticated, isLoading } = useSelector(
+  allowedRoles,
+}: ProtectedRouteProps): React.ReactNode => {
+  const { isAuthenticated, role, isLoading } = useSelector(
     (state: RootState) => state.auth
   );
   const navigate = useNavigate();
@@ -21,7 +25,16 @@ const ProtectedRoute = ({
     if (!isAuthenticated && !isLoading) {
       return navigate("/login", { state: { from: location } });
     }
-  }, [isAuthenticated, navigate, isLoading, location]);
+
+    if (
+      isAuthenticated &&
+      !isLoading &&
+      allowedRoles &&
+      !allowedRoles.includes(role as string)
+    ) {
+      return navigate("/");
+    }
+  }, [isAuthenticated, navigate, isLoading, location, allowedRoles, role]);
 
   if (isLoading) {
     return <FullPageLoader />;

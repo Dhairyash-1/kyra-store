@@ -28,6 +28,10 @@ import Signup from "./Pages/Signup";
 import { useGetCurrentUserQuery } from "./services/authApi";
 import { RootState } from "./store/store";
 import ScrollToTop from "./utils/ScrollToTop";
+import AdminLayout from "./Pages/admin/AdminLayout";
+import Dashboard from "./Pages/admin/Dashboard";
+import ProductManage from "./Pages/admin/ProductManage";
+import { AddProductForm } from "./components/admin/AddProductForm";
 
 const App = () => {
   const { data, isLoading, error } = useGetCurrentUserQuery();
@@ -43,6 +47,7 @@ const App = () => {
         updateAuthStatus({
           isAuthenticated: false,
           userId: null,
+          role: null,
           name: "",
           profileImage: "",
           isLoading: false,
@@ -56,6 +61,7 @@ const App = () => {
         updateAuthStatus({
           isAuthenticated: true,
           userId: data.data.id,
+          role: data.data.role,
           name: `${data.data.firstName} ${data.data.lastName}`,
           profileImage: data.data.imgUrl,
           isLoading: false,
@@ -66,6 +72,7 @@ const App = () => {
         updateAuthStatus({
           isAuthenticated: false,
           name: "",
+          role: null,
           profileImage: "",
           userId: null,
           isLoading: false,
@@ -100,7 +107,7 @@ const App = () => {
 
             <Route
               element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={["user", "admin"]}>
                   <MyProfileLayout />
                 </ProtectedRoute>
               }
@@ -113,15 +120,23 @@ const App = () => {
 
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/shipping" element={<Shipping />} />
             </Route>
+
             <Route
-              path="/shipping"
               element={
-                <ProtectedRoute>
-                  <Shipping />
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminLayout />
                 </ProtectedRoute>
               }
-            />
+            >
+              <Route path="/admin/" element={<Dashboard />} />
+              <Route path="/admin/products" element={<ProductManage />} />
+              <Route
+                path="/admin/products/create"
+                element={<AddProductForm />}
+              />
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>
