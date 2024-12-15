@@ -29,6 +29,14 @@ app.use(
     credentials: true,
   })
 );
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    const duration = Date.now() - start;
+    console.log(`[${req.method}] ${req.originalUrl} took ${duration}ms`);
+  });
+  next();
+});
 
 // middleware imports
 import errorHandler from "./middlewares/error.middleware";

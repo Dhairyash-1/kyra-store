@@ -11,18 +11,20 @@ import {
   getProductBySlug,
   getProductVariantId,
 } from "../controllers/product.controller";
+import { verifyAdminRole } from "../middlewares/admin.middleware";
 
 const router = Router();
 
-router.route("/colors/add").post(verifyJWT, addColor);
-router.route("/colors/").get(getAllProductColors);
-router.route("/sizes/").get(getAllProductSizes);
-router.route("/size/add").post(verifyJWT, addSize);
+// ADMIN ROUTES
+router.route("/colors/add").post(verifyJWT, verifyAdminRole, addColor);
+router.route("/size/add").post(verifyJWT, verifyAdminRole, addSize);
+router.route("/add").post(verifyJWT, verifyAdminRole, addProduct);
 
-router.route("/add").post(verifyJWT, addProduct);
+// PUBLIC ROUTES
 router.route("/").get(getAllProducts);
 router.route("/slug").get(getProductBySlug);
-router.route("/variantId/:productId/:colorId/:sizeId").get(getProductVariantId);
 router.route("/bestseller").get(getBestSellerProduct);
+router.route("/colors/").get(getAllProductColors);
+router.route("/sizes/").get(getAllProductSizes);
 
 export default router;

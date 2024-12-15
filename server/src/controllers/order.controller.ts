@@ -100,7 +100,7 @@ export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
           id: item.id,
           productId: item.productId,
           quantity: item.quantity,
-          price: item.totalPrice,
+          priceAtPurchase: item.totalPrice,
           productVariantId: item.id,
         })),
       },
@@ -165,7 +165,7 @@ export const getAllUserOrders = asyncHandler(
         items: {
           select: {
             id: true,
-            price: true,
+            priceAtPurchase: true,
             quantity: true,
             product: {
               select: {
@@ -256,7 +256,7 @@ export const getOrderDetailsById = asyncHandler(
         items: {
           select: {
             id: true,
-            price: true,
+            priceAtPurchase: true,
             quantity: true,
             product: {
               select: {

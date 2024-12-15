@@ -70,48 +70,40 @@ export const getAllUserWishlistProducts = asyncHandler(
     }
 
     const wishlistProducts = await prisma.wishlist.findMany({
-      where: {
-        userId,
-      },
+      where: { userId },
+      select: { productId: true },
+    });
+
+    const productIds = wishlistProducts.map((item) => item.productId);
+
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds } },
       select: {
-        product: {
+        id: true,
+        name: true,
+        brand: true,
+        slug: true,
+        variants: {
+          take: 1,
           select: {
             id: true,
-            name: true,
-            brand: true,
-            slug: true,
-            variants: {
-              take: 1,
+            listPrice: true,
+            price: true,
+            color: {
               select: {
                 id: true,
-                listPrice: true,
-                price: true,
-                color: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
-                size: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
+                name: true,
                 images: {
-                  where: {
-                    isMainImage: true,
-                  },
+                  where: { isMainImage: true },
+                  select: { url: true, isMainImage: true },
                 },
               },
             },
+            size: { select: { id: true, name: true } },
           },
         },
       },
     });
-    const products = wishlistProducts.map(
-      (wishlistItem) => wishlistItem.product
-    );
 
     return res
       .status(200)

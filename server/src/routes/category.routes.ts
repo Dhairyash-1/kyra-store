@@ -4,6 +4,7 @@ import {
   createProductCategory,
   deleteProductCategory,
   getAllProductCategory,
+  getAllProductFilterCategory,
   getProductCategoryById,
   getTrendingCategories,
   updateProductCategory,
@@ -15,6 +16,7 @@ router.route("/create").post(verifyJWT, createProductCategory);
 router.route("/update/:id").patch(verifyJWT, updateProductCategory);
 router.route("/delete/:id").delete(verifyJWT, deleteProductCategory);
 router.route("/").get(getAllProductCategory);
+router.route("/filter").get(getAllProductFilterCategory);
 router.route("/:id").get(getProductCategoryById);
 router.route("/get/trending").get(getTrendingCategories);
 

@@ -1,3 +1,4 @@
+import { Prisma, ProductImage, ProductVariant } from "@prisma/client";
 import prisma from "../prismaClient/prismaClient";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
@@ -35,7 +36,7 @@ export const addSize = asyncHandler(async (req, res) => {
 export const addColor = asyncHandler(async (req, res) => {
   const { name, hexCode } = req.body;
 
-  if (!name && !hexCode) {
+  if (!name || !hexCode) {
     throw new ApiError(400, "All fields are required.");
   }
 
@@ -128,31 +129,31 @@ interface colorType {
   id: number;
   name: string;
   hexCode?: string;
-  images: { url: string; isMainImage: boolean }[];
 }
 
 interface sizeType {
-  id: number;
-  name: string;
+  size: { id: number; name: string };
+  price: number;
+  listPrice: number;
+  sku: string;
+  stock: number;
 }
 
 interface variantType {
-  colors: colorType[];
+  color: colorType;
   sizes: sizeType[];
-  price?: number;
-  listPrice?: number;
-  stockQuantity: number;
-  sku?: string;
+  images: { url: string; isMainImage: boolean }[];
 }
 
 interface addProductBodyType {
   name: string;
   brand: string;
   description: string;
-  listPrice: number;
-  price: number;
-  categoryId: number;
   additionalInfo: object;
+  isPublished: boolean;
+  slug?: string;
+  mainCategory: { id: number; name: string };
+  subCategory: { id: number; name: string };
   variants: variantType[];
 }
 
@@ -161,14 +162,14 @@ export const addProduct = asyncHandler(async (req, res) => {
     name,
     brand,
     description,
-    listPrice,
-    price,
+    subCategory,
+    mainCategory,
+    isPublished,
     variants,
-    categoryId,
     additionalInfo,
   }: addProductBodyType = req.body;
 
-  if (!name || !brand || !categoryId || !variants) {
+  if (!name || !brand || !variants || !subCategory.id) {
     return res
       .status(400)
       .json(new ApiResponse(400, null, "Missing required fields"));
@@ -181,50 +182,50 @@ export const addProduct = asyncHandler(async (req, res) => {
     data: {
       name,
       brand,
-      description,
-      categoryId,
+      description: description || "no description provided",
+      categoryId: subCategory.id,
       slug,
+      isPublished: isPublished || false,
       additionalInfo: additionalInfo || null,
     },
   });
 
-  // 2. create variant for each size and color
+  // 2. create variant data for each size and color and image data for each color
+  const variantData: Prisma.ProductVariantUncheckedCreateInput[] = [];
+  const imageData: Prisma.ProductImageUncheckedCreateInput[] = [];
 
-  if (variants && variants.length > 0) {
-    for (let variant of variants) {
-      for (let size of variant.sizes) {
-        for (let color of variant.colors) {
-          // 3. create variant with color+size data
-          const variantData = await prisma.productVariant.create({
-            data: {
-              listPrice: variant.listPrice || listPrice,
-              price: variant.price || price,
-              stockQuantity: variant.stockQuantity,
-              sku: variant.sku || `${name}-${size.name}-${color.name}`,
-              productId: product.id,
-              colorId: color.id,
-              sizeId: size.id,
-            },
-          });
+  variants.forEach((variant, vi) => {
+    variant.sizes.forEach((size, si) => {
+      const isDefaultVariant = vi === 0 && si === 0;
+      variantData.push({
+        productId: product.id,
+        sizeId: size.size.id,
+        colorId: variant.color.id,
+        listPrice: size.listPrice,
+        price: size.price,
+        isDefault: isDefaultVariant,
+        stockQuantity: size.stock,
+        sku: size.sku || `${name}-${size.size.name}-${variant.color.name}`,
+      });
+    });
 
-          // 4. attach image for colour
-
-          if (color.images && color.images.length > 0) {
-            for (let image of color.images) {
-              await prisma.productImage.create({
-                data: {
-                  url: image.url,
-                  isMainImage: image.isMainImage,
-                  colorId: color.id,
-                  productVariantId: variantData.id,
-                },
-              });
-            }
-          }
-        }
-      }
+    if (variant.images) {
+      variant.images.forEach((image) => {
+        imageData.push({
+          url: image.url,
+          isMainImage: image.isMainImage,
+          colorId: variant.color.id,
+          productId: product.id,
+        });
+      });
     }
-  }
+  });
+
+  const transaction = await prisma.$transaction([
+    prisma.productVariant.createMany({ data: variantData }),
+    prisma.productImage.createMany({ data: imageData }),
+  ]);
+
   const createdProduct = await prisma.product.findUnique({
     where: { id: product.id },
     include: { variants: true },
@@ -291,17 +292,12 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
           price: true,
           listPrice: true,
           stockQuantity: true,
-          images: {
-            select: {
-              isMainImage: true,
-              url: true,
-            },
-          },
           color: {
             select: {
               id: true,
               name: true,
               hexCode: true,
+              images: true,
             },
           },
           size: {
@@ -327,6 +323,8 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
   interface ColorType {
     id: number;
     name: string;
+    listPrice: number;
+    price: number;
     variantId: number;
     hexCode: string | null;
     images: { url: string; isMainImage: boolean }[];
@@ -348,9 +346,11 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
         colorsMap.set(colorId, {
           id: colorId,
           variantId: variant.id,
+          listPrice: variant.listPrice,
+          price: variant.price,
           name: variant.color.name,
           hexCode: variant.color.hexCode,
-          images: variant.images.map((img) => ({
+          images: variant.color.images.map((img) => ({
             url: img.url,
             isMainImage: img.isMainImage,
           })),
@@ -534,15 +534,22 @@ export const getAllProducts = asyncHandler(async (req, res) => {
         take: 1,
         select: {
           id: true,
-          color: true,
+          color: {
+            include: {
+              images: {
+                where: {
+                  isMainImage: true,
+                },
+                select: {
+                  url: true,
+                  isMainImage: true,
+                },
+              },
+            },
+          },
           size: true,
           listPrice: true,
           price: true,
-          images: {
-            where: {
-              isMainImage: true,
-            },
-          },
         },
       },
     },
@@ -590,7 +597,9 @@ export const getBestSellerProduct = asyncHandler(async (req, res) => {
       brand: true,
       slug: true,
       variants: {
-        take: 1,
+        where: {
+          isDefault: true,
+        },
         select: {
           id: true,
           listPrice: true,
@@ -599,17 +608,21 @@ export const getBestSellerProduct = asyncHandler(async (req, res) => {
             select: {
               id: true,
               name: true,
+              images: {
+                where: {
+                  isMainImage: true,
+                },
+                select: {
+                  url: true,
+                  isMainImage: true,
+                },
+              },
             },
           },
           size: {
             select: {
               id: true,
               name: true,
-            },
-          },
-          images: {
-            where: {
-              isMainImage: true,
             },
           },
         },
