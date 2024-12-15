@@ -116,8 +116,9 @@ model Product {
 
   wishlist  Wishlist[]
   orderItem OrderItem[]
+  productImage  ProductImage[]
 
-  @@index([slug])
+  @@index([slug,categoryId,name])
 }
 
 model ProductVariant {
@@ -130,6 +131,8 @@ model ProductVariant {
 
   productId     Int
   product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  isDefault      Boolean @default(false)   // default variant which shows first
 
   colorId    Int?     
   color      Color?    @relation(fields: [colorId],references: [id])
@@ -173,11 +176,14 @@ model ProductImage {
  
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
+
+  productId          Int       // every image must related to product 
+  product            Product   @relation(fields: [productId],references: [id],onDelete: Cascade)
   
-  productVariantId   Int? 
+  productVariantId   Int?       // in rare case we use this
   productVariant     ProductVariant?        @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
 
-  colorId  Int?     
+  colorId  Int?                 // image can be differ by color
   color   Color?  @relation(fields: [colorId],references: [id], onDelete: Cascade)
 }
 
@@ -254,7 +260,7 @@ model OrderItem {
   productVariantId  Int 
   productVariant   ProductVariant  @relation(fields: [productVariantId],references: [id])
   quantity  Int
-  price     Float
+  priceAtPurchase     Float     // incase price change after purchase
 }
 
 model Cart {
