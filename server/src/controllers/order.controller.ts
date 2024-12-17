@@ -176,15 +176,15 @@ export const getAllUserOrders = asyncHandler(
             productVariant: {
               select: {
                 price: true,
-                images: {
-                  where: {
-                    isMainImage: true,
-                  },
-                },
                 size: {
                   select: {
                     name: true,
                     id: true,
+                  },
+                },
+                color: {
+                  select: {
+                    images: true,
                   },
                 },
               },
@@ -213,7 +213,9 @@ export const getAllUserOrders = asyncHandler(
         brand: item.product.brand,
         price: item.productVariant.price,
         size: item.productVariant.size?.name,
-        mainImage: item.productVariant.images[0].url,
+        mainImage: item.productVariant.color
+          ? item.productVariant?.color.images[0].url
+          : null,
       })),
     }));
 
@@ -268,9 +270,9 @@ export const getOrderDetailsById = asyncHandler(
               select: {
                 id: true,
                 price: true,
-                images: {
-                  where: {
-                    isMainImage: true,
+                color: {
+                  select: {
+                    images: true,
                   },
                 },
                 size: {
@@ -296,7 +298,9 @@ export const getOrderDetailsById = asyncHandler(
         name: item.product.name,
         price: item.productVariant.price,
         quantity: item.quantity,
-        mainImage: item.productVariant.images[0].url || null,
+        mainImage: item.productVariant.color
+          ? item.productVariant.color.images[0].url
+          : null,
         size: item.productVariant.size?.name,
       })),
       shippingAddress: {

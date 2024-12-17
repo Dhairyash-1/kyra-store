@@ -267,6 +267,7 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Slug is required");
   }
 
+  // Fetch product with variants and category
   const product = await prisma.product.findUnique({
     where: { slug: slug as string, isPublished: true },
     select: {
@@ -297,18 +298,12 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
               id: true,
               name: true,
               hexCode: true,
-              images: true,
             },
           },
           size: {
             select: {
               id: true,
               name: true,
-              variants: {
-                select: {
-                  id: true,
-                },
-              },
             },
           },
         },
@@ -317,53 +312,75 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
   });
 
   if (!product) {
-    throw new ApiError(404, "Product not found with given slug");
+    throw new ApiError(404, "Product not found with the given slug");
   }
 
-  interface ColorType {
-    id: number;
-    name: string;
-    variantId: number;
-    hexCode: string | null;
-    listPrice: number;
-    price: number;
-    images: { url: string; isMainImage: boolean }[];
-    sizes: {
+  // Fetch product images
+  const images = await prisma.productImage.findMany({
+    where: { productId: product.id },
+    select: {
+      url: true,
+      isMainImage: true,
+      colorId: true,
+    },
+  });
+
+  // Prepare color and size mapping
+  const colorsMap = new Map<
+    number,
+    {
       id: number;
       name: string;
+      hexCode: string | null;
       variantId: number;
-      stockQuantity: number;
-      listPrice: number;
       price: number;
-    }[];
-  }
-
-  const colorsMap = new Map<number, ColorType>();
+      listPrice: number;
+      images: { url: string; isMainImage: boolean }[];
+      sizes: {
+        id: number;
+        name: string;
+        variantId: number;
+        stockQuantity: number;
+        listPrice: number;
+        price: number;
+      }[];
+    }
+  >();
 
   product.variants.forEach((variant) => {
     if (variant.color) {
       const colorId = variant.color.id;
 
+      // Initialize color entry if not already added
       if (!colorsMap.has(colorId)) {
+        const colorImages = images.filter((img) => img.colorId === colorId);
         colorsMap.set(colorId, {
           id: colorId,
-          variantId: variant.id,
           name: variant.color.name,
           hexCode: variant.color.hexCode,
-          images: variant.color.images.map((img) => ({
-            url: img.url,
-            isMainImage: img.isMainImage,
-          })),
-          sizes: [],
-          listPrice: variant.listPrice,
+          variantId: variant.id,
           price: variant.price,
+          listPrice: variant.listPrice,
+          images:
+            colorImages.length > 0
+              ? colorImages.map((img) => ({
+                  url: img.url,
+                  isMainImage: img.isMainImage,
+                }))
+              : images // Fallback to product-level images
+                  .filter((img) => !img.colorId)
+                  .map((img) => ({
+                    url: img.url,
+                    isMainImage: img.isMainImage,
+                  })),
+          sizes: [],
         });
       }
 
+      // Add size to the color entry
       const colorEntry = colorsMap.get(colorId)!;
       if (variant.size) {
-        // @ts-expect-error
-        if (!colorEntry.sizes.find((size) => size.id === variant.size.id)) {
+        if (!colorEntry.sizes.find((size) => size.id === variant.size!.id)) {
           colorEntry.sizes.push({
             id: variant.size.id,
             name: variant.size.name,
@@ -377,6 +394,18 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
     }
   });
 
+  // Transform colors and order sizes and colors
+  const colors = Array.from(colorsMap.values()).map((color) => {
+    return {
+      ...color,
+      sizes: color.sizes.sort((a, b) => a.id - b.id), // Order sizes by ID (or name if needed)
+    };
+  });
+
+  // Sort colors by ID or name
+  const sortedColors = colors.sort((a, b) => a.id - b.id);
+
+  // Final transformed product object
   const transformedProduct = {
     id: product.id,
     name: product.name,
@@ -387,7 +416,7 @@ export const getProductBySlug = asyncHandler(async (req, res) => {
     listPrice: product.variants[0]?.listPrice || 0,
     additionalInfo: product.additionalInfo,
     category: product.category,
-    colors: Array.from(colorsMap.values()),
+    colors: sortedColors, // Include sorted colors
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,
   };
@@ -538,27 +567,43 @@ export const getAllProducts = asyncHandler(async (req, res) => {
         take: 1,
         select: {
           id: true,
-          color: {
-            include: {
-              images: {
-                where: {
-                  isMainImage: true,
-                },
-                select: {
-                  url: true,
-                  isMainImage: true,
-                },
-              },
-            },
-          },
           size: true,
           listPrice: true,
           price: true,
+          colorId: true,
         },
       },
     },
     skip,
     take: pageSize,
+  });
+
+  const productIds = products.map((product) => product.id);
+  const images = await prisma.productImage.findMany({
+    where: {
+      productId: { in: productIds },
+      isMainImage: true,
+    },
+    select: {
+      productId: true,
+      colorId: true,
+      url: true,
+    },
+  });
+  const transformedProduct = products.map((product) => {
+    return {
+      ...product,
+      variants: product.variants.map((variant) => {
+        return {
+          ...variant,
+          images: images.filter(
+            (image) =>
+              image.colorId === variant.colorId &&
+              image.productId === product.id
+          ),
+        };
+      }),
+    };
   });
 
   // Calculate total count and pages
@@ -578,7 +623,7 @@ export const getAllProducts = asyncHandler(async (req, res) => {
     new ApiResponse(
       200,
       {
-        products,
+        products: transformedProduct,
         totalProducts: totalCount,
         currentPage: pageNumber,
         hasNextPage,
@@ -612,15 +657,6 @@ export const getBestSellerProduct = asyncHandler(async (req, res) => {
             select: {
               id: true,
               name: true,
-              images: {
-                where: {
-                  isMainImage: true,
-                },
-                select: {
-                  url: true,
-                  isMainImage: true,
-                },
-              },
             },
           },
           size: {
@@ -629,6 +665,15 @@ export const getBestSellerProduct = asyncHandler(async (req, res) => {
               name: true,
             },
           },
+        },
+      },
+      productImage: {
+        where: {
+          isMainImage: true,
+        },
+        select: {
+          isMainImage: true,
+          url: true,
         },
       },
     },
