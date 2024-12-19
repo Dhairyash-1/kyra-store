@@ -21,9 +21,9 @@ const Wishlist = () => {
     return <Loader />;
   }
   return (
-    <div className="grid h-full grid-cols-2 gap-8   sm:grid-cols-2 md:grid-cols-3 ">
+    <div className="grid h-full grid-cols-1 gap-8 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3">
       {wishlists?.length === 0 ? (
-        <div className="flex-center col-span-full  text-xl font-semibold">
+        <div className="flex-center col-span-full text-xl font-semibold">
           You have no wishlist item
         </div>
       ) : (

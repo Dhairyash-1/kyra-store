@@ -1,11 +1,11 @@
 import { SquarePenIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import Loader from "./Loader";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import Loader from "../Loader";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 
 import {
   useGetCurrentUserQuery,
@@ -53,21 +53,21 @@ const UserProfile = () => {
   if (!user) return null;
 
   return (
-    <>
-      <div className="flex justify-between">
-        <Avatar className="h-20 w-20">
+    <div className="p-4 lg:p-0">
+      <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+        <Avatar className="block h-20 w-20">
           <AvatarImage src={user.imgUrl} alt="user" />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
         <Button
           onClick={handleProfileUpdate}
-          className="flex gap-2 bg-dark-500 p-6 text-base font-normal text-white"
+          className="flex w-full gap-2 bg-dark-500 p-6 text-base font-normal text-white sm:w-auto"
         >
           <SquarePenIcon />
           {isEditing ? "Save Changes" : " Edit Profile"}
         </Button>
       </div>
-      <form className="mt-8 grid grid-cols-2 gap-4">
+      <form className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Column 1 */}
         <div className="flex flex-col gap-2 ">
           <Label>First Name</Label>
@@ -115,7 +115,7 @@ const UserProfile = () => {
           />
         </div>
       </form>
-    </>
+    </div>
   );
 };
 

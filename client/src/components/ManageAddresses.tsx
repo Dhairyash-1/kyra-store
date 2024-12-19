@@ -8,7 +8,6 @@ import { useState } from "react";
 
 import FullPageLoader from "./FullPageLoader";
 import ShippingAddressDialog from "./ShippingAddressDialog";
-import { Separator } from "./ui/separator";
 
 import {
   useDeleteShippingAddressMutation,
@@ -50,7 +49,7 @@ const ManageAddresses = () => {
     <>
       <div className="flex flex-col gap-8">
         <button
-          className="flex-center max-w-[35%]  gap-2 rounded-md bg-dark-500 px-5 py-4 text-white"
+          className="flex-center gap-2 rounded-md bg-dark-500 px-5 py-4 text-white sm:max-w-[35%]"
           onClick={openDialogForCreate}
         >
           <PlusIcon className="h-6 w-6" />
@@ -65,7 +64,7 @@ const ManageAddresses = () => {
         <div className="space-y-4">
           {allAddresses?.map((address) => (
             <div className="flex flex-col gap-6" key={address.id}>
-              <div className="flex justify-between">
+              <div className="flex flex-col justify-between gap-2 border-b px-2 py-4 sm:flex-row">
                 <div className="flex flex-col space-y-3 font-normal text-dark-500">
                   <h1 className="text-xl font-bold">{address.fullName}</h1>
                   <p className="text-lg">
@@ -95,7 +94,6 @@ const ManageAddresses = () => {
                   </button>
                 </div>
               </div>
-              <Separator className="text-dark-80" />
             </div>
           ))}
         </div>

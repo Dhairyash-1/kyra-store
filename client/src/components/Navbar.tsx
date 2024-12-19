@@ -12,7 +12,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import MiniCart from "./MiniCart";
-import ProfileDropdown from "./ProfileDropdown";
+import ProfileDropdown from "./profile/ProfileDropdown";
 import brandLogo from "../assets/logo.png";
 
 import { RootState } from "@/store/store";

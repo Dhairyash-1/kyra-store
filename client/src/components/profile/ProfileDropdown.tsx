@@ -7,7 +7,7 @@ import {
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 
 import { updateAuthStatus } from "@/features/auth/authSlice";
 import { useLogoutMutation } from "@/services/authApi";
