@@ -133,6 +133,10 @@ const App = () => {
             <Route path="/admin/" element={<Dashboard />} />
             <Route path="/admin/products" element={<ProductManage />} />
             <Route path="/admin/products/create" element={<AddProductForm />} />
+            <Route
+              path="/admin/products/edit/:id"
+              element={<AddProductForm />}
+            />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -685,3 +685,318 @@ export const getBestSellerProduct = asyncHandler(async (req, res) => {
       new ApiResponse(200, products, "Bestseller product fetched successfully")
     );
 });
+
+export const getAllAdminProducts = asyncHandler(async (req, res) => {
+  const products = await prisma.product.findMany({
+    select: {
+      id: true,
+      brand: true,
+      name: true,
+      isPublished: true,
+      category: {
+        select: {
+          name: true,
+          id: true,
+        },
+      },
+      variants: {
+        select: {
+          price: true,
+          isDefault: true,
+          listPrice: true,
+          stockQuantity: true,
+          color: {
+            select: {
+              name: true,
+              hexCode: true,
+            },
+          },
+        },
+      },
+      productImage: {
+        where: {
+          isMainImage: true,
+        },
+      },
+    },
+  });
+
+  // Add unique colors and modify product structure
+  const productsWithUniqueColors = products.map((product) => {
+    // Get unique colors for the product
+    const uniqueColors = product.variants
+      .map((variant) => variant.color)
+      .filter(
+        (value, index, self) =>
+          self.findIndex(
+            (color) =>
+              color!.name === value!.name && color!.hexCode === value!.hexCode
+          ) === index
+      );
+
+    // Calculate total stock
+    const totalStock = product.variants.reduce(
+      (sum, variant) => sum + variant.stockQuantity,
+      0
+    );
+
+    // Extract price and listPrice of the default variant (assuming first variant is the default)
+    const defaultVariant = product.variants.find(
+      (variant) => variant.isDefault
+    ); // You can change this logic if there's a flag for default variant
+    const defaultPrice = defaultVariant ? defaultVariant.price : null;
+    const defaultListPrice = defaultVariant ? defaultVariant.listPrice : null;
+
+    return {
+      id: product.id,
+      brand: product.brand,
+      name: product.name,
+      isPublished: product.isPublished,
+      category: product.category,
+      productImage: product.productImage, // Assuming you want the main image
+      uniqueColors, // Adding unique colors
+      totalStock, // Adding total stock
+      price: defaultPrice, // Default variant price
+      listPrice: defaultListPrice, // Default variant list price
+    };
+  });
+
+  res.status(200).json(new ApiResponse(200, productsWithUniqueColors));
+});
+
+export const getAdminProductById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    throw new ApiError(400, "Id is required");
+  }
+
+  const product = await prisma.product.findUnique({
+    where: { id: Number(id) },
+    select: {
+      name: true,
+      brand: true,
+      description: true,
+      slug: true,
+      additionalInfo: true,
+      isPublished: true,
+      category: {
+        select: {
+          id: true,
+          name: true,
+          parentId: true,
+        },
+      },
+      variants: {
+        select: {
+          id: true,
+          price: true,
+          listPrice: true,
+          stockQuantity: true,
+          sku: true,
+          isDefault: true,
+          colorId: true,
+          color: {
+            select: {
+              id: true,
+              name: true,
+              hexCode: true,
+            },
+          },
+          size: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+      productImage: {
+        select: {
+          url: true,
+          isMainImage: true,
+          colorId: true,
+        },
+      },
+    },
+  });
+
+  if (!product) {
+    throw new ApiError(404, "Product not found with the given Id");
+  }
+
+  let mainCategory = null;
+  let subCategory = null;
+
+  // Check category parentId to determine if it's a main or subcategory
+  if (product.category.parentId === null) {
+    mainCategory = {
+      id: product.category.id,
+      name: product.category.name,
+    };
+  } else {
+    subCategory = {
+      id: product.category.id,
+      name: product.category.name,
+    };
+  }
+
+  // If the category has a parentId, the parent category will be set as the mainCategory
+  if (product.category.parentId !== null) {
+    const parentCategory = await prisma.category.findUnique({
+      where: { id: product.category.parentId },
+      select: { id: true, name: true },
+    });
+
+    mainCategory = {
+      id: parentCategory?.id ?? 0,
+      name: parentCategory?.name ?? "",
+    };
+  }
+
+  // Transforming the product data into the required format
+  const transformedProduct = {
+    name: product.name,
+    brand: product.brand,
+    description: product.description,
+    slug: product.slug,
+    additionalInfo: product.additionalInfo,
+    isPublished: product.isPublished,
+    mainCategory: mainCategory,
+    subCategory: subCategory,
+    variants: Object.values(
+      // @ts-ignore
+      product.variants.reduce((acc: Record<number, variantType>, variant) => {
+        // Group by color
+        const colorId = variant.colorId;
+        if (!colorId) return acc; // Return acc if colorId is invalid
+        if (!variant.color) return;
+        if (!acc[colorId]) {
+          acc[colorId] = {
+            color: {
+              id: variant.color.id,
+              name: variant.color.name,
+              hexCode: variant.color.hexCode as string,
+            },
+            sizes: [],
+            images: [],
+          };
+        }
+
+        // Add sizes
+        acc[colorId].sizes.push({
+          size: {
+            id: variant.size!.id,
+            name: variant.size!.name,
+          },
+          price: variant.price,
+          listPrice: variant.listPrice,
+          stock: variant.stockQuantity,
+          sku: variant.sku,
+        });
+
+        // Add images for the color
+        const colorImages = product.productImage
+          .filter((img) => img.colorId === colorId)
+          .map((img) => ({
+            url: img.url,
+            isMainImage: img.isMainImage,
+          }));
+
+        acc[colorId].images = colorImages;
+
+        return acc;
+      }, {} as Record<number, variantType>)
+    ),
+  };
+
+  return res.status(200).json(new ApiResponse(200, transformedProduct));
+});
+
+export const updateProductBasicInfo = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  if (!id) return;
+  const { name, brand, description, isPublished, slug, additionalInfo } =
+    req.body;
+
+  if (!name || !brand || !description || !slug || !additionalInfo) {
+    throw new ApiError(400, "Field is required to update");
+  }
+  const updateData: {
+    name?: string;
+    brand?: string;
+    description?: string;
+    isPublished?: boolean;
+    slug?: string;
+    additionalInfo?: object;
+  } = {};
+  if (name) updateData.name = name;
+  if (brand) updateData.brand = brand;
+  if (isPublished) updateData.isPublished = isPublished === "true";
+  if (description) updateData.description = description;
+  if (slug) updateData.slug = slug;
+  if (additionalInfo) updateData.additionalInfo = additionalInfo;
+
+  console.log(updateData);
+
+  const product = await prisma.product.findUnique({
+    where: {
+      id: Number(id),
+    },
+  });
+  if (!product) {
+    throw new ApiError(404, "No product found");
+  }
+
+  const updatedProduct = await prisma.product.update({
+    where: { id: product.id },
+    data: updateData,
+  });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, updatedProduct, "Basic Product Details Updated")
+    );
+});
+export const updateProductCategoryInfo = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { mainCategoryId, subCategoryId } = req.body;
+
+  const product = await prisma.product.findUnique({
+    where: { id: Number(id) },
+  });
+
+  if (!product) {
+    throw new ApiError(404, "No product found");
+  }
+
+  if (subCategoryId) {
+    // so update the subCategory and its parent
+    const updateCategory = await prisma.product.update({
+      where: { id: product.id },
+      data: {
+        categoryId: subCategoryId,
+      },
+    });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, updateCategory, "Product category updated"));
+  }
+
+  const updatedProductCategory = await prisma.product.update({
+    where: {
+      id: product.id,
+    },
+    data: {
+      categoryId: mainCategoryId,
+    },
+  });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, updatedProductCategory, "Product category updated")
+    );
+});
+export const updateProductVariant = asyncHandler(async (req, res) => {});
+export const AddNewProductVariant = asyncHandler(async (req, res) => {});

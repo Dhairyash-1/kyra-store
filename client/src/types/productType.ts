@@ -34,9 +34,10 @@ export interface ProductType {
     id: number;
     price: number;
     listPrice: number;
-    color: { id: number; name: string; images: { url: string }[] };
+    color: { id: number; name: string };
     size: { id: number; name: string };
   }[];
+  productImage: { url: string }[];
 }
 
 export interface SingleProductType {

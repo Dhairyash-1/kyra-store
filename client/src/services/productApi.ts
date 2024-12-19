@@ -19,7 +19,15 @@ interface sizeResponse {
 
 export const productApi = createApi({
   reducerPath: "productApi",
-  tagTypes: ["colors", "size", "allProducts", "bestseller", "Product"],
+  tagTypes: [
+    "colors",
+    "size",
+    "allProducts",
+    "bestseller",
+    "Product",
+    "adminProduct",
+    "allAdminProducts",
+  ],
   baseQuery: fetchBaseQuery({
     baseUrl: `${import.meta.env.VITE_SERVER_URL}`,
     headers: {
@@ -108,7 +116,51 @@ export const productApi = createApi({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["allProducts", "bestseller"],
+      invalidatesTags: ["allProducts", "bestseller", "allAdminProducts"],
+    }),
+    getAdminProducts: builder.query<any, void>({
+      query: () => `/product/admin/products`,
+
+      providesTags: ["allAdminProducts"],
+    }),
+    getAdminProductById: builder.query<any, { id: number }>({
+      query: (data) => `/product/admin/product/${data.id}`,
+
+      providesTags: (_, __, { id }) => [{ type: "adminProduct", id: id }],
+    }),
+    updateProductBasicInfo: builder.mutation<
+      void,
+      {
+        id: number;
+        name: string;
+        brand: string;
+        isPublished: string;
+        description: string;
+        additionalInfo: object;
+        slug: string;
+      }
+    >({
+      query: (data) => ({
+        url: `/product/admin/${data.id}/basic`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["adminProduct", "allAdminProducts"],
+    }),
+    updateProductCategory: builder.mutation<
+      void,
+      {
+        id: number;
+        mainCategoryId: number;
+        subCategoryId: number;
+      }
+    >({
+      query: (data) => ({
+        url: `/product/admin/${data.id}/category`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["adminProduct", "allAdminProducts"],
     }),
   }),
 });
@@ -122,4 +174,8 @@ export const {
   useCreateColorMutation,
   useCreateSizeMutation,
   useAddProductMutation,
+  useGetAdminProductsQuery,
+  useGetAdminProductByIdQuery,
+  useUpdateProductBasicInfoMutation,
+  useUpdateProductCategoryMutation,
 } = productApi;

@@ -64,7 +64,7 @@ const ProductContainer = () => {
                 brand: product.brand,
                 price: product.variants[0].price,
                 listPrice: product.variants[0].listPrice,
-                image: product.variants[0].color.images[0].url,
+                image: product.variants[0].images[0].url,
                 slug: product.slug,
                 variantId: product.variants[0].id,
               };
@@ -115,7 +115,7 @@ const ProductContainer = () => {
                             price: product.variants[0].price,
                             color: product.variants[0].color,
                             size: product.variants[0].size,
-                            image: product.variants[0].color.images[0].url,
+                            image: product.variants[0].images[0].url,
                             productId: product.id,
                             slug: product.slug,
                             quantity: 1,

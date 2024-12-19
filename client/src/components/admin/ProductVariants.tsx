@@ -37,12 +37,14 @@ import {
 
 interface ProductVariantsProps {
   form: UseFormReturn<any>;
+  sizes: any[];
+  colors: any[];
 }
 
 // const colors = ["Red", "Blue", "Green", "Black", "White", "Add New"];
 // const sizes = ["XS", "S", "M", "L", "XL", "XXL", "Add New"];
 
-export function ProductVariants({ form }: ProductVariantsProps) {
+export function ProductVariants({ form, sizes, colors }: ProductVariantsProps) {
   const {
     fields: variantFields,
     append: appendVariant,
@@ -54,8 +56,6 @@ export function ProductVariants({ form }: ProductVariantsProps) {
   const [isNewColorModalOpen, setNewColorModalOpen] = useState<boolean>(false);
   const [newColor, setNewColor] = useState({ name: "", hexCode: "" });
   const [createColor, { isLoading }] = useCreateColorMutation();
-  const { data } = useGetProductColorsQuery();
-  const colors = data?.data ?? [];
   const handleCreateNewColor = async () => {
     console.log("color", newColor);
     await createColor(newColor).unwrap();
@@ -152,7 +152,11 @@ export function ProductVariants({ form }: ProductVariantsProps) {
                       </FormItem>
                     )}
                   />
-                  <VariantSizes variantIndex={variantIndex} form={form} />
+                  <VariantSizes
+                    variantIndex={variantIndex}
+                    form={form}
+                    sizes={sizes}
+                  />
                   <VariantImages variantIndex={variantIndex} form={form} />
                 </CardContent>
               </Card>
@@ -185,9 +189,11 @@ export function ProductVariants({ form }: ProductVariantsProps) {
 function VariantSizes({
   variantIndex,
   form,
+  sizes,
 }: {
   variantIndex: number;
   form: UseFormReturn<any>;
+  sizes: any[];
 }) {
   const {
     fields: sizeFields,
@@ -199,9 +205,7 @@ function VariantSizes({
   });
   const [isNewSizeModalOpen, setNewSizeModalOpen] = useState<boolean>(false);
   const [newSize, setNewSize] = useState({ size: "" });
-  const { data } = useGetProductSizesQuery();
   const [createSize, { isLoading }] = useCreateSizeMutation();
-  const sizes = data?.data ?? [];
 
   const handleCreateNewSize = async () => {
     console.log("size", newSize);

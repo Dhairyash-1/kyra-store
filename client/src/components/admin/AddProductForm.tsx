@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useParams } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 import * as z from "zod";
 
@@ -13,12 +14,20 @@ import { ProductVariants } from "./ProductVariants";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { Progress } from "@/components/ui/progress";
-import { useAddProductMutation } from "@/services/productApi";
 import { useToast } from "@/hooks/use-toast";
+import { useGetAllCategoryQuery } from "@/services/categoryApi";
+import {
+  useAddProductMutation,
+  useGetAdminProductByIdQuery,
+  useGetProductColorsQuery,
+  useGetProductSizesQuery,
+} from "@/services/productApi";
+import FullPageLoader from "../FullPageLoader";
 
 const productSchema = z.object({
   name: z.string().min(1, { message: "Product name is required" }),
   brand: z.string().min(1, { message: "Brand name is required" }),
+  isPublished: z.string().optional(),
   description: z
     .string()
     .min(20, { message: "Product description is required" }),
@@ -83,39 +92,76 @@ const productSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
-const steps = [
-  "Basic Info",
-  "Category",
-  "Variants",
-  "Additional Info",
-  "Summary",
-];
+const steps = ["Basic Info", "Category", "Variants", "Summary"];
+type formModeTypes = "ADD" | "EDIT";
 
 export function AddProductForm() {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
-  const [AddProduct, { isLoading }] = useAddProductMutation();
+  const [formMode, setFormMode] = useState<formModeTypes>("ADD");
+  const [AddProduct, { isLoading: isCreating }] = useAddProductMutation();
+  const { id } = useParams();
+  const { data, isLoading } = useGetAdminProductByIdQuery(
+    { id: Number(id) },
+    { skip: !id }
+  );
+  const { data: categoryData } = useGetAllCategoryQuery();
+  const { data: sizesData } = useGetProductSizesQuery();
+  const { data: colorsData } = useGetProductColorsQuery();
+
+  const categories = categoryData?.data ?? {};
+  const sizes = sizesData?.data ?? [];
+  const colors = colorsData?.data ?? [];
+
+  const productData = data?.data;
+  const defaultValues = useMemo(
+    () =>
+      productData
+        ? {
+            name: productData.name || "",
+            brand: productData.brand || "",
+            isPublished: productData.isPublished.toString(),
+            description: productData.description || "",
+            slug: productData.slug || "",
+            mainCategory: productData.mainCategory || {},
+            subCategory: productData.subCategory || {},
+            variants: productData.variants || [
+              { color: {}, sizes: [], images: [] },
+            ],
+            additionalInfo: productData.additionalInfo || "",
+          }
+        : {
+            name: "",
+            brand: "",
+            isPublished: "",
+            description: "",
+            slug: "",
+            mainCategory: {},
+            subCategory: {},
+            variants: [{ color: {}, sizes: [], images: [] }],
+            additionalInfo: "",
+          },
+    [productData]
+  );
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
-    defaultValues: {
-      name: "",
-      brand: "",
-      description: "",
-      slug: "",
-      mainCategory: {},
-      subCategory: {},
-      variants: [{ color: {}, sizes: [], images: [] }],
-      additionalInfo: "",
-    },
+    defaultValues,
   });
+
+  useEffect(() => {
+    if (id && productData) {
+      console.log(productData);
+      form.reset(productData);
+      setFormMode("EDIT");
+    }
+  }, [id, productData]);
 
   async function onSubmit(data: ProductFormValues) {
     console.log(data);
     console.log("submitting");
     await AddProduct({ ...data, isPublished: true }).unwrap();
     toast({ title: "Product Published", variant: "success" });
-    // Here you would typically send the data to your backend API
   }
   function onError(errors: any) {
     console.error("Validation errors:", errors);
@@ -124,6 +170,9 @@ export function AddProductForm() {
   const nextStep = () =>
     setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
+  if (id && isLoading) {
+    return <FullPageLoader />;
+  }
 
   return (
     <Form {...form}>
@@ -147,11 +196,19 @@ export function AddProductForm() {
             </Button>
           ))}
         </div>
-        {currentStep === 0 && <BasicInformation form={form} />}
-        {currentStep === 1 && <CategorySelection form={form} />}
-        {currentStep === 2 && <ProductVariants form={form} />}
-        {currentStep === 3 && <AdditionalInformation form={form} />}
-        {currentStep === 4 && <ProductSummary form={form} />}
+        {currentStep === 0 && <BasicInformation form={form} mode={formMode} />}
+        {currentStep === 1 && (
+          <CategorySelection
+            form={form}
+            categories={categories}
+            mode={formMode}
+          />
+        )}
+        {currentStep === 2 && (
+          <ProductVariants form={form} sizes={sizes} colors={colors} />
+        )}
+        {/* {currentStep === 3 && <AdditionalInformation form={form} />} */}
+        {currentStep === 3 && <ProductSummary form={form} />}
         <div className="mt-8 flex justify-between">
           <Button type="button" onClick={prevStep} disabled={currentStep === 0}>
             Previous
@@ -170,7 +227,7 @@ export function AddProductForm() {
                 Save as Draft
               </Button>
               <Button type="submit">
-                {isLoading ? (
+                {isCreating ? (
                   <>
                     Publishing <ClipLoader size={12} color="white" />
                   </>

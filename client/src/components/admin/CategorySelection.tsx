@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { UseFormReturn } from "react-hook-form";
+import { useParams } from "react-router-dom";
 
 import CreateNewCategoryModal from "./CreateNewCategoryModal";
+import { Button } from "../ui/button";
 
 import {
   FormField,
@@ -16,22 +19,74 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetAllCategoryQuery } from "@/services/categoryApi";
+import { useUpdateProductCategoryMutation } from "@/services/productApi";
 
 interface CategorySelectionProps {
   form: UseFormReturn<any>;
+  categories: any;
+  mode: "EDIT" | "SAVE";
 }
 
-export function CategorySelection({ form }: CategorySelectionProps) {
-  // const [selectedMainCategory, setSelectedMainCategory] = useState<
-  //   string | undefined
-  // >();
+export function CategorySelection({
+  form,
+  categories,
+  mode,
+}: CategorySelectionProps) {
   const selectedMainCategory = form.watch("mainCategory");
-  const { data } = useGetAllCategoryQuery();
-  const categories = data?.data ?? {};
+  const [updateCategory, { isLoading: isUpdating }] =
+    useUpdateProductCategoryMutation();
+  const [isEditing, setIsEditing] = useState(false);
+  const isInputDisabled = !isEditing && mode === "EDIT";
+  const { id } = useParams();
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    const data = form.getValues();
+    await updateCategory({
+      mainCategoryId: data.mainCategory.id,
+      subCategoryId: data.subCategory.id,
+      id: Number(id),
+    }).unwrap();
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    // You can reset the form to the last saved state
+    setIsEditing(false);
+  };
 
   return (
     <div className="space-y-4">
+      <div className="mt-6 flex justify-end space-x-4">
+        {mode === "EDIT" &&
+          (!isEditing ? (
+            <Button type="button" onClick={handleEdit} variant="outline">
+              Edit
+            </Button>
+          ) : (
+            <>
+              <Button
+                disabled={isUpdating}
+                type="button"
+                onClick={handleSave}
+                variant="default"
+              >
+                {isUpdating ? "Saving..." : "Save"}
+              </Button>
+              <Button
+                type="button"
+                disabled={isUpdating}
+                onClick={handleCancel}
+                variant="outline"
+              >
+                Cancel
+              </Button>
+            </>
+          ))}
+      </div>
       {/* Main Category Selection */}
       <FormField
         control={form.control}
@@ -49,6 +104,7 @@ export function CategorySelection({ form }: CategorySelectionProps) {
                 console.log("Selected Main Category:", value);
                 form.setValue("subCategory", "");
               }}
+              disabled={isInputDisabled}
             >
               <FormControl>
                 <SelectTrigger>
@@ -104,7 +160,7 @@ export function CategorySelection({ form }: CategorySelectionProps) {
                   console.error("Subcategory not found for value:", value);
                 }
               }}
-              disabled={!selectedMainCategory.name} // Disable if no main category is selected
+              disabled={isInputDisabled || !selectedMainCategory.name} // Disable if no main category is selected
             >
               <FormControl>
                 <SelectTrigger>

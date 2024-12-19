@@ -51,11 +51,13 @@ export default function Login() {
         updateAuthStatus({
           isAuthenticated: true,
           userId: res.data.id,
+          role: res.data.role,
           name: `${res.data.firstName} ${res.data.lastName}`,
           profileImage: res.data.img,
           isLoading: false,
         })
       );
+      console.log(res);
       const redirectTo = (location.state as any)?.from?.pathname;
       console.log("Redirecting to:", redirectTo);
       console.log("state", location.state);
