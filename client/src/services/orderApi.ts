@@ -57,6 +57,9 @@ export const orderApi = createApi({
     getAllOrders: builder.query<OrderResponse, void>({
       query: () => "/order/",
     }),
+    getAllAdminOrders: builder.query<OrderResponse, void>({
+      query: () => "/order/admin/orders",
+    }),
   }),
 });
 
@@ -64,4 +67,5 @@ export const {
   useCreateOrderMutation,
   useGetAllOrdersQuery,
   useGetOrderByIdQuery,
+  useGetAllAdminOrdersQuery,
 } = orderApi;

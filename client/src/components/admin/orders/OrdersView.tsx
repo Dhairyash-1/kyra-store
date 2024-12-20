@@ -9,10 +9,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
-import { BulkActions } from "./BulkActions";
-import { Pagination } from "./Pagination";
-import { ProductsEmptyState } from "./ProductsEmptyState";
-import { ProductsTable } from "./ProductsTable";
+import { BulkActions } from "../products/BulkActions";
+import { Pagination } from "../products/Pagination";
+import { ProductsEmptyState } from "../products/ProductsEmptyState";
+import { ProductsTable } from "../products/ProductsTable";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { useGetAdminProductsQuery } from "@/services/productApi";
+import { OrderTable } from "../OrderTable";
+import { useGetAllAdminOrdersQuery } from "@/services/orderApi";
 
 const sortOptions = [
   { label: "Newest First", value: "newest" },
@@ -41,17 +43,17 @@ const filterOptions = [
   { id: "sale", label: "On Sale" },
 ];
 
-export function ProductsView() {
+export function OrdersView() {
   const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [filters, setFilters] = useState<string[]>([]);
   const navigate = useNavigate();
-  const { data, isLoading } = useGetAdminProductsQuery();
+  const { data, isLoading } = useGetAllAdminOrdersQuery();
   console.log(data);
-  const products = data?.data;
+  const orders = data?.data;
 
-  const hasProducts = products?.length > 0;
+  const hasProducts = orders?.length > 0;
   const hasSelectedProducts = selectedProducts.length > 0;
 
   return (
@@ -59,11 +61,8 @@ export function ProductsView() {
       <div className="flex items-center justify-between space-y-2">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-            Products
+            Orders
           </h2>
-          <p className="text-muted-foreground">
-            Here&apos;s a list of your products
-          </p>
         </div>
         <div className="flex items-center space-x-2">
           <Button
@@ -73,14 +72,6 @@ export function ProductsView() {
           >
             <Download className="mr-2 h-4 w-4" />
             Export
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => navigate("/admin/products/create")}
-            className="bg-blue-600 text-white hover:bg-blue-700"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add Product
           </Button>
         </div>
       </div>
@@ -97,7 +88,7 @@ export function ProductsView() {
               <div className="relative w-full max-w-sm">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search products..."
+                  placeholder="Search orders..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
@@ -163,8 +154,8 @@ export function ProductsView() {
           </div>
 
           <div className="relative">
-            <ProductsTable
-              products={products}
+            <OrderTable
+              orders={orders}
               selectedProducts={selectedProducts}
               onSelectedProductsChange={setSelectedProducts}
             />
@@ -177,7 +168,7 @@ export function ProductsView() {
           </div>
 
           <Pagination
-            totalItems={products.length}
+            totalItems={orders.length}
             itemsPerPage={10}
             currentPage={1}
             onPageChange={(page) => console.log(`Navigate to page ${page}`)}

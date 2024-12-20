@@ -97,7 +97,6 @@ export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
       totalAmount,
       items: {
         create: cartItems.map((item) => ({
-          id: item.id,
           productId: item.productId,
           quantity: item.quantity,
           priceAtPurchase: item.totalPrice,
@@ -320,3 +319,25 @@ export const getOrderDetailsById = asyncHandler(
       .json(new ApiResponse(200, formatedOrder, "Order details fetched"));
   }
 );
+
+export const getAllOrders = asyncHandler(async (req, res) => {
+  const orders = await prisma.order.findMany({
+    select: {
+      id: true,
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+      orderStatus: true,
+      paymentStatus: true,
+      totalAmount: true,
+      createdAt: true,
+    },
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, orders, "All Order fetched"));
+});

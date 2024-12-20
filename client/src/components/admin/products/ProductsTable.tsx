@@ -164,38 +164,36 @@ export function ProductsTable({
                 </div>
               </TableCell>
               <TableCell>
-                <TooltipProvider>
-                  <div className="flex items-center   gap-2">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="">
-                          <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                          <span className="sr-only">More options</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                          <Link to={`/products/${product.id}`}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to={`/admin/products/edit/${product.id}`}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </TooltipProvider>
+                <div className="flex items-center   gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="">
+                        <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                        <span className="sr-only">More options</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to={`/products/${product.id}`}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={`/admin/products/edit/${product.id}`}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive">
+                        <Trash className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </TableCell>
             </TableRow>
           ))}
