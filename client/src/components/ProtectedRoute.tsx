@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import FullPageLoader from "./FullPageLoader";
 
@@ -18,28 +18,40 @@ const ProtectedRoute = ({
   const { isAuthenticated, role, isLoading } = useSelector(
     (state: RootState) => state.auth
   );
-  const navigate = useNavigate();
+
   const location = useLocation();
 
-  useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
-      return navigate("/login", { state: { from: location } });
-    }
+  if (!isAuthenticated && !isLoading) {
+    // Redirect to login if not authenticated
+    return (
+      <Navigate
+        to={`/login?redirect=${encodeURIComponent(location.pathname)}`}
+      />
+    );
+  }
+  if (
+    isAuthenticated &&
+    !isLoading &&
+    allowedRoles &&
+    !allowedRoles.includes(role as string)
+  ) {
+    return <Navigate to={"/"} />;
+  }
+  // useEffect(() => {}, [
+  //   isAuthenticated,
+  //   navigate,
+  //   isLoading,
+  //   location,
+  //   allowedRoles,
+  //   role,
+  // ]);
 
-    if (
-      isAuthenticated &&
-      !isLoading &&
-      allowedRoles &&
-      !allowedRoles.includes(role as string)
-    ) {
-      return navigate("/");
-    }
-  }, [isAuthenticated, navigate, isLoading, location, allowedRoles, role]);
-
+  // Return loading state until the authentication check is complete
   if (isLoading) {
-    return <FullPageLoader />;
+    return <FullPageLoader />; // Or any placeholder like loading spinner
   }
 
+  // Render children (protected content) only if authenticated and authorized
   return children;
 };
 

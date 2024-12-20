@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { AddProductForm } from "./components/admin/AddProductForm";
+import { OrdersView } from "./components/admin/orders/OrdersView";
 import AppLayout from "./components/AppLayout";
 import FullPageLoader from "./components/FullPageLoader";
 import ManageAddresses from "./components/ManageAddresses";
@@ -90,6 +91,14 @@ const App = () => {
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<AppLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="products" element={<Products />} />
+            <Route path="products/:slug" element={<ProductPage />} />
+            <Route path="cart" element={<CartPage />} />
+          </Route>
+
           {/* Auth Layout */}
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<Login />} />
@@ -97,32 +106,28 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/enter-otp" element={<EnterOtp />} />
           </Route>
-          {/* layout for regular user */}
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/products/:slug" element={<ProductPage />} />
-            <Route path="/cart" element={<CartPage />} />
 
-            <Route
-              element={
-                <ProtectedRoute allowedRoles={["user", "admin"]}>
+          {/* Protected user routes */}
+          <Route
+            element={
+              <ProtectedRoute allowedRoles={["user"]}>
+                <AppLayout>
                   <MyProfileLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="/profile" element={<UserProfile />} />
-              <Route path="/orders" element={<MyOrders />} />
-              <Route path="/orders/:orderId" element={<OrderDetails />} />
-              <Route path="/wishlists" element={<Wishlist />} />
-              <Route path="/manage-address" element={<ManageAddresses />} />
-
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/shipping" element={<Shipping />} />
-            </Route>
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          >
+            <Route path="profile" element={<UserProfile />} />
+            <Route path="orders" element={<MyOrders />} />
+            <Route path="orders/:orderId" element={<OrderDetails />} />
+            <Route path="wishlists" element={<Wishlist />} />
+            <Route path="manage-address" element={<ManageAddresses />} />
+            <Route path="notifications" element={<Notifications />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="shipping" element={<Shipping />} />
           </Route>
-          {/* layout for admin panel */}
+
+          {/* Admin routes*/}
           <Route
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
@@ -130,14 +135,18 @@ const App = () => {
               </ProtectedRoute>
             }
           >
-            <Route path="/admin/" element={<Dashboard />} />
-            <Route path="/admin/products" element={<ProductManage />} />
-            <Route path="/admin/products/create" element={<AddProductForm />} />
-            <Route
-              path="/admin/products/edit/:id"
-              element={<AddProductForm />}
-            />
+            <Route path="admin">
+              <Route index element={<Dashboard />} />
+              <Route path="products">
+                <Route index element={<ProductManage />} />
+                <Route path="create" element={<AddProductForm />} />
+                <Route path="edit/:id" element={<AddProductForm />} />
+              </Route>
+              <Route path="orders" element={<OrdersView />} />
+            </Route>
           </Route>
+
+          <Route path="*" element={<Navigate to="/not-found" replace />} />
         </Routes>
       </BrowserRouter>
       <Toaster />

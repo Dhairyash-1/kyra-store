@@ -5,11 +5,22 @@ import { RootState } from "@/store/store";
 
 const AuthLayout = () => {
   const location = useLocation();
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-  console.log("lo state", location);
-  if (isAuthenticated) {
-    return <Navigate to="/" state={{ from: location }} replace />;
+  const { isAuthenticated, isLoading, role } = useSelector(
+    (state: RootState) => state.auth
+  );
+  const redirectQuery = new URLSearchParams(location.search).get("redirect");
+
+  let redirectPath;
+  if (role === "admin") {
+    redirectPath = redirectQuery || "/admin";
+  } else {
+    redirectPath = redirectQuery || "/";
   }
+
+  if (!isLoading && isAuthenticated) {
+    return <Navigate to={redirectPath} replace />;
+  }
+
   return (
     <>
       <Outlet />

@@ -58,10 +58,17 @@ export default function Login() {
         })
       );
       console.log(res);
-      const redirectTo = (location.state as any)?.from?.pathname;
-      console.log("Redirecting to:", redirectTo);
-      console.log("state", location.state);
-      return navigate(redirectTo || "/");
+      const queryRedirect = new URLSearchParams(location.search).get(
+        "redirect"
+      );
+      let redirectPath;
+      if (res.data.role === "admin") {
+        redirectPath = queryRedirect || "/admin";
+      } else {
+        redirectPath = queryRedirect || "/";
+      }
+      console.log("Redirecting to:", redirectPath);
+      return navigate(redirectPath, { replace: true });
     } catch (error: any) {
       console.log("Error in login", error);
       if (error?.data?.message) {

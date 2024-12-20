@@ -1,7 +1,6 @@
 import { Outlet } from "react-router-dom";
 
 import { DashboardHeader } from "@/components/admin/dashboard/Header";
-import { DashboardShell } from "@/components/admin/dashboard/Shell";
 import { AppSidebar } from "@/components/admin/dashboard/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
