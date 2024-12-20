@@ -20,10 +20,12 @@ export function OrderCard({
   const additionalItems = order.items.length - 1;
 
   return (
-    <div className=" border-b  border-gray-200 bg-white p-6 transition-all hover:shadow-md">
-      <div className="flex items-start justify-between gap-4">
+    <div className="border-b border-gray-200 bg-white p-2 transition-all hover:shadow-md sm:p-6">
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+        {/* Left Section */}
         <div className="flex gap-4">
-          <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md  border-gray-200 p-1">
+          {/* Product Image */}
+          <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 p-1 lg:h-24 lg:w-24">
             {mainItem.mainImage ? (
               <>
                 <img
@@ -44,35 +46,41 @@ export function OrderCard({
             )}
           </div>
 
+          {/* Product Details */}
           <div className="flex flex-col">
             <div className="mb-2">
-              <h3 className="text-lg font-medium text-gray-900">
+              <h3 className="text-sm font-medium text-gray-900 lg:text-lg">
                 {mainItem.name}
               </h3>
               {additionalItems > 0 && (
-                <p className="text-sm text-blue-600">
+                <p className="text-xs text-blue-600 lg:text-sm">
                   +{additionalItems} more{" "}
                   {additionalItems === 1 ? "item" : "items"}
                 </p>
               )}
             </div>
 
-            <div className="mt-1 flex items-center gap-4">
+            <div className="mt-1 flex flex-wrap items-center gap-4">
               <OrderStatusBadge status={order.orderStatus} />
-              <span className="text-sm text-gray-500">
+              <span className="text-xs text-gray-500 lg:text-sm">
                 Qty: {order.items.reduce((acc, item) => acc + item.quantity, 0)}
               </span>
             </div>
 
-            <p className="mt-4 text-sm text-gray-600">Order #{order.id}</p>
+            <p className="mt-4 text-xs text-gray-600 lg:text-sm">
+              Order #{order.id}
+            </p>
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-4">
+        {/* Right Section */}
+        <div className="flex flex-col items-end  gap-4 lg:w-1/3">
+          {/* Price */}
           <span className="text-xl font-medium text-gray-900">
             ₹{order.totalAmount.toFixed(2)}
           </span>
 
+          {/* Actions */}
           <OrderActions
             status={order.orderStatus}
             onViewOrder={() => onViewOrder(order.id)}

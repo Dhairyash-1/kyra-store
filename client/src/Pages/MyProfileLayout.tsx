@@ -18,7 +18,7 @@ const MyProfileLayout = () => {
   const location = useLocation();
 
   return (
-    <section className="mt-20 flex flex-col px-4 lg:px-20">
+    <section className="mt-20 flex flex-col lg:px-20">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-normal text-primary-500 md:text-4xl">
           {titleMap[location.pathname]}

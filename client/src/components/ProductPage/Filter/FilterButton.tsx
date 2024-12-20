@@ -11,7 +11,7 @@ export function FilterButton({ onClick, activeFilters }: FilterButtonProps) {
   return (
     <Button
       onClick={onClick}
-      className="z-50 rounded-full border border-dark-90 bg-transparent text-dark-500  lg:hidden"
+      className="rounded-full border border-dark-90 bg-transparent text-dark-500 lg:hidden"
       size="sm"
     >
       <Filter className="mr-2 h-4 w-4" />

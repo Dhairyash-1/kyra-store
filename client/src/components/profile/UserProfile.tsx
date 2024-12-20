@@ -50,7 +50,7 @@ const UserProfile = () => {
   if (isLoading) {
     return <Loader />;
   }
-  if (!user) return null;
+  // if (!user) return null;
 
   return (
     <div className="p-4 lg:p-0">

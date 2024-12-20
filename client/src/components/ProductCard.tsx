@@ -35,19 +35,19 @@ const ProductCard = ({
       {/* Product Image Section */}
       <div
         onClick={handleClick}
-        className="group relative block cursor-pointer overflow-hidden rounded-t-lg bg-gray-5"
+        className="group relative block cursor-pointer overflow-hidden rounded-t-lg "
       >
         {/* Top Action Button */}
-        <div className="absolute right-4 top-4 z-10 hidden group-hover:block">
+        <div className="absolute right-6 top-4 z-10 hidden group-hover:block">
           {topActionButton && topActionButton}
         </div>
 
         {/* Product Image */}
-        <div className="relative aspect-[4/5] w-full overflow-hidden bg-gray-10">
+        <div className="relative aspect-[4/5] w-full overflow-hidden ">
           <img
             src={image}
             alt={name}
-            className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 object-contain"
+            className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover"
           />
         </div>
 

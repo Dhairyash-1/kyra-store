@@ -11,7 +11,7 @@ const ProductToolBar = () => {
 
   const handleApplyFilters = () => {
     // Logic to apply filters
-    setActiveFilters(3); // Example: set to 3 active filters
+    setActiveFilters(1); // Example: set to 3 active filters
     setIsFilterOpen(false);
   };
 
