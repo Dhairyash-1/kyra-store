@@ -116,6 +116,11 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+@layer components {
+  .mega-menu-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+}
 
 @layer base {
   * {

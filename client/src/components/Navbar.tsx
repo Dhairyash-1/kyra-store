@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
+import { MegaMenu } from "./MegaMenu";
 import MiniCart from "./MiniCart";
 import ProfileDropdown from "./profile/ProfileDropdown";
 import brandLogo from "../assets/logo.png";
@@ -41,7 +42,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="flex justify-between gap-4 px-4 py-4 lg:px-24">
+    <header className="relative flex justify-between gap-4 px-4 py-4 lg:px-24">
       {/* Navigation links and menu icons for small screens */}
       <div className="flex w-full items-center justify-between md:hidden">
         <div className="flex items-center gap-4">
@@ -114,19 +115,24 @@ const Navbar = () => {
       </Link>
 
       {/* Navigation links for large screens */}
-      <nav className="relative hidden items-center  md:flex md:gap-4 lg:gap-6">
-        {Links.map((item) => (
-          <Link
-            className={`flex text-base font-normal text-dark-500 ${
-              item.name === "Shop" ? "group relative" : ""
-            } `}
-            key={item.id}
-            to={item.url}
-          >
-            {item.name}
-            {item?.icon && item.icon}
-          </Link>
-        ))}
+      <nav className=" hidden items-center md:flex md:gap-4 lg:gap-6">
+        {Links.map((item) => {
+          if (item.name === "Shop") {
+            return <MegaMenu key={item.id} />;
+          }
+          return (
+            <Link
+              className={`flex text-base font-normal text-dark-500 ${
+                item.name === "Shop" ? "group relative" : ""
+              } `}
+              key={item.id}
+              to={item.url}
+            >
+              {item.name}
+              {item?.icon && item.icon}
+            </Link>
+          );
+        })}
       </nav>
 
       {/* Menu icons for large screens */}
@@ -169,45 +175,63 @@ const Navbar = () => {
 
       {/* Mobile Navigation Drawer */}
       <div
-        className={`fixed left-0 top-0 z-20 h-full w-[60%] transform bg-white md:w-[50%] ${
+        className={`fixed inset-0 z-20 transform transition-transform duration-500 ease-in-out md:hidden ${
           navOpen ? "translate-x-0" : "-translate-x-full"
-        } shadow-lg transition-transform duration-500 ease-in-out md:hidden`}
+        }`}
       >
-        <div className="flex items-center justify-between bg-white px-6 py-4">
-          <button
-            className="bg-transparent p-0 focus:outline-none"
-            onClick={handleNavToggle}
-          >
-            <XIcon className="h-8 w-8 text-dark-500" aria-label="Close menu" />
-          </button>
-
-          <Link to={"/"} className="flex items-center space-x-2">
-            <img src={brandLogo} className="h-10 w-10" alt="logo" />
-            <h1 className="text-3xl font-semibold text-dark-500">Kyra</h1>
-          </Link>
-        </div>
-
-        <nav className="flex flex-col space-y-6 bg-white px-6 py-4">
-          {Links.map((item, index) => (
-            <Link
-              className="transform py-3 text-2xl font-medium text-dark-500 transition-colors hover:scale-105 hover:text-primary-500"
-              key={item.id}
-              to={item.url}
-              style={{ transitionDelay: `${index * 0.1}s` }} // Delay for animation
-            >
-              {item.name}
-            </Link>
-          ))}
-        </nav>
-      </div>
-
-      {/* Overlay for Mobile Menu */}
-      {navOpen && (
+        {/* Overlay */}
         <div
-          className="fixed inset-0 z-10 bg-gray-500 bg-opacity-50 md:hidden"
-          onClick={handleNavToggle}
+          className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${
+            navOpen ? "opacity-100" : "pointer-events-none opacity-0"
+          }`}
+          onClick={handleNavToggle} // Close menu when clicking outside
         ></div>
-      )}
+
+        {/* Navigation Menu */}
+        <div
+          className={`absolute left-0 top-0 h-full w-[70%] bg-white shadow-lg transition-transform duration-500 ease-in-out md:w-[50%] ${
+            navOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+            <h2 className="text-xl font-semibold text-dark-500">Menu</h2>
+            <button
+              className="p-1 transition-transform hover:scale-110 focus:outline-none"
+              onClick={handleNavToggle}
+            >
+              <XIcon
+                className="h-8 w-8 text-gray-700"
+                aria-label="Close menu"
+              />
+            </button>
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="flex flex-col space-y-6 px-6 py-4">
+            {Links.map((item, index) => {
+              if (item.name === "Shop") {
+                return (
+                  <div key={item.id} className="relative">
+                    <MegaMenu />
+                  </div>
+                );
+              }
+              return (
+                <Link
+                  key={item.id}
+                  to={item.url}
+                  className="text-lg font-medium text-gray-700 transition-all duration-300 hover:translate-x-2 hover:text-primary-500"
+                  style={{ transitionDelay: `${index * 0.1}s` }}
+                  onClick={() => setNavOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      </div>
     </header>
   );
 };
