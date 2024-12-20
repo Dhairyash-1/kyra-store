@@ -162,6 +162,18 @@ export const productApi = createApi({
       }),
       invalidatesTags: ["adminProduct", "allAdminProducts"],
     }),
+    searchProducts: builder.mutation<
+      void,
+      {
+        query: string;
+      }
+    >({
+      query: (data) => ({
+        url: `/product/search`,
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -178,4 +190,5 @@ export const {
   useGetAdminProductByIdQuery,
   useUpdateProductBasicInfoMutation,
   useUpdateProductCategoryMutation,
+  useSearchProductsMutation,
 } = productApi;

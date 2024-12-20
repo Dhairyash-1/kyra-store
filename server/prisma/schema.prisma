@@ -94,6 +94,7 @@ model Category {
   updatedAt DateTime @updatedAt
 
   @@unique([name, parentId])
+  @@index([name,slug])
 }
 
 model Product {

@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { createSlug } from "../utils/helpter";
+import { json } from "stream/consumers";
 
 export const addSize = asyncHandler(async (req, res) => {
   const { name } = req.body;
@@ -1000,3 +1001,59 @@ export const updateProductCategoryInfo = asyncHandler(async (req, res) => {
 });
 export const updateProductVariant = asyncHandler(async (req, res) => {});
 export const AddNewProductVariant = asyncHandler(async (req, res) => {});
+
+export const searchProducts = asyncHandler(async (req, res) => {
+  const { query } = req.body;
+
+  if (!query || !query.trim()) {
+    return res
+      .status(400)
+      .json(new ApiResponse(400, "Search query cannot be empty."));
+  }
+
+  const products = await prisma.product.findMany({
+    where: {
+      OR: [
+        {
+          name: {
+            contains: query.trim(),
+            mode: "insensitive",
+          },
+        },
+        {
+          category: {
+            name: {
+              contains: query.trim(),
+              mode: "insensitive",
+            },
+          },
+        },
+      ],
+    },
+    select: {
+      name: true,
+      slug: true,
+      category: {
+        select: {
+          name: true,
+        },
+      },
+      productImage: {
+        where: {
+          isMainImage: true,
+        },
+        select: {
+          url: true,
+        },
+      },
+    },
+  });
+
+  if (products.length === 0) {
+    throw new ApiError(404, "No matching products found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, products, "Products fetched successfully."));
+});

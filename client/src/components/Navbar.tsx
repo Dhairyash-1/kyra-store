@@ -17,6 +17,7 @@ import ProfileDropdown from "./profile/ProfileDropdown";
 import brandLogo from "../assets/logo.png";
 
 import { RootState } from "@/store/store";
+import EnhancedSearchInput from "./EnhancedSearchInput";
 
 const Links = [
   { id: 1, name: "Home", url: "/" },
@@ -81,8 +82,9 @@ const Navbar = () => {
               </span>
             )}
           </Link>
-          <button className="hidden bg-transparent p-0 focus:outline-none xs:block">
-            <Search className="h-6 w-6 text-dark-500" aria-label="Search" />
+          <button className=" bg-transparent p-0 focus:outline-none ">
+            {/* <Search className="h-6 w-6 text-dark-500" aria-label="Search" /> */}
+            <EnhancedSearchInput />
           </button>
           <button className="hidden bg-transparent p-0 focus:outline-none xs:block">
             <Heart className="h-6 w-6 text-dark-500" aria-label="Wishlist" />
@@ -138,7 +140,8 @@ const Navbar = () => {
       {/* Menu icons for large screens */}
       <div className="hidden  items-center justify-end gap-4  md:flex md:gap-8">
         <button className="bg-transparent p-0 focus:outline-none">
-          <Search className="h-6 w-6 text-dark-500" aria-label="Search" />
+          {/* <Search className="h-6 w-6 text-dark-500" aria-label="Search" /> */}
+          <EnhancedSearchInput />
         </button>
         <Link to="/wishlists">
           <Heart className="h-6 w-6 text-dark-500" aria-label="Wishlist" />

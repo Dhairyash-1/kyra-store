@@ -47,10 +47,9 @@ const UserProfile = () => {
       await updateProfile(userData).unwrap();
     }
   }
-  if (isLoading) {
+  if (isLoading || !user) {
     return <Loader />;
   }
-  // if (!user) return null;
 
   return (
     <div className="p-4 lg:p-0">

@@ -12,6 +12,7 @@ import {
   getBestSellerProduct,
   getProductBySlug,
   getProductVariantId,
+  searchProducts,
   updateProductBasicInfo,
   updateProductCategoryInfo,
   updateProductVariant,
@@ -52,5 +53,6 @@ router.route("/slug").get(getProductBySlug);
 router.route("/bestseller").get(getBestSellerProduct);
 router.route("/colors/").get(getAllProductColors);
 router.route("/sizes/").get(getAllProductSizes);
+router.route("/search").post(searchProducts);
 
 export default router;
