@@ -35,7 +35,11 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
   return (
     <Dialog open={isModalOpen} onOpenChange={onClose}>
-      <div className={`${isModalOpen ? "fixed inset-0 backdrop-blur-sm" : ""}`}>
+      <div
+        className={`${
+          isModalOpen ? "fixed inset-0 px-2 backdrop-blur-sm" : ""
+        }`}
+      >
         <DialogContent className="flex-center max-w-sm p-4">
           <DialogHeader className="w-full">
             <div className="flex-center">

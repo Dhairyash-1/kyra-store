@@ -60,7 +60,7 @@ const EnterOtp = () => {
 
   return (
     <>
-      <div className="flex max-h-screen bg-white">
+      <div className="flex min-h-screen bg-white lg:max-h-screen">
         {/* Left side - Image */}
         <div className="relative hidden lg:block lg:w-1/2">
           <div className="flex-center absolute left-6 top-6">
