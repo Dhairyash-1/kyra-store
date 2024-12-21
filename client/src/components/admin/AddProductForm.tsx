@@ -10,6 +10,7 @@ import { BasicInformation } from "./BasicInformation";
 import { CategorySelection } from "./CategorySelection";
 import { ProductSummary } from "./ProductSummary";
 import { ProductVariants } from "./ProductVariants";
+import FullPageLoader from "../FullPageLoader";
 
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -22,7 +23,6 @@ import {
   useGetProductColorsQuery,
   useGetProductSizesQuery,
 } from "@/services/productApi";
-import FullPageLoader from "../FullPageLoader";
 
 const productSchema = z.object({
   name: z.string().min(1, { message: "Product name is required" }),
@@ -95,7 +95,7 @@ type ProductFormValues = z.infer<typeof productSchema>;
 const steps = ["Basic Info", "Category", "Variants", "Summary"];
 type formModeTypes = "ADD" | "EDIT";
 
-export function AddProductForm() {
+export default function AddProductForm() {
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(0);
   const [formMode, setFormMode] = useState<formModeTypes>("ADD");

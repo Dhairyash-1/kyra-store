@@ -24,6 +24,7 @@ const MyProfileLayout = () => {
           {titleMap[location.pathname]}
         </h1>
         <button
+          aria-label="menu open icon"
           onClick={() => setIsMenuOpen(true)}
           className="rounded-lg p-2 hover:bg-gray-100 lg:hidden"
         >

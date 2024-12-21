@@ -33,7 +33,11 @@ export function DashboardHeader() {
 
       {/* Notification and User Account */}
       <div className="flex items-center">
-        <Button variant="ghost" className="text-gray-800">
+        <Button
+          aria-label="notification"
+          variant="ghost"
+          className="text-gray-800"
+        >
           <Bell />
         </Button>
 

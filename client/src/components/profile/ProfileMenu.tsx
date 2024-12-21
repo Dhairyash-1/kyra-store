@@ -63,7 +63,7 @@ const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProp) => {
       >
         <div className="flex items-center justify-between px-5 lg:hidden">
           <h2 className="font-bold">Profile Menu</h2>
-          <button onClick={onClose} className="p-2">
+          <button onClick={onClose} aria-label="close menu" className="p-2">
             <X size={24} />
           </button>
         </div>

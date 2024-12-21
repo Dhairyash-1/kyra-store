@@ -45,6 +45,7 @@ const TestimonialSection = () => {
           </h1>
           <div className="flex gap-4">
             <button
+              aria-label="move backward"
               onClick={handlePrev}
               className={`flex-center cursor-pointer rounded-lg bg-white-20 p-[12px] text-dark-500 hover:bg-dark-500 hover:text-white  ${
                 current === 1 ? "pointer-events-none opacity-50" : ""
@@ -54,6 +55,7 @@ const TestimonialSection = () => {
               <ArrowLeftIcon size={22} />
             </button>
             <button
+              aria-label="move forward"
               onClick={handleNext}
               className={`flex-center cursor-pointer rounded-lg bg-white-20 p-[12px] text-dark-500 hover:bg-dark-500 hover:text-white   ${
                 current === count ? "pointer-events-none opacity-50" : ""

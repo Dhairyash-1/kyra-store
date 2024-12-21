@@ -64,7 +64,7 @@ const EnterOtp = () => {
         {/* Left side - Image */}
         <div className="relative hidden lg:block lg:w-1/2">
           <div className="flex-center absolute left-6 top-6">
-            <img src={BrandLogo} className="h-6 w-6" />
+            <img src={BrandLogo} className="h-6 w-6" alt="logo" />
             <span className="ml-2 text-3xl font-bold">Kyra</span>
           </div>
           <img

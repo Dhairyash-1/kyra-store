@@ -38,6 +38,9 @@ export default function PasswordInput({
 
         <button
           type="button"
+          aria-label={
+            showPassword ? "hide password icon" : "show password icon"
+          }
           className="absolute inset-y-0 right-3 flex items-center"
           onClick={() => setShowPassword((prev) => !prev)}
         >

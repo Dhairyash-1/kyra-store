@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 import FullPageLoader from "./FullPageLoader";
 
@@ -37,14 +37,6 @@ const ProtectedRoute = ({
   ) {
     return <Navigate to={"/"} />;
   }
-  // useEffect(() => {}, [
-  //   isAuthenticated,
-  //   navigate,
-  //   isLoading,
-  //   location,
-  //   allowedRoles,
-  //   role,
-  // ]);
 
   // Return loading state until the authentication check is complete
   if (isLoading) {

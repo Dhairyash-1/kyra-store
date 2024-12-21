@@ -154,6 +154,7 @@ const EnhancedSearchInput = () => {
                 searchTerm && (
                   <button
                     onClick={() => setSearchTerm("")}
+                    aria-label="clear search"
                     className="absolute right-4 top-1/2 -translate-y-1/2"
                   >
                     <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
@@ -224,6 +225,7 @@ const EnhancedSearchInput = () => {
                         <img
                           src={item.productImage[0].url}
                           className="object-cover"
+                          alt={item.name}
                         />
                       </div>
                       <div className="flex-1 text-left">

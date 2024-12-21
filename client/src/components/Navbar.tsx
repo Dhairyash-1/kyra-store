@@ -2,7 +2,6 @@ import {
   ChevronDown,
   Heart,
   Menu,
-  Search,
   ShoppingBag,
   UserRoundIcon,
   XIcon,
@@ -11,13 +10,13 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
+import EnhancedSearchInput from "./EnhancedSearchInput";
 import { MegaMenu } from "./MegaMenu";
 import MiniCart from "./MiniCart";
 import ProfileDropdown from "./profile/ProfileDropdown";
 import brandLogo from "../assets/logo.png";
 
 import { RootState } from "@/store/store";
-import EnhancedSearchInput from "./EnhancedSearchInput";
 
 const Links = [
   { id: 1, name: "Home", url: "/" },
@@ -34,7 +33,9 @@ const Links = [
 
 const Navbar = () => {
   const [navOpen, setNavOpen] = useState(false);
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, isLoading: isAuthLoading } = useSelector(
+    (state: RootState) => state.auth
+  );
   const cartItemCount = useSelector(
     (state: RootState) => state.cart.items.length
   );
@@ -50,6 +51,7 @@ const Navbar = () => {
           <button
             className="bg-transparent p-0 focus:outline-none"
             onClick={handleNavToggle}
+            aria-label={navOpen ? "Close Menu icon" : "Open Menu icon"}
           >
             {navOpen ? (
               <XIcon
@@ -68,28 +70,28 @@ const Navbar = () => {
         </div>
 
         {/* Right side with Cart button */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <Link className="relative " to="/cart">
-            <button className="bg-transparent p-0 focus:outline-none">
+            <button
+              aria-label="mini cart icon"
+              className="bg-transparent p-2 transition-colors duration-200 hover:bg-gray-100 focus:outline-none"
+            >
               <ShoppingBag
                 className="h-6 w-6  text-dark-500"
                 aria-label="Add to Cart"
               />
             </button>
             {cartItemCount > 0 && (
-              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-dark-500 text-xs font-bold text-white">
+              <span className="absolute -right-0 -top-0 flex h-4 w-4 items-center justify-center rounded-full bg-dark-500 text-xs font-bold text-white">
                 {cartItemCount}
               </span>
             )}
           </Link>
-          <button className=" bg-transparent p-0 focus:outline-none ">
-            {/* <Search className="h-6 w-6 text-dark-500" aria-label="Search" /> */}
-            <EnhancedSearchInput />
-          </button>
-          <button className="hidden bg-transparent p-0 focus:outline-none xs:block">
+          <EnhancedSearchInput />
+          <button className="hidden bg-transparent p-2 transition-colors duration-200 hover:bg-gray-100 focus:outline-none xs:block">
             <Heart className="h-6 w-6 text-dark-500" aria-label="Wishlist" />
           </button>
-          {isAuthenticated ? (
+          {/* {isAuthenticated ? (
             <ProfileDropdown>
               <UserRoundIcon />
             </ProfileDropdown>
@@ -100,7 +102,7 @@ const Navbar = () => {
             >
               Login
             </Link>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -138,31 +140,33 @@ const Navbar = () => {
       </nav>
 
       {/* Menu icons for large screens */}
-      <div className="hidden  items-center justify-end gap-4  md:flex md:gap-8">
-        <button className="bg-transparent p-0 focus:outline-none">
-          {/* <Search className="h-6 w-6 text-dark-500" aria-label="Search" /> */}
-          <EnhancedSearchInput />
-        </button>
-        <Link to="/wishlists">
+      <div className="hidden  items-center justify-end gap-4  md:flex">
+        <EnhancedSearchInput />
+        <Link
+          to="/wishlists"
+          className="rounded-full p-2 transition-colors duration-200 hover:bg-gray-100"
+        >
           <Heart className="h-6 w-6 text-dark-500" aria-label="Wishlist" />
         </Link>
         <MiniCart>
           <div className="relative bg-transparent p-0 focus:outline-none">
-            <button className="bg-transparent p-0 focus:outline-none">
+            <button className="rounded-full bg-transparent p-2 transition-colors duration-200 hover:bg-gray-100 focus:outline-none">
               <ShoppingBag
                 className="h-6 w-6 text-dark-500"
                 aria-label="Add to Cart"
               />
             </button>
             {cartItemCount > 0 && (
-              <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-dark-500 text-xs font-bold text-white">
+              <span className="absolute -right-0 -top-0 flex h-5 w-5 items-center justify-center rounded-full bg-dark-500 text-xs font-bold text-white">
                 {cartItemCount}
               </span>
             )}
           </div>
         </MiniCart>
 
-        {isAuthenticated ? (
+        {isAuthLoading ? (
+          <div className="h-10 w-20 animate-pulse rounded-md bg-gray-300" />
+        ) : isAuthenticated ? (
           <ProfileDropdown>
             <UserRoundIcon />
           </ProfileDropdown>
@@ -201,6 +205,7 @@ const Navbar = () => {
             <h2 className="text-xl font-semibold text-dark-500">Menu</h2>
             <button
               className="p-1 transition-transform hover:scale-110 focus:outline-none"
+              aria-label="close menu"
               onClick={handleNavToggle}
             >
               <XIcon
@@ -233,6 +238,35 @@ const Navbar = () => {
               );
             })}
           </nav>
+
+          {/* Login Button or Profile Icon */}
+          <div className="mt-auto border-t border-gray-200 px-6 py-4">
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <ProfileDropdown>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      aria-label="Profile"
+                      className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200"
+                    >
+                      <UserRoundIcon className="h-6 w-6" />
+                    </button>
+                    <span className="text-md font-medium text-gray-700">
+                      My Account
+                    </span>
+                  </div>
+                </ProfileDropdown>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="block rounded-md bg-dark-500 px-4 py-2 text-center text-sm font-normal text-light-500 hover:bg-gray-800"
+                onClick={() => setNavOpen(false)}
+              >
+                Login
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </header>

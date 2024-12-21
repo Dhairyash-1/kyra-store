@@ -9,7 +9,10 @@ const CartIconWithBadge = () => {
   );
 
   return (
-    <button className="relative bg-transparent p-0 focus:outline-none">
+    <button
+      aria-label="cart item count"
+      className="relative bg-transparent p-0 focus:outline-none"
+    >
       <ShoppingBag
         className="h-6 w-6  text-dark-500"
         aria-label="Add to Cart"

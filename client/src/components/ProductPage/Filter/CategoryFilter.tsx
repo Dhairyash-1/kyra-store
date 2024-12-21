@@ -77,7 +77,10 @@ const CategoryFilter = () => {
     <div className="pb-6">
       <div className="flex items-center justify-between">
         <h1 className="text-base font-bold">Product Categories</h1>
-        <button onClick={() => setToggleFilter((prev) => !prev)}>
+        <button
+          aria-label="toggle filter"
+          onClick={() => setToggleFilter((prev) => !prev)}
+        >
           {toggleFilter ? (
             <ChevronDown size={24} strokeWidth={1.5} />
           ) : (
@@ -100,7 +103,10 @@ const CategoryFilter = () => {
                 </div>
 
                 {category.children && category?.children?.length > 0 && (
-                  <button onClick={() => toggleSubCategory(category.name)}>
+                  <button
+                    aria-label="toggle subcategory"
+                    onClick={() => toggleSubCategory(category.name)}
+                  >
                     {subCategoryState[category.name] ? (
                       <Minus size={24} strokeWidth={1.5} />
                     ) : (
