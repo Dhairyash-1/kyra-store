@@ -59,7 +59,10 @@ const SizeFilter = () => {
     <div className="py-4">
       <div className="flex items-center justify-between">
         <h1 className="text-base font-bold">Filter By Size</h1>
-        <button onClick={() => setIsFilterOpen((prev) => !prev)}>
+        <button
+          aria-label={isFilterOpen ? "close filter" : "expand filter"}
+          onClick={() => setIsFilterOpen((prev) => !prev)}
+        >
           {isFilterOpen ? (
             <ChevronUp size={24} strokeWidth={1.5} />
           ) : (

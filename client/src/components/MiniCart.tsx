@@ -32,7 +32,11 @@ const MiniCart = ({ children }: { children: ReactNode }) => {
               <div key={item.id} className="space-y-2">
                 <div className=" flex gap-4">
                   <div className="h-[60px] w-[60px] bg-white-5 p-1">
-                    <img src={item.image} className="h-full w-full" />
+                    <img
+                      src={item.image}
+                      alt="product image"
+                      className="h-full w-full"
+                    />
                   </div>
                   <div className="flex flex-col gap-2">
                     <p>{item.name}</p>

@@ -23,6 +23,7 @@ const LoaderButton: React.FC<LoaderButtonProps> = ({
 }) => {
   return (
     <Button
+      aria-label="loader"
       {...props}
       className={`w-full bg-dark-500 text-base font-light text-white hover:bg-gray-800 ${className}`}
       disabled={isLoading || disabled}

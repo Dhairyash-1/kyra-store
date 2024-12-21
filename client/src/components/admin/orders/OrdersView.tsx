@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
+import { OrderTable } from "../OrderTable";
 import { BulkActions } from "../products/BulkActions";
 import { Pagination } from "../products/Pagination";
 import { ProductsEmptyState } from "../products/ProductsEmptyState";
@@ -24,9 +25,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { useGetAdminProductsQuery } from "@/services/productApi";
-import { OrderTable } from "../OrderTable";
 import { useGetAllAdminOrdersQuery } from "@/services/orderApi";
+import { useGetAdminProductsQuery } from "@/services/productApi";
 
 const sortOptions = [
   { label: "Newest First", value: "newest" },
@@ -43,7 +43,7 @@ const filterOptions = [
   { id: "sale", label: "On Sale" },
 ];
 
-export function OrdersView() {
+export default function OrdersView() {
   const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");

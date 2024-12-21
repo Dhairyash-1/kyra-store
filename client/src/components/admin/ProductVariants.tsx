@@ -77,6 +77,7 @@ export function ProductVariants({ form, sizes, colors }: ProductVariantsProps) {
                 <Button
                   type="button"
                   variant="destructive"
+                  aria-label="delete variant"
                   size="sm"
                   className="mr-6"
                   onClick={(e) => {
@@ -140,6 +141,7 @@ export function ProductVariants({ form, sizes, colors }: ProductVariantsProps) {
                               <Button
                                 type="button"
                                 variant="link"
+                                aria-label="add new color"
                                 className="text-left text-blue-500"
                                 onClick={() => setNewColorModalOpen(true)}
                               >
@@ -167,6 +169,7 @@ export function ProductVariants({ form, sizes, colors }: ProductVariantsProps) {
       <Button
         type="button"
         variant="outline"
+        aria-label="add new variant"
         size="sm"
         onClick={() => appendVariant({ color: "", sizes: [], images: [] })}
       >
@@ -253,6 +256,7 @@ function VariantSizes({
                           <Button
                             type="button"
                             variant="link"
+                            aria-label="add new size"
                             className="text-left text-blue-500"
                             onClick={() => setNewSizeModalOpen(true)}
                           >
@@ -344,6 +348,7 @@ function VariantSizes({
               variant="destructive"
               size="sm"
               className="mt-4"
+              aria-label="remove size"
               onClick={() => removeSize(sizeIndex)}
             >
               <Trash2 className="mr-2 h-4 w-4" />

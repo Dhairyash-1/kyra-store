@@ -52,6 +52,7 @@ const Wishlist = () => {
             }
             bottomActionButton={
               <button
+                aria-label="move to cart"
                 onClick={async (e) => {
                   e.preventDefault();
                   e.stopPropagation();

@@ -33,7 +33,10 @@ const PriceFilter = () => {
     <div className="flex flex-col py-6">
       <div className="flex items-center justify-between">
         <h1 className="text-base font-bold">Filter By Price</h1>
-        <button onClick={() => setTogglePriceFilter((prev) => !prev)}>
+        <button
+          aria-label={togglePriceFilter ? "close filter" : "expand filter"}
+          onClick={() => setTogglePriceFilter((prev) => !prev)}
+        >
           {togglePriceFilter ? (
             <ChevronDown size={24} strokeWidth={1.5} />
           ) : (

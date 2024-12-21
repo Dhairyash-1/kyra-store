@@ -24,7 +24,7 @@ import { useUpdateProductCategoryMutation } from "@/services/productApi";
 interface CategorySelectionProps {
   form: UseFormReturn<any>;
   categories: any;
-  mode: "EDIT" | "SAVE";
+  mode: "EDIT" | "ADD";
 }
 
 export function CategorySelection({

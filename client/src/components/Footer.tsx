@@ -100,7 +100,10 @@ const Footer = () => {
               className="placeholder-text-white w-full border-none bg-transparent px-2 outline-none placeholder:font-normal placeholder:text-white"
               placeholder="Your Email"
             />
-            <button className="hover:text-dark-600 text-white">
+            <button
+              aria-label="right arrow icon"
+              className="hover:text-dark-600 text-white"
+            >
               <ArrowRightIcon />
             </button>
           </div>
@@ -109,10 +112,10 @@ const Footer = () => {
       <Separator className="mt-12 h-[1px] bg-gray-90 " />
       <div className="mt-2 flex w-full flex-col items-center justify-between py-4 md:flex-row">
         <div className="mb-4 flex items-center gap-2 md:mb-0">
-          <img src={visaIcon} className="h-8 w-12" />
-          <img src={masterIcon} className="h-8 w-12" />
-          <img src={gpayIcon} className="h-8 w-12" />
-          <img src={paypalIcon} className="h-8 w-14" />
+          <img src={visaIcon} alt={"visa-icon"} className="h-8 w-12" />
+          <img src={masterIcon} alt={"master-icon"} className="h-8 w-12" />
+          <img src={gpayIcon} alt={"gpay-icon"} className="h-8 w-12" />
+          <img src={paypalIcon} alt={"paypal-icon"} className="h-8 w-14" />
         </div>
         <p className="text-center text-base font-light md:text-left">
           {" "}

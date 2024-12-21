@@ -30,6 +30,8 @@ const ProductCard = ({
   function handleClick() {
     navigate(`/products/${slug}`, { state: { variantId: variantId } });
   }
+  const discountAmount = listPrice - price;
+  const discountPercentage = (discountAmount / listPrice) * 100;
   return (
     <div className="flex min-w-[150px] flex-col rounded-lg bg-white ">
       {/* Product Image Section */}
@@ -61,10 +63,17 @@ const ProductCard = ({
       <div className="flex flex-grow flex-col gap-2 p-4">
         <h4 className="text-base font-semibold text-gray-800">{brand}</h4>
         <h5 className="text-sm font-normal text-gray-600">{name}</h5>
-        <div className="flex items-center space-x-2">
-          <span className="text-lg font-medium text-gray-800">₹{price}.00</span>
-          <span className="text-sm font-normal text-gray-400 line-through">
-            ₹{listPrice}.00
+        <div className="flex flex-col items-start space-x-0 md:flex-row md:items-center md:space-x-2">
+          <div className="space-x-2 ">
+            <span className="text-lg font-medium text-gray-800">
+              ₹{price}.00
+            </span>
+            <span className="text-sm font-normal text-gray-400 line-through">
+              ₹{listPrice}.00
+            </span>
+          </div>
+          <span className="text-sm text-green-500">
+            {Math.round(discountPercentage)}% off
           </span>
         </div>
       </div>
