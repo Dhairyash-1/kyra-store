@@ -8,6 +8,7 @@ import FullPageLoader from "@/components/FullPageLoader";
 import ProductInfoTab from "@/components/ProductPage/ProductInfoTab";
 import QuantityController from "@/components/QuantityController";
 import { useToast } from "@/hooks/use-toast";
+import useBreadcrumbs from "@/hooks/useBreadCrumbs";
 import useCart from "@/hooks/useCart";
 import useWishlist from "@/hooks/useWishlist";
 import { useGetProductBySlugQuery } from "@/services/productApi";
@@ -35,12 +36,13 @@ const ProductPage = () => {
   const location = useLocation();
   const { slug } = useParams();
   const { toast } = useToast();
+  const breadcurmbs = useBreadcrumbs();
   const [imgIndex, setImgIndex] = useState(0);
   const [hoverImageColorId, setHoverImageColorId] = useState<number | null>(
     null
   );
   const [currentVariantId, setCurrentVariantId] = useState<number | null>(null);
-  const selectedVariantId = location.state.variantId;
+  const selectedVariantId = location.state?.variantId;
   const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
   const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null);
   const { handleAddToCart, items } = useCart();
@@ -145,16 +147,16 @@ const ProductPage = () => {
 
   return (
     <div className="mt-8 xl:px-20">
-      <BreadCrumb path={name} />
+      <BreadCrumb breadcrumbs={breadcurmbs} />
 
-      <div className="mt-8 flex flex-col items-center gap-10 lg:flex-row">
+      <div className="mt-8 flex flex-col items-center gap-10 lg:flex-row lg:items-start">
         {/* Left Section: Images */}
-        <div className="w-full lg:w-[40%]">
-          <div className="flex items-center justify-center ">
+        <div className="w-full sm:px-4 lg:w-[35%] lg:px-0">
+          <div className="flex items-center justify-center  ">
             <img
               src={currentImage?.url}
               alt={`Product ${name}`}
-              className="h-auto max-h-[500px] w-full object-contain"
+              className="aspect-auto w-full object-cover "
             />
           </div>
 
@@ -163,14 +165,14 @@ const ProductPage = () => {
               <div
                 key={i}
                 onClick={() => setImgIndex(i)}
-                className={`flex  h-24 w-24 cursor-pointer items-center justify-center rounded-md border ${
+                className={`flex  w-20 cursor-pointer items-center justify-center rounded border-2 p-2 ${
                   imgIndex === i ? "border-dark-500" : "border-gray-300"
                 } `}
               >
                 <img
                   src={img.url}
                   alt={`Thumbnail ${i + 1}`}
-                  className="aspect-square h-full w-full object-contain"
+                  className=" h-full w-full object-cover "
                 />
               </div>
             ))}
@@ -178,7 +180,7 @@ const ProductPage = () => {
         </div>
 
         {/* Right Section: Product Details */}
-        <div className="flex-1 lg:w-[60%]">
+        <div className="flex-1 lg:mt-6 lg:w-[60%]">
           <h1 className="text-2xl font-bold sm:text-3xl">{brand}</h1>
           <h5 className="mt-2 text-lg font-normal sm:text-xl">{name}</h5>
 
@@ -274,7 +276,7 @@ const ProductPage = () => {
 
           {/* Add to Cart Button */}
 
-          <div className="mt-10 flex h-12 items-center gap-16 sm:gap-8">
+          <div className="mt-10 flex h-12 items-center justify-between gap-6 sm:justify-normal sm:gap-8">
             {/* Quantity Controller */}
             <QuantityController product={currentProduct} />
             {/* Add to Cart Button */}

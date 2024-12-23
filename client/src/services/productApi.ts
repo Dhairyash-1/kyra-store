@@ -85,6 +85,7 @@ export const productApi = createApi({
     getBestSellerProducts: builder.query<bestSellerProductsResponse, void>({
       query: () => `/product/bestseller`,
       providesTags: ["bestseller"],
+      keepUnusedDataFor: 3600,
     }),
     getProductColors: builder.query<colorResponse, void>({
       query: () => `/product/colors`,
