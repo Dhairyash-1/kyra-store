@@ -119,21 +119,24 @@ const Navbar = () => {
       </Link>
 
       {/* Navigation links for large screens */}
-      <nav className=" hidden items-center md:flex md:gap-4 lg:gap-6">
+      <nav className="hidden items-center md:flex md:gap-6 lg:gap-8">
         {Links.map((item) => {
           if (item.name === "Shop") {
             return <MegaMenu key={item.id} />;
           }
           return (
             <Link
-              className={`flex text-base font-normal text-dark-500 ${
-                item.name === "Shop" ? "group relative" : ""
-              } `}
               key={item.id}
               to={item.url}
+              className="group relative flex items-center px-2 py-2 text-base font-medium text-dark-500"
             >
               {item.name}
-              {item?.icon && item.icon}
+              <div className="absolute inset-x-0 bottom-1 h-0.5 scale-x-0 bg-black transition-transform duration-300 group-hover:scale-x-100" />
+              {item?.icon && (
+                <span className="ml-1.5 transform transition-transform duration-200 group-hover:translate-x-1">
+                  {item.icon}
+                </span>
+              )}
             </Link>
           );
         })}

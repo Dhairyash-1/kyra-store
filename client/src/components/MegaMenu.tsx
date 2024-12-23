@@ -96,7 +96,7 @@ export const MegaMenu = () => {
       <div className="hidden md:block">
         <button
           // onMouseEnter={() => setIsMenuOpen(true)}
-          className="flex items-center gap-1 text-base font-normal text-dark-500"
+          className="flex items-center gap-1 text-base font-medium text-dark-500"
           onClick={() => setIsMenuOpen((prev) => !prev)}
         >
           Shop
