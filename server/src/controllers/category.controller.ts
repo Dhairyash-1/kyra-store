@@ -120,7 +120,7 @@ export const getAllProductCategory = asyncHandler(async (req, res) => {
   interface CategoryHierarchy {
     [key: string]: {
       id: number;
-      subcategories: { id: number; name: string }[];
+      subcategories: { id: number; name: string; slug: string }[];
     };
   }
 
@@ -132,6 +132,7 @@ export const getAllProductCategory = asyncHandler(async (req, res) => {
         subcategories: category.children.map((child) => ({
           id: child.id,
           name: child.name,
+          slug: child.slug,
         })),
       };
       return acc;

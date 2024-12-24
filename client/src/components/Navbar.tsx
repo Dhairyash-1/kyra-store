@@ -224,7 +224,7 @@ const Navbar = () => {
               if (item.name === "Shop") {
                 return (
                   <div key={item.id} className="relative">
-                    <MegaMenu />
+                    <MegaMenu setNavOpen={setNavOpen} />
                   </div>
                 );
               }

@@ -2,12 +2,16 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+import { useGetAllCategoryQuery } from "@/services/categoryApi";
+import { transformMenuCategories } from "@/utils/helper";
+
 interface SubCategoryProp {
   category: string;
   items: any[];
+  setNavOpen?: (state: boolean) => void;
 }
 
-const SubCategory = ({ category, items }: SubCategoryProp) => {
+const SubCategory = ({ category, items, setNavOpen }: SubCategoryProp) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -30,14 +34,17 @@ const SubCategory = ({ category, items }: SubCategoryProp) => {
       >
         <ul className="space-y-2 pb-3 pl-4">
           {items.map((item) => (
-            <li key={item}>
+            <li key={item.id}>
               <Link
-                to={`/shop/${category.toLowerCase()}/${item
-                  .toLowerCase()
-                  .replace(/ & /g, "-")}`}
+                to={`/products?subcategories=${item.slug}`}
                 className="text-sm text-gray-600 hover:text-dark-500"
+                onClick={() => {
+                  if (setNavOpen) {
+                    setNavOpen(false);
+                  }
+                }}
               >
-                {item}
+                {item.name}
               </Link>
             </li>
           ))}
@@ -47,42 +54,48 @@ const SubCategory = ({ category, items }: SubCategoryProp) => {
   );
 };
 
-export const MegaMenu = () => {
+export const MegaMenu = ({
+  setNavOpen,
+}: {
+  setNavOpen?: (state: boolean) => void;
+}) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data } = useGetAllCategoryQuery();
 
-  const menuCategories = {
-    Men: [
-      "T-Shirts",
-      "Casual Shirts",
-      "Formal Shirts",
-      "Jackets",
-      "Blazers & Coats",
-    ],
-    Women: [
-      "Kurtas & Suits",
-      "Sarees",
-      "Ethnic Wear",
-      "Lehenga Cholis",
-      "Jackets",
-    ],
-    Footwear: [
-      "Flats",
-      "Casual Shoes",
-      "Heels",
-      "Boots",
-      "Sports Shoes & Floaters",
-    ],
-    Kids: [
-      "T-Shirts",
-      "Shirts",
-      "Jeans",
-      "Trousers",
-      "Party Wear",
-      "Innerwear & Thermal",
-    ],
-  };
+  // const menuCategories = {
+  //   Men: [
+  //     "T-Shirts",
+  //     "Casual Shirts",
+  //     "Formal Shirts",
+  //     "Jackets",
+  //     "Blazers & Coats",
+  //   ],
+  //   Women: [
+  //     "Kurtas & Suits",
+  //     "Sarees",
+  //     "Ethnic Wear",
+  //     "Lehenga Cholis",
+  //     "Jackets",
+  //   ],
+  //   Footwear: [
+  //     "Flats",
+  //     "Casual Shoes",
+  //     "Heels",
+  //     "Boots",
+  //     "Sports Shoes & Floaters",
+  //   ],
+  //   Kids: [
+  //     "T-Shirts",
+  //     "Shirts",
+  //     "Jeans",
+  //     "Trousers",
+  //     "Party Wear",
+  //     "Innerwear & Thermal",
+  //   ],
+  // };
 
+  const menuCategories = data?.data ? transformMenuCategories(data?.data) : {};
   return (
     <>
       {/* overlay */}
@@ -123,14 +136,13 @@ export const MegaMenu = () => {
                     </h3>
                     <ul className="space-y-2">
                       {items.map((item) => (
-                        <li key={item}>
+                        <li key={item.id}>
                           <Link
-                            to={`/shop/${category.toLowerCase()}/${item
-                              .toLowerCase()
-                              .replace(/ & /g, "-")}`}
+                            to={`/products?subcategories=${item.slug}`}
                             className="text-sm text-gray-600 hover:text-dark-500"
+                            onClick={() => setIsMenuOpen(false)}
                           >
-                            {item}
+                            {item.name}
                           </Link>
                         </li>
                       ))}
@@ -167,7 +179,12 @@ export const MegaMenu = () => {
         >
           <div className="space-y-1 pl-4">
             {Object.entries(menuCategories).map(([category, items]) => (
-              <SubCategory key={category} category={category} items={items} />
+              <SubCategory
+                key={category}
+                category={category}
+                items={items}
+                setNavOpen={setNavOpen}
+              />
             ))}
           </div>
         </div>
