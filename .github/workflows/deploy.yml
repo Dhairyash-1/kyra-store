@@ -1,0 +1,59 @@
+name: Deploy Frontend and Backend
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy-frontend:
+    name: Deploy Frontend to S3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Install Dependencies
+        env:
+          VITE_SERVER_URL: ${{secrets.VITE_SERVER_URL}}
+        working-directory: client
+        run: |
+          npm install
+          npm run build
+
+      - name: Sync Frontend to S3
+        run: |
+          aws s3 sync client/dist/ s3://kyrastore-ecom/website/  --delete
+
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id EK0Q8Z518OSBJ --paths "/*"
+
+  deploy-backend:
+    name: Deploy Backend to EC2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Deploy Backend to EC2
+        run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --targets "Key=instanceIds,Values=${{ secrets.INSTANCE_ID }}" \
+            --parameters '{"commands":["export HOME=/home/ubuntu; git config --global --add safe.directory /home/ubuntu/kyra-store && cd /home/ubuntu/kyra-store/server && git pull origin master && npm install --no-optional && npm run build && pm2 restart kyra-store-server"]}' \
+            --region ap-south-1
