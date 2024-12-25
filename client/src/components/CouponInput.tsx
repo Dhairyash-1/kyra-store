@@ -9,6 +9,7 @@ import { Button } from "./ui/button";
 
 const CouponInput = () => {
   const [isDiscountOpen, setIsDiscountOpen] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   return (
     <Collapsible
@@ -31,6 +32,7 @@ const CouponInput = () => {
         >
           Enter Discount Code
         </label>
+        {isError && <p className="mb-1 text-red-500">invaild coupone code</p>}
         <div className="flex flex-col gap-2 sm:flex-row sm:gap-0">
           <input
             type="text"
@@ -41,6 +43,7 @@ const CouponInput = () => {
                    sm:rounded-r-none sm:py-3 sm:text-base"
           />
           <button
+            onClick={() => setIsError(true)}
             className="hover:bg-dark-600 w-full  border border-dark-500 bg-dark-500 
                    px-4 py-2 text-sm text-white transition-colors duration-300 focus:outline-none
                    focus:ring-2 focus:ring-dark-500 sm:w-auto

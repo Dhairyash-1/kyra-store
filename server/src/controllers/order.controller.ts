@@ -170,6 +170,7 @@ export const getAllUserOrders = asyncHandler(
               select: {
                 name: true,
                 brand: true,
+                productImage: true,
               },
             },
             productVariant: {
@@ -183,6 +184,8 @@ export const getAllUserOrders = asyncHandler(
                 },
                 color: {
                   select: {
+                    id: true,
+                    name: true,
                     images: true,
                   },
                 },
@@ -205,17 +208,26 @@ export const getAllUserOrders = asyncHandler(
       id: order.id,
       orderStatus: order.orderStatus,
       totalAmount: order.totalAmount,
-      items: order.items.map((item) => ({
-        id: item.id,
-        quantity: item.quantity,
-        name: item.product.name,
-        brand: item.product.brand,
-        price: item.productVariant.price,
-        size: item.productVariant.size?.name,
-        mainImage: item.productVariant.color
-          ? item.productVariant?.color.images[0].url
-          : null,
-      })),
+      items: order.items.map((item) => {
+        const variantColorId = item.productVariant.color?.id;
+        // Retrieve the main image based on the color of the product variant
+        const mainImage = variantColorId
+          ? item.product.productImage.find(
+              (image) => image.colorId === variantColorId && image.isMainImage
+            )?.url
+          : item.product.productImage.find((image) => image.isMainImage)?.url;
+
+        console.log(variantColorId, mainImage);
+        return {
+          id: item.id,
+          quantity: item.quantity,
+          name: item.product.name,
+          brand: item.product.brand,
+          price: item.productVariant.price,
+          size: item.productVariant.size?.name,
+          mainImage,
+        };
+      }),
     }));
 
     return res
@@ -263,6 +275,7 @@ export const getOrderDetailsById = asyncHandler(
               select: {
                 id: true,
                 name: true,
+                productImage: true,
               },
             },
             productVariant: {
@@ -271,7 +284,7 @@ export const getOrderDetailsById = asyncHandler(
                 price: true,
                 color: {
                   select: {
-                    images: true,
+                    id: true,
                   },
                 },
                 size: {
@@ -292,16 +305,23 @@ export const getOrderDetailsById = asyncHandler(
       orderStatus: order?.orderStatus,
       orderDate: order?.createdAt,
       totalAmount: order?.totalAmount,
-      items: order?.items.map((item) => ({
-        id: item.productVariant.id,
-        name: item.product.name,
-        price: item.productVariant.price,
-        quantity: item.quantity,
-        mainImage: item.productVariant.color
-          ? item.productVariant.color.images[0].url
-          : null,
-        size: item.productVariant.size?.name,
-      })),
+      items: order?.items.map((item) => {
+        const variantColorId = item.productVariant.color?.id;
+        const mainImage = variantColorId
+          ? item.product.productImage.find(
+              (image) => image.colorId === variantColorId && image.isMainImage
+            )?.url
+          : item.product.productImage.find((image) => image.isMainImage)?.url;
+
+        return {
+          id: item.productVariant.id,
+          name: item.product.name,
+          price: item.productVariant.price,
+          quantity: item.quantity,
+          mainImage: mainImage,
+          size: item.productVariant.size?.name,
+        };
+      }),
       shippingAddress: {
         id: order?.shippingAddress.id,
         phone: order?.shippingAddress.phone,

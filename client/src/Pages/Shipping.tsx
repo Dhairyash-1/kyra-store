@@ -1,7 +1,7 @@
 import { loadStripe } from "@stripe/stripe-js";
 import { PlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import AddressCard from "@/components/AddressCard";
@@ -25,6 +25,7 @@ import {
 } from "@/services/authApi";
 import { useCreateOrderMutation } from "@/services/orderApi";
 import { RootState } from "@/store/store";
+import { clearCart } from "@/features/cart/cartSlice";
 
 const stripePromise = loadStripe(
   "pk_test_51PuK56P76TUji6q9c0aFYwIKOO31SXrHWXzH4NHucF8NzLIWWaq3coMQYwWUUJq8Z4nO07VjDLBTnUznlFRdkTJD00aPPtN7uv"
@@ -53,7 +54,7 @@ const Shipping = () => {
   const [updateShippingAddress] = useUpdateShippingAddressMutation();
   const [createOrder, { isLoading: isOrdering }] = useCreateOrderMutation();
   const { items, totalPrice } = useSelector((state: RootState) => state.cart);
-
+  const dispatch = useDispatch();
   const { data: existingAddressData } = useGetShippingAddressByIdQuery(
     { id: editId || 0 },
     { skip: editId === null }
@@ -130,6 +131,9 @@ const Shipping = () => {
         cartItems: items,
         totalAmount: totalPrice,
       }).unwrap();
+      if (response.statusCode === 200) {
+        dispatch(clearCart());
+      }
       console.log("order", response);
       const stripe = await stripePromise;
       if (stripe) {

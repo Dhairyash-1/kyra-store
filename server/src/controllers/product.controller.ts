@@ -37,8 +37,8 @@ export const addSize = asyncHandler(async (req, res) => {
 export const addColor = asyncHandler(async (req, res) => {
   const { name, hexCode } = req.body;
 
-  if (!name || !hexCode) {
-    throw new ApiError(400, "All fields are required.");
+  if (!name) {
+    throw new ApiError(400, "color name is required.");
   }
 
   const existingColor = await prisma.color.findFirst({
