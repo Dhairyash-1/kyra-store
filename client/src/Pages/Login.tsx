@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import ClipLoader from "react-spinners/ClipLoader";
 
-import LoginPageBanner from "../assets/create-banner.png";
+import LoginPageBanner from "../assets/create-banner.webp";
 import BrandLogo from "../assets/logo.png";
 
 import PasswordInput from "@/components/PasswordInput";

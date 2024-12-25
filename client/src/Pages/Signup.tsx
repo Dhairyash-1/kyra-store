@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 
-import LoginPageBanner from "../assets/login-image.png";
+import LoginPageBanner from "../assets/login-image.webp";
 import BrandLogo from "../assets/logo.png";
 
 import LoaderButton from "@/components/LoaderButton";

@@ -1,21 +1,21 @@
-import jacket from "../assets/bestseller/blue-jacket.png";
-import shirt from "../assets/bestseller/casual-printed-multicolor-shirt.png";
-import frock from "../assets/bestseller/kids-frock.png";
-import kidsJacked from "../assets/bestseller/kids-jacket.png";
-import girlwear from "../assets/bestseller/kindpng_1614831.png";
-import shoes from "../assets/bestseller/puma-black-shoes.png";
-import tshirt from "../assets/bestseller/red-tshirt.png";
-import handBag from "../assets/bestseller/women-hand-held-bag.png";
-import ethnicWear from "../assets/ethnic-wear.png";
-import festivewear from "../assets/festive-wear.png";
-import formalwear from "../assets/formal-wear.png";
-import kidsWear from "../assets/kids-wear.png";
-import menWear from "../assets/men-wear.png";
+// import jacket from "../assets/bestseller/blue-jacket.png";
+// import shirt from "../assets/bestseller/casual-printed-multicolor-shirt.png";
+// import frock from "../assets/bestseller/kids-frock.png";
+// import kidsJacked from "../assets/bestseller/kids-jacket.png";
+// import girlwear from "../assets/bestseller/kindpng_1614831.png";
+// import shoes from "../assets/bestseller/puma-black-shoes.png";
+// import tshirt from "../assets/bestseller/red-tshirt.png";
+// import handBag from "../assets/bestseller/women-hand-held-bag.png";
+// import ethnicWear from "../assets/ethnic-wear.png";
+// import festivewear from "../assets/festive-wear.png";
+// import formalwear from "../assets/formal-wear.png";
+// import kidsWear from "../assets/kids-wear.png";
+// import menWear from "../assets/men-wear.png";
 import person1 from "../assets/t1.jpeg";
 import person2 from "../assets/t2.jpeg";
 import person3 from "../assets/t3.jpeg";
 import person4 from "../assets/t4.jpeg";
-import westernWear from "../assets/western-wear.png";
+// import westernWear from "../assets/western-wear.png";
 
 export const sampleReviews = [
   {
@@ -47,124 +47,124 @@ export const sampleReviews = [
   },
 ];
 
-export const productCategories = [
-  {
-    id: 1,
-    title: "Casual Wear",
-    image: menWear,
-    href: "/",
-  },
-  {
-    id: 4,
-    title: "Western Wear",
-    image: westernWear,
-    href: "/",
-  },
+// export const productCategories = [
+//   {
+//     id: 1,
+//     title: "Casual Wear",
+//     image: menWear,
+//     href: "/",
+//   },
+//   {
+//     id: 4,
+//     title: "Western Wear",
+//     image: westernWear,
+//     href: "/",
+//   },
 
-  {
-    id: 3,
-    title: "Kids Wear",
-    image: kidsWear,
-    href: "/",
-  },
-  {
-    id: 24,
-    title: "Festive Wear",
-    image: festivewear,
-    href: "/",
-  },
-  {
-    id: 247,
-    title: "Formal Wear",
-    image: formalwear,
-    href: "/",
-  },
+//   {
+//     id: 3,
+//     title: "Kids Wear",
+//     image: kidsWear,
+//     href: "/",
+//   },
+//   {
+//     id: 24,
+//     title: "Festive Wear",
+//     image: festivewear,
+//     href: "/",
+//   },
+//   {
+//     id: 247,
+//     title: "Formal Wear",
+//     image: formalwear,
+//     href: "/",
+//   },
 
-  {
-    id: 2,
-    title: "Ethnic Wear",
-    image: ethnicWear,
-    href: "/",
-  },
-];
+//   {
+//     id: 2,
+//     title: "Ethnic Wear",
+//     image: ethnicWear,
+//     href: "/",
+//   },
+// ];
 
-export const bestSellerProducts = [
-  {
-    id: 5,
-    brand: "Gucci",
-    title: "Leather Handbag",
-    price: "250",
-    salePrice: "200",
-    image: handBag,
-    href: "#",
-  },
-  {
-    id: 3,
-    brand: "Nike",
-    title: "Black Running Shoes",
-    price: "100",
-    salePrice: "80",
-    image: shoes,
-    href: "#",
-  },
-  {
-    id: 8,
-    brand: "Puma",
-    title: "Kids' Hooded Jacket",
-    price: "60",
-    salePrice: "45",
-    image: kidsJacked,
-    href: "#",
-  },
-  {
-    id: 7,
-    brand: "Adidas",
-    title: "Winter Jacket",
-    price: "120",
-    salePrice: "90",
-    image: jacket,
-    href: "#",
-  },
+// export const bestSellerProducts = [
+//   {
+//     id: 5,
+//     brand: "Gucci",
+//     title: "Leather Handbag",
+//     price: "250",
+//     salePrice: "200",
+//     image: handBag,
+//     href: "#",
+//   },
+//   {
+//     id: 3,
+//     brand: "Nike",
+//     title: "Black Running Shoes",
+//     price: "100",
+//     salePrice: "80",
+//     image: shoes,
+//     href: "#",
+//   },
+//   {
+//     id: 8,
+//     brand: "Puma",
+//     title: "Kids' Hooded Jacket",
+//     price: "60",
+//     salePrice: "45",
+//     image: kidsJacked,
+//     href: "#",
+//   },
+//   {
+//     id: 7,
+//     brand: "Adidas",
+//     title: "Winter Jacket",
+//     price: "120",
+//     salePrice: "90",
+//     image: jacket,
+//     href: "#",
+//   },
 
-  {
-    id: 6,
-    brand: "H&M",
-    title: "Girls' Pink Dress",
-    price: "45",
-    salePrice: "35",
-    image: girlwear,
-    href: "#",
-  },
+//   {
+//     id: 6,
+//     brand: "H&M",
+//     title: "Girls' Pink Dress",
+//     price: "45",
+//     salePrice: "35",
+//     image: girlwear,
+//     href: "#",
+//   },
 
-  {
-    id: 4,
-    brand: "Zara",
-    title: "Floral Summer Frock",
-    price: "70",
-    salePrice: "55",
-    image: frock,
-    href: "#",
-  },
+//   {
+//     id: 4,
+//     brand: "Zara",
+//     title: "Floral Summer Frock",
+//     price: "70",
+//     salePrice: "55",
+//     image: frock,
+//     href: "#",
+//   },
 
-  {
-    id: 1,
-    brand: "US POLO",
-    title: "Casual Multicolor Printed Shirt",
-    price: "50",
-    salePrice: "40",
-    image: shirt,
-    href: "#",
-  },
-  {
-    id: 2,
-    brand: "HRX",
-    title: "Red Cotton T-Shirt",
-    price: "30",
-    salePrice: "20",
-    image: tshirt,
-    href: "#",
-  },
-];
+//   {
+//     id: 1,
+//     brand: "US POLO",
+//     title: "Casual Multicolor Printed Shirt",
+//     price: "50",
+//     salePrice: "40",
+//     image: shirt,
+//     href: "#",
+//   },
+//   {
+//     id: 2,
+//     brand: "HRX",
+//     title: "Red Cotton T-Shirt",
+//     price: "30",
+//     salePrice: "20",
+//     image: tshirt,
+//     href: "#",
+//   },
+// ];
 
 export const testimonials = [
   {
