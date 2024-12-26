@@ -5,6 +5,38 @@ import ReviewForm from "../ReviewForm.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs.tsx";
 
 import { sampleReviews } from "@/constants/index.ts";
+
+const renderValue = (value: any) => {
+  if (Array.isArray(value)) {
+    // Render array as a comma-separated list
+    return value.join(", ");
+  } else if (typeof value === "object" && value !== null) {
+    // Render nested objects as key-value pairs
+    return (
+      <div className="space-y-2">
+        {Object.entries(value).map(([subKey, subValue]) => (
+          <div
+            key={subKey}
+            className="flex flex-col sm:flex-row sm:justify-between"
+          >
+            <span className="font-bold capitalize text-dark-500 sm:w-1/3">
+              {subKey
+                .replace(/([A-Z])/g, " $1")
+                .replace(/^./, (str) => str.toUpperCase())}
+              :
+            </span>
+            <span className="mt-1 text-dark-80 sm:ml-2 sm:mt-0 sm:w-2/3">
+              {renderValue(subValue)}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  } else {
+    // Render scalar values directly
+    return value;
+  }
+};
 interface ProductInfoTabPropType {
   description: string;
   additionalInfo: object;
@@ -14,6 +46,12 @@ const ProductInfoTab: FC<ProductInfoTabPropType> = ({
   additionalInfo,
   description,
 }) => {
+  console.log(additionalInfo);
+  const parsedAdditionalInfo =
+    typeof additionalInfo === "string"
+      ? JSON.parse(additionalInfo)
+      : additionalInfo;
+
   return (
     <Tabs defaultValue="reviews" className="mt-10 bg-transparent">
       <div className="relative">
@@ -41,16 +79,23 @@ const ProductInfoTab: FC<ProductInfoTabPropType> = ({
       </TabsContent>
 
       <TabsContent value="additionalinformation" className="mt-6">
-        <div className="grid gap-3">
-          {Object.entries(additionalInfo).map(([key, value]) => (
+        <div className="space-y-4">
+          {Object.entries(parsedAdditionalInfo).map(([key, value]) => (
             <div
               key={key}
-              className="flex flex-col sm:flex-row sm:items-center"
+              className="flex flex-col sm:flex-row sm:justify-between"
             >
+              {/* Key (formatted to user-friendly text) */}
               <span className="font-bold capitalize text-dark-500 sm:w-1/3">
-                {key}:
+                {key
+                  .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
+                  .replace(/^./, (str) => str.toUpperCase())}
+                :
               </span>
-              <span className="mt-1 text-dark-80 sm:ml-2 sm:mt-0">{value}</span>
+              {/* Value */}
+              <span className="mt-1 text-dark-80 sm:ml-2 sm:mt-0 sm:w-2/3">
+                {renderValue(value)}
+              </span>
             </div>
           ))}
         </div>
