@@ -7,6 +7,10 @@ import { updateAuthStatus } from "./features/auth/authSlice";
 import { useGetCurrentUserQuery } from "./services/authApi";
 import { RootState } from "./store/store";
 import ScrollToTop from "./utils/ScrollToTop";
+import OurStory from "./Pages/OurStory";
+import Blog from "./Pages/Blog";
+import NotFound from "./components/NotFound";
+import ContactUs from "./components/ContactUs";
 
 const FullPageLoader = React.lazy(() => import("./components/FullPageLoader"));
 const ProtectedRoute = React.lazy(() => import("./components/ProtectedRoute"));
@@ -107,6 +111,10 @@ const App = () => {
               <Route path="products" element={<Products />} />
               <Route path="products/:slug" element={<ProductPage />} />
               <Route path="cart" element={<CartPage />} />
+              <Route path="our-story" element={<OurStory />} />
+              <Route path="blog" element={<Blog />} />
+              <Route path="contact" element={<ContactUs />} />
+              <Route path="not-found" element={<NotFound />} />
             </Route>
 
             {/* Auth Layout */}

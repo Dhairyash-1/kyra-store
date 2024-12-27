@@ -1,4 +1,11 @@
-import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ChevronLeft,
+  ChevronRight,
+  Quote,
+  Star,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 import TestimonialCard from "./TestimonialCard";
@@ -17,68 +24,64 @@ const TestimonialSection = () => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!api) {
-      return;
-    }
-
+    if (!api) return;
     setCount(api.scrollSnapList().length);
     setCurrent(api.selectedScrollSnap() + 1);
-
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1);
-    });
+    api.on("select", () => setCurrent(api.selectedScrollSnap() + 1));
   }, [api]);
-  const handleNext = () => {
-    api?.scrollNext();
-  };
-
-  const handlePrev = () => {
-    api?.scrollPrev();
-  };
 
   return (
-    <section className="mt-24 w-full bg-gray-5 p-2 pb-8 lg:px-20">
-      <Carousel setApi={setApi} orientation="horizontal">
-        <div className="my-12 flex items-start justify-between">
-          <h1 className="text-2xl font-normal text-dark-90 xs:text-3xl md:text-4xl">
-            What our Customers say
-          </h1>
-          <div className="flex gap-4">
+    <section className="w-full bg-gradient-to-b from-white to-gray-50 py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-12 flex flex-col items-center justify-between sm:flex-row">
+          <div className="relative mb-8 sm:mb-0">
+            <h2 className="text-4xl font-bold text-black">Customer Stories</h2>
+            <div className="absolute -bottom-2 left-0 h-1 w-1/2 rounded-full bg-black" />
+          </div>
+
+          <div className="flex gap-3">
             <button
-              aria-label="move backward"
-              onClick={handlePrev}
-              className={`flex-center cursor-pointer rounded-lg bg-white-20 p-[12px] text-dark-500 hover:bg-dark-500 hover:text-white  ${
-                current === 1 ? "pointer-events-none opacity-50" : ""
+              onClick={() => api?.scrollPrev()}
+              className={`rounded-full border-2 border-black p-3 transition-all duration-300 hover:bg-black hover:text-white ${
+                current === 1
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:scale-110"
               }`}
               disabled={current === 1}
             >
-              <ArrowLeftIcon size={22} />
+              <ChevronLeft className="h-6 w-6" />
             </button>
             <button
-              aria-label="move forward"
-              onClick={handleNext}
-              className={`flex-center cursor-pointer rounded-lg bg-white-20 p-[12px] text-dark-500 hover:bg-dark-500 hover:text-white   ${
-                current === count ? "pointer-events-none opacity-50" : ""
+              onClick={() => api?.scrollNext()}
+              className={`rounded-full border-2 border-black p-3 transition-all duration-300 hover:bg-black hover:text-white ${
+                current === count
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:scale-110"
               }`}
               disabled={current === count}
             >
-              <ArrowRightIcon size={22} />
+              <ChevronRight className="h-6 w-6" />
             </button>
           </div>
         </div>
 
-        <CarouselContent className="flex h-full  items-stretch py-4">
-          {testimonials.map((item) => (
-            <CarouselItem
-              key={item.id}
-              className="h-full flex-grow sm:basis-1/2  lg:basis-1/3"
-            >
-              <TestimonialCard {...item} />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+        <Carousel setApi={setApi} className="w-full">
+          <CarouselContent className="-ml-2 md:-ml-4">
+            {testimonials.map((item, index) => (
+              <CarouselItem
+                key={item.id}
+                className="pl-2 sm:basis-1/2 md:pl-4 lg:basis-1/3"
+              >
+                <div className="group h-full">
+                  <TestimonialCard {...item} />
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      </div>
     </section>
   );
 };
+
 export default TestimonialSection;

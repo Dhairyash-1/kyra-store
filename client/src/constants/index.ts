@@ -11,11 +11,15 @@
 // import formalwear from "../assets/formal-wear.png";
 // import kidsWear from "../assets/kids-wear.png";
 // import menWear from "../assets/men-wear.png";
+// import westernWear from "../assets/western-wear.png";
 import person1 from "../assets/t1.jpeg";
 import person2 from "../assets/t2.jpeg";
 import person3 from "../assets/t3.jpeg";
 import person4 from "../assets/t4.jpeg";
-// import westernWear from "../assets/western-wear.png";
+const person5 =
+  "https://t3.ftcdn.net/jpg/07/43/72/86/360_F_743728699_CqajRgYuH2a7LrHxxUm29DKGyzrg4EAz.jpg";
+const person6 =
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQBQub8ANFGaBB4r_bKTsKOyWSv9T_njgySQ&s";
 
 export const sampleReviews = [
   {
@@ -187,12 +191,12 @@ export const testimonials = [
   },
   {
     id: 2,
-    name: "Michael Brown",
-    profession: "Software Engineer",
+    name: "James Smith",
+    profession: "Sales Executive",
     testimonial:
-      "Great shopping experience. The customer service team was really helpful and the clothes arrived quickly.",
+      "Amazing experience! The website was easy to navigate, and my order arrived on time. The quality of the products exceeded my expectations. Highly recommend!",
     rating: 4,
-    image: person2,
+    image: person5,
   },
   {
     id: 3,
@@ -214,11 +218,11 @@ export const testimonials = [
   },
   {
     id: 5,
-    name: "Emma Wilson",
-    profession: "Photographer",
+    name: "Jack Davis",
+    profession: "Designer",
     testimonial:
       "The designs are unique and stylish. I get compliments every time I wear their clothes, other accessories. Definitely worth it!",
     rating: 4,
-    image: person2,
+    image: person6,
   },
 ];
