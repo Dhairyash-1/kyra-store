@@ -156,7 +156,7 @@ export function BasicInformation({ form, mode }: BasicInformationProps) {
             <FormItem>
               <FormLabel>Product Status</FormLabel>
               <Select
-                defaultValue={field.value.toString()}
+                value={field.value.toString()}
                 onValueChange={(value) => field.onChange(value.toString())}
                 disabled={isInputDisabled}
               >

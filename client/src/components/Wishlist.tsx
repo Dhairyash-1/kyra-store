@@ -33,11 +33,11 @@ const Wishlist = () => {
             id={item.id}
             name={item.name}
             brand={item.brand}
-            listPrice={item.variants[0].listPrice}
-            price={item.variants[0].price}
-            image={item.variants[0].color.images[0].url}
+            listPrice={item.listPrice}
+            price={item.price}
+            image={item.mainImage}
             slug={item.slug}
-            variantId={item.variants[0].id}
+            variantId={item.variantId}
             topActionButton={
               <div
                 onClick={(e) => {
@@ -57,12 +57,12 @@ const Wishlist = () => {
                   e.preventDefault();
                   e.stopPropagation();
                   handleAddToCart({
-                    id: item.variants[0].id,
+                    id: item.variantId,
                     name: item.name,
-                    price: item.variants[0].price,
-                    color: item.variants[0].color,
-                    size: item.variants[0].size,
-                    image: item.variants[0].color.images[0].url,
+                    price: item.price,
+                    color: item.color,
+                    size: item.size,
+                    image: item.mainImage,
                     productId: item.id,
                     slug: item.slug,
                     quantity: 1,

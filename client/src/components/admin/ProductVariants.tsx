@@ -62,7 +62,7 @@ export function ProductVariants({ form, sizes, colors }: ProductVariantsProps) {
     setNewColorModalOpen(false);
     setNewColor({ name: "", hexCode: "" });
   };
-
+  console.log("colors", colors);
   return (
     <div className="space-y-4">
       <Accordion type="single" collapsible className="w-full">

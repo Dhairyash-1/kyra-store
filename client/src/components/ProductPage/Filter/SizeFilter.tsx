@@ -75,7 +75,7 @@ const SizeFilter = () => {
       {isFilterOpen && (
         <div className="mt-4 flex flex-col gap-4">
           {sizes
-            .filter((size) => size.productCount > 0)
+            .filter((size) => size.productCount > 0 && size.name !== "NOSIZE")
             .map((size) => (
               <SizeOption
                 key={size.id}

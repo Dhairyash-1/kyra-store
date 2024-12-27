@@ -255,24 +255,26 @@ const ProductPage = () => {
           </div>
 
           {/* Size Options */}
-          <div className="mt-10">
-            <h4 className="text-lg font-semibold">Size</h4>
-            <div className="mt-4 flex gap-2">
-              {sizes.map((size) => (
-                <button
-                  key={size.id}
-                  className={`rounded-md border px-4 py-2 ${
-                    selectedSizeId === size.id
-                      ? "border-dark-500 bg-dark-500 text-white"
-                      : "border-gray-300 bg-gray-100 text-gray-700"
-                  }`}
-                  onClick={() => setSelectedSizeId(size.id)}
-                >
-                  {size.name}
-                </button>
-              ))}
+          {sizes[0]?.name !== "NOSIZE" && (
+            <div className="mt-10">
+              <h4 className="text-lg font-semibold">Size</h4>
+              <div className="mt-4 flex gap-2">
+                {sizes.map((size) => (
+                  <button
+                    key={size.id}
+                    className={`rounded-md border px-4 py-2 ${
+                      selectedSizeId === size.id
+                        ? "border-dark-500 bg-dark-500 text-white"
+                        : "border-gray-300 bg-gray-100 text-gray-700"
+                    }`}
+                    onClick={() => setSelectedSizeId(size.id)}
+                  >
+                    {size.name}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Add to Cart Button */}
 

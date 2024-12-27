@@ -918,7 +918,7 @@ export const updateProductBasicInfo = asyncHandler(async (req, res) => {
   if (!id) return;
   const { name, brand, description, isPublished, slug, additionalInfo } =
     req.body;
-
+  console.log(typeof isPublished, isPublished);
   if (!name || !brand || !description || !slug || !additionalInfo) {
     throw new ApiError(400, "Field is required to update");
   }
@@ -932,7 +932,9 @@ export const updateProductBasicInfo = asyncHandler(async (req, res) => {
   } = {};
   if (name) updateData.name = name;
   if (brand) updateData.brand = brand;
-  if (isPublished) updateData.isPublished = isPublished === "true";
+  if (isPublished !== undefined) {
+    updateData.isPublished = isPublished === "true" || isPublished === true;
+  }
   if (description) updateData.description = description;
   if (slug) updateData.slug = slug;
   if (additionalInfo) updateData.additionalInfo = additionalInfo;

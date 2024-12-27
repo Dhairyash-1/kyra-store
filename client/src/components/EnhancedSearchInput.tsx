@@ -217,7 +217,7 @@ const EnhancedSearchInput = () => {
                 ) : (
                   searchResults.map((item) => (
                     <Link
-                      to={item.slug}
+                      to={`/products/${item.slug}`}
                       key={item.id}
                       className="flex w-full items-start space-x-4 rounded-lg p-3 transition-colors hover:bg-gray-50"
                     >

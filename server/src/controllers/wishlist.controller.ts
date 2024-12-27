@@ -93,16 +93,36 @@ export const getAllUserWishlistProducts = asyncHandler(
               select: {
                 id: true,
                 name: true,
-                images: {
-                  where: { isMainImage: true },
-                  select: { url: true, isMainImage: true },
-                },
               },
             },
             size: { select: { id: true, name: true } },
           },
         },
+        productImage: true,
       },
+    });
+
+    const formattedProducts = products.map((product) => {
+      const variantColorId = product.variants[0]?.color?.id;
+
+      const mainImage = variantColorId
+        ? product.productImage.find(
+            (image) => image.colorId === variantColorId && image.isMainImage
+          )?.url
+        : product.productImage.find((image) => image.isMainImage)?.url;
+
+      return {
+        id: product.id,
+        name: product.name,
+        brand: product.brand,
+        slug: product.slug,
+        price: product.variants[0]?.price,
+        listPrice: product.variants[0]?.listPrice,
+        color: product.variants[0]?.color,
+        size: product.variants[0]?.size,
+        variantId: product.variants[0].id,
+        mainImage: mainImage,
+      };
     });
 
     return res
@@ -110,7 +130,7 @@ export const getAllUserWishlistProducts = asyncHandler(
       .json(
         new ApiResponse(
           200,
-          products,
+          formattedProducts,
           "All wishlist product fetched successfully"
         )
       );
