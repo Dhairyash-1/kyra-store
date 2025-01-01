@@ -652,38 +652,53 @@ export const getBestSellerProduct = asyncHandler(async (req, res) => {
         },
         select: {
           id: true,
+          size: true,
           listPrice: true,
           price: true,
-          color: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          size: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-      },
-      productImage: {
-        where: {
-          isMainImage: true,
-        },
-        select: {
-          isMainImage: true,
-          url: true,
+          colorId: true,
+          color: true,
         },
       },
     },
   });
 
+  const productIds = products.map((product) => product.id);
+  const images = await prisma.productImage.findMany({
+    where: {
+      productId: { in: productIds },
+      isMainImage: true,
+    },
+    select: {
+      productId: true,
+      colorId: true,
+      url: true,
+    },
+  });
+
+  const transformedProduct = products.map((product) => {
+    return {
+      ...product,
+      variants: product.variants.map((variant) => {
+        return {
+          ...variant,
+          images: images.filter(
+            (image) =>
+              image.colorId === variant.colorId &&
+              image.productId === product.id
+          ),
+        };
+      }),
+    };
+  });
+
   return res
     .status(200)
     .json(
-      new ApiResponse(200, products, "Bestseller product fetched successfully")
+      new ApiResponse(
+        200,
+        transformedProduct,
+        "Bestseller product fetched successfully"
+      )
     );
 });
 

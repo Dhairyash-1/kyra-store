@@ -55,5 +55,5 @@ jobs:
           aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --targets "Key=instanceIds,Values=${{ secrets.INSTANCE_ID }}" \
-            --parameters '{"commands":["export HOME=/home/ubuntu; git config --global --add safe.directory /home/ubuntu/kyra-store && cd /home/ubuntu/kyra-store/server && git pull origin master && npm install --no-optional && npm run build && pm2 restart kyra-store-server"]}' \
+            --parameters '{"commands":["export HOME=/home/ubuntu; git config --global --add safe.directory /home/ubuntu/kyra-store && cd /home/ubuntu/kyra-store/server && git pull origin master && npm install --omit=optional && npm run build && pm2 restart kyra-store-server"]}' \
             --region ap-south-1

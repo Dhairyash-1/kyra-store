@@ -105,7 +105,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "none",
-    maxAge: Number(process.env.COOKIE_MAX_AGE) || 3 * 60 * 60 * 1000,
+    maxAge: Number(process.env.COOKIE_MAX_AGE) || 3 * 24 * 60 * 60 * 1000,
   };
 
   const { password: _, refreshToken: __, ...userWithoutPasword } = user;

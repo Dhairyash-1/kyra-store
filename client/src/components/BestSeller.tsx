@@ -34,8 +34,9 @@ const BestSeller = () => {
                 brand: product.brand,
                 price: product.variants[0].price,
                 listPrice: product.variants[0].listPrice,
-                image: product.productImage[0].url,
+                image: product.variants[0].images[0].url,
                 slug: product.slug,
+                variantId: product.variants[0].id,
               };
               const cartItem = {
                 id: product.variants[0].id,
@@ -43,7 +44,7 @@ const BestSeller = () => {
                 name: product.name,
                 slug: product.slug,
                 price: product.variants[0].price,
-                image: product.productImage[0].url,
+                image: product.variants[0].images[0].url,
                 size: {
                   id: product.variants[0].size.id,
                   name: product.variants[0].size.name,
