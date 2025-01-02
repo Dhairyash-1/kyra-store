@@ -128,6 +128,7 @@ export const createOrder = asyncHandler(async (req: CustomRequest, res) => {
     metadata: {
       orderId: unpaidOrder.id,
     },
+    customer_email: req.user?.email,
     success_url: `${process.env.CORS_ORIGIN}/orders?status=success`,
     cancel_url: `${process.env.CORS_ORIGIN}/orders?status=failed`,
     expires_at: Math.floor(Date.now() / 1000) + 1800,
